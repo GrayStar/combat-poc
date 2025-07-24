@@ -11,7 +11,7 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		setBattle(battle);
 
 		setEnemies(
-			battle.enemyIds.reduce((accumulator, currentValue) => {
+			battle.enemyTypeIds.reduce((accumulator, currentValue) => {
 				const enemy = EnemyEntity(currentValue);
 
 				return {

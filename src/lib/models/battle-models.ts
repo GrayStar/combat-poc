@@ -1,4 +1,4 @@
-import { ENEMY_IDS } from '@/lib/models';
+import { ENEMY_TYPE_IDS } from '@/lib/models';
 
 export enum BATTLE_IDS {
 	TUTORIAL = 'TUTORIAL',
@@ -8,5 +8,5 @@ export enum BATTLE_IDS {
 export interface BattleModel {
 	battleId: string;
 	title: string;
-	enemyIds: ENEMY_IDS[];
+	enemyTypeIds: ENEMY_TYPE_IDS[];
 }

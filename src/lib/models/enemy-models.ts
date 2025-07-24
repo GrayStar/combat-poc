@@ -1,10 +1,10 @@
-export enum ENEMY_IDS {
+export enum ENEMY_TYPE_IDS {
 	SKELETON = 'SKELETON',
 	SPIDER = 'SPIDER',
 }
 
 export interface EnemyModel {
-	enemyId: string;
+	enemyTypeId: string;
 	title: string;
 	maxHealth: number;
 }

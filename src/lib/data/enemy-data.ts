@@ -1,13 +1,13 @@
-import { ENEMY_IDS, EnemyModel } from '@/lib/models';
+import { ENEMY_TYPE_IDS, EnemyModel } from '@/lib/models';
 
-export const enemyData: Record<ENEMY_IDS, EnemyModel> = {
-	[ENEMY_IDS.SKELETON]: {
-		enemyId: ENEMY_IDS.SKELETON,
+export const enemyData: Record<ENEMY_TYPE_IDS, EnemyModel> = {
+	[ENEMY_TYPE_IDS.SKELETON]: {
+		enemyTypeId: ENEMY_TYPE_IDS.SKELETON,
 		title: 'Skeleton',
 		maxHealth: 10,
 	},
-	[ENEMY_IDS.SPIDER]: {
-		enemyId: ENEMY_IDS.SPIDER,
+	[ENEMY_TYPE_IDS.SPIDER]: {
+		enemyTypeId: ENEMY_TYPE_IDS.SPIDER,
 		title: 'Spider',
 		maxHealth: 5,
 	},

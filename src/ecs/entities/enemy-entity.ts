@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { healthAdjuster } from '@/ecs/actions';
 import { enemyData } from '@/lib/data';
-import { ENEMY_IDS, EnemyModel } from '@/lib/models';
+import { ENEMY_TYPE_IDS, EnemyModel } from '@/lib/models';
 
 interface EnemyComposite extends EnemyModel {
 	readonly id: string;
@@ -9,13 +9,11 @@ interface EnemyComposite extends EnemyModel {
 
 export type EnemyInstance = ReturnType<typeof EnemyEntity>;
 
-export const EnemyEntity = (enemyId: ENEMY_IDS) => {
-	const enemyConfig = enemyData[enemyId];
+export const EnemyEntity = (enemyTypeId: ENEMY_TYPE_IDS) => {
+	const enemyConfig = enemyData[enemyTypeId];
 	const enemyComposite: EnemyComposite = {
 		...enemyConfig,
-		...{
-			id: uuidv4(),
-		},
+		id: uuidv4(),
 	};
 
 	return {
