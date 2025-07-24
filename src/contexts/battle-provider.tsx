@@ -1,15 +1,25 @@
 import { PropsWithChildren, useState } from 'react';
-import { BattleModel } from '@/lib/models';
+import { BattleModel, SPELL_IDS } from '@/lib/models';
 import { BattleContext } from '@/contexts';
 import { EnemyEntity, EnemyInstance } from '@/ecs/entities';
+import { PlayerEntity, PlayerInstance } from '@/ecs/entities/player-entity';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleModel>();
+
+	const [player, setPlayer] = useState<PlayerInstance>();
 	const [enemies, setEnemies] = useState<Record<string, EnemyInstance>>({});
 	const [combatLog, setCombatLog] = useState<string[]>([]);
 
 	const startBattle = (battle: BattleModel) => {
 		setBattle(battle);
+
+		setPlayer(() => {
+			const player = PlayerEntity();
+			player.setSpells(player.spellIds);
+
+			return player;
+		});
 
 		setEnemies(
 			battle.enemyTypeIds.reduce((accumulator, currentValue) => {
@@ -23,19 +33,37 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		);
 	};
 
-	const handleCastSpell = ({ targetId, amount }: { targetId: string; amount: number }) => {
-		setEnemies((previousValue) => {
-			previousValue[targetId].adjustHealth(amount);
+	const handleCastSpell = ({
+		casterId,
+		targetId,
+		spellId,
+	}: {
+		casterId: string;
+		targetId: string;
+		spellId: SPELL_IDS;
+	}) => {
+		console.log('casterId:', casterId);
+		console.log('targetId:', targetId);
+		console.log('spellId:', spellId);
+		// setEnemies((previousValue) => {
+		// 	previousValue[targetId].adjustHealth(amount);
 
-			return {
-				...previousValue,
-			};
-		});
+		// 	return {
+		// 		...previousValue,
+		// 	};
+		// });
 
-		setCombatLog((previousValue) => [...previousValue, `[${targetId}]: health adjusted by ${amount}`]);
+		setCombatLog((previousValue) => [...previousValue, `handleCastSpell fired.`]);
 	};
 
-	const value = { startBattle, battle, enemies, handleCastSpell, combatLog };
+	const value = {
+		startBattle,
+		battle,
+		player,
+		enemies,
+		handleCastSpell,
+		combatLog,
+	};
 
 	return <BattleContext.Provider value={value}>{children}</BattleContext.Provider>;
 };

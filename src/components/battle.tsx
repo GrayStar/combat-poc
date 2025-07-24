@@ -1,7 +1,7 @@
 import { useBattle } from '@/hooks';
 
 export const Battle = () => {
-	const { battle, enemies, handleCastSpell, combatLog } = useBattle();
+	const { battle, player, enemies, handleCastSpell, combatLog } = useBattle();
 
 	return (
 		<div>
@@ -12,28 +12,29 @@ export const Battle = () => {
 						<li key={enemy.id} className="px-4">
 							<p>{enemy.title}</p>
 							<p>health: {enemy.health}</p>
-							<button
-								onClick={() => {
-									handleCastSpell({ targetId: enemy.id, amount: -1 });
-								}}
-							>
-								Hurt
-							</button>
-							<button
-								onClick={() => {
-									handleCastSpell({ targetId: enemy.id, amount: +1 });
-								}}
-							>
-								Heal
-							</button>
 						</li>
 					);
 				})}
 			</ul>
+
+			<ul className="mb-5 d-flex align-items-center">
+				{player?.spells.map((spell) => (
+					<li key={spell.id}>
+						<button
+							onClick={() => {
+								handleCastSpell({ casterId: player.id, targetId: '', spellId: spell.spellId });
+							}}
+						>
+							{spell.title}
+						</button>
+					</li>
+				))}
+			</ul>
+
 			<div className="border bg-gray200 rounded">
 				<h3>Combat Log</h3>
-				{combatLog.map((message) => (
-					<p>{message}</p>
+				{combatLog.map((message, messageIndex) => (
+					<p key={messageIndex}>{message}</p>
 				))}
 			</div>
 		</div>

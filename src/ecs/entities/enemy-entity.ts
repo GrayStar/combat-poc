@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { healthAdjuster } from '@/ecs/actions';
 import { enemyData } from '@/lib/data';
 import { ENEMY_TYPE_IDS, EnemyModel } from '@/lib/models';
+import { manaAdjuster } from '../actions/adjust-mana';
 
 interface EnemyComposite extends EnemyModel {
 	readonly id: string;
@@ -19,5 +20,6 @@ export const EnemyEntity = (enemyTypeId: ENEMY_TYPE_IDS) => {
 	return {
 		...enemyComposite,
 		...healthAdjuster(enemyComposite, enemyComposite.maxHealth),
+		...manaAdjuster(enemyComposite, enemyComposite.maxMana),
 	};
 };

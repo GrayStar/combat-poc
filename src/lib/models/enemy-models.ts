@@ -7,4 +7,5 @@ export interface EnemyModel {
 	enemyTypeId: string;
 	title: string;
 	maxHealth: number;
+	maxMana: number;
 }

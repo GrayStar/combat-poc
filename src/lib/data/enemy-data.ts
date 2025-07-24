@@ -5,10 +5,12 @@ export const enemyData: Record<ENEMY_TYPE_IDS, EnemyModel> = {
 		enemyTypeId: ENEMY_TYPE_IDS.SKELETON,
 		title: 'Skeleton',
 		maxHealth: 10,
+		maxMana: 100,
 	},
 	[ENEMY_TYPE_IDS.SPIDER]: {
 		enemyTypeId: ENEMY_TYPE_IDS.SPIDER,
 		title: 'Spider',
 		maxHealth: 5,
+		maxMana: 100,
 	},
 };
