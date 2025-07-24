@@ -6,13 +6,11 @@ export const Battle = () => {
 	return (
 		<div>
 			<h3>{battle?.title}</h3>
-			<ul>
+			<ul className="mb-5 d-flex align-items-center">
 				{Object.values(enemies).map((enemy) => {
 					return (
-						<li key={enemy.id} className="mb-5">
-							<p>
-								{enemy.title}: {enemy.id}
-							</p>
+						<li key={enemy.id} className="px-4">
+							<p>{enemy.title}</p>
 							<p>health: {enemy.health}</p>
 							<button
 								onClick={() => {
