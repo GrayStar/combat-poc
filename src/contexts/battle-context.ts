@@ -7,6 +7,7 @@ interface BattleContextConfig {
 	battle: BattleModel | undefined;
 	enemies: Record<string, EnemyInstance>;
 	handleCastSpell(payload: { targetId: string; amount: number }): void;
+	combatLog: string[];
 }
 
 export const BattleContext = createContext({} as BattleContextConfig);

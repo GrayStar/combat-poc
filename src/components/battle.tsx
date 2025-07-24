@@ -1,7 +1,7 @@
 import { useBattle } from '@/hooks';
 
 export const Battle = () => {
-	const { battle, enemies, handleCastSpell } = useBattle();
+	const { battle, enemies, handleCastSpell, combatLog } = useBattle();
 
 	return (
 		<div>
@@ -32,6 +32,12 @@ export const Battle = () => {
 					);
 				})}
 			</ul>
+			<div className="border bg-gray200 rounded">
+				<h3>Combat Log</h3>
+				{combatLog.map((message) => (
+					<p>{message}</p>
+				))}
+			</div>
 		</div>
 	);
 };

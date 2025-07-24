@@ -6,6 +6,7 @@ import { EnemyEntity, EnemyInstance } from '@/ecs/entities';
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleModel>();
 	const [enemies, setEnemies] = useState<Record<string, EnemyInstance>>({});
+	const [combatLog, setCombatLog] = useState<string[]>([]);
 
 	const startBattle = (battle: BattleModel) => {
 		setBattle(battle);
@@ -30,9 +31,11 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 				...previousValue,
 			};
 		});
+
+		setCombatLog((previousValue) => [...previousValue, `[${targetId}]: health adjusted by ${amount}`]);
 	};
 
-	const value = { startBattle, battle, enemies, handleCastSpell };
+	const value = { startBattle, battle, enemies, handleCastSpell, combatLog };
 
 	return <BattleContext.Provider value={value}>{children}</BattleContext.Provider>;
 };
