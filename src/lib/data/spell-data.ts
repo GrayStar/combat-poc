@@ -13,7 +13,23 @@ export const spellData: Record<SPELL_IDS, SpellModel> = {
 		},
 		targetEffects: {
 			resources: {
-				health: -5,
+				health: -1,
+			},
+		},
+	},
+	[SPELL_IDS.HEAL]: {
+		spellId: SPELL_IDS.HEAL,
+		title: 'Heal',
+		description: 'Heal the target.',
+		castTimeDurationInMs: 1000,
+		casterEffects: {
+			resources: {
+				mana: -1,
+			},
+		},
+		targetEffects: {
+			resources: {
+				health: 5,
 			},
 		},
 	},

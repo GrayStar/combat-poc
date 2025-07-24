@@ -3,6 +3,7 @@ import { BattleModel, SPELL_IDS } from '@/lib/models';
 import { BattleContext } from '@/contexts';
 import { EnemyEntity, EnemyInstance } from '@/ecs/entities';
 import { PlayerEntity, PlayerInstance } from '@/ecs/entities/player-entity';
+import { SpellInstance } from '@/lib/instances';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleModel>();
@@ -33,7 +34,7 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		);
 	};
 
-	const handleCastSpell = ({
+	const handleCastSpell = async ({
 		casterId,
 		targetId,
 		spellId,
@@ -42,18 +43,39 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		targetId: string;
 		spellId: SPELL_IDS;
 	}) => {
+		// todo: change this spell instance generation to caster.castSpell
+		// caster.castSpell should apply buff/debuff alterations to the spell instance before the target recieves it
+		// eslint-disable-next-line no-console
 		console.log('casterId:', casterId);
-		console.log('targetId:', targetId);
-		console.log('spellId:', spellId);
-		// setEnemies((previousValue) => {
-		// 	previousValue[targetId].adjustHealth(amount);
 
-		// 	return {
-		// 		...previousValue,
-		// 	};
-		// });
+		try {
+			if (!player) {
+				throw new Error('player is undefined.');
+			}
 
-		setCombatLog((previousValue) => [...previousValue, `handleCastSpell fired.`]);
+			let spellCastInstance: SpellInstance;
+
+			setPlayer((previousValue) => {
+				if (!previousValue) {
+					return;
+				}
+
+				spellCastInstance = previousValue.castSpell(spellId);
+				return previousValue;
+			});
+
+			setEnemies((previousValue) => {
+				previousValue[targetId].recieveSpell(spellCastInstance);
+				return previousValue;
+			});
+
+			setCombatLog((previousValue) => [
+				...previousValue,
+				`__CASTER__ casts ${spellCastInstance.title} on __TARGET__.`,
+			]);
+		} catch (error) {
+			setCombatLog((previousValue) => [...previousValue, error as string]);
+		}
 	};
 
 	const value = {

@@ -1,5 +1,6 @@
 export enum SPELL_IDS {
 	FIREBALL = 'FIREBALL',
+	HEAL = 'HEAL',
 }
 
 export interface SpellModel {

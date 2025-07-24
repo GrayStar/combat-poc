@@ -18,10 +18,9 @@ export const PlayerEntity = () => {
 		id: uuidv4(),
 	};
 
-	return {
-		...playerComposite,
-		...healthAdjuster(playerComposite, playerComposite.maxHealth),
-		...manaAdjuster(playerComposite, playerComposite.maxMana),
-		...spellCaster(playerComposite),
-	};
+	const withHealth = healthAdjuster(playerComposite, playerComposite.maxHealth);
+	const withMana = manaAdjuster(withHealth, withHealth.maxHealth);
+	const withCast = spellCaster(withMana);
+
+	return withCast;
 };

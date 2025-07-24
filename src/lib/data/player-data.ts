@@ -4,5 +4,5 @@ export const playerData: PlayerModel = {
 	title: 'Player',
 	maxHealth: 10,
 	maxMana: 100,
-	spellIds: [SPELL_IDS.FIREBALL],
+	spellIds: [SPELL_IDS.FIREBALL, SPELL_IDS.HEAL],
 };

@@ -1,5 +1,6 @@
 import { useBattle } from '@/hooks';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
+import { Character, Spell } from '@/components';
 
 export const Battle = () => {
 	const { battle, player, enemies, handleCastSpell, combatLog } = useBattle();
@@ -28,60 +29,72 @@ export const Battle = () => {
 
 			<DragDropContext onDragEnd={handleDragEnd}>
 				<>
-					<div className="d-flex">
-						{Object.values(enemies).map((enemy) => {
-							return (
-								<Droppable droppableId={enemy.id}>
-									{(provided) => (
-										<div
-											key={enemy.id}
-											{...provided.droppableProps}
-											ref={provided.innerRef}
-											className="border"
-										>
-											<p>{enemy.title}</p>
-											<p>health: {enemy.health}</p>
-										</div>
-									)}
-								</Droppable>
-							);
-						})}
-					</div>
-
-					<div className="d-flex">
-						{player?.spells.map((spell, spellIndex) => (
-							<Droppable droppableId="SPELLS">
-								{(droppableProvided) => (
+					<div className="d-flex mb-5">
+						{Object.values(enemies).map((enemy) => (
+							<Droppable key={enemy.id} droppableId={enemy.id}>
+								{(provided) => (
 									<div
-										key={spell.id}
-										{...droppableProvided.droppableProps}
-										ref={droppableProvided.innerRef}
+										{...provided.droppableProps}
+										ref={provided.innerRef}
+										className="border rounded bg-white"
 									>
-										<Draggable key={spell.id} draggableId={spell.id} index={spellIndex}>
-											{(draggableProvided) => (
-												<div
-													ref={draggableProvided.innerRef}
-													{...draggableProvided.draggableProps}
-													{...draggableProvided.dragHandleProps}
-													className="border"
-													onClick={() => {
-														handleCastSpell({
-															casterId: player.id,
-															targetId: '',
-															spellId: spell.spellId,
-														});
-													}}
-												>
-													{spell.title}
-												</div>
-											)}
-										</Draggable>
-										{droppableProvided.placeholder}
+										<Character
+											title={enemy.title}
+											health={enemy.health}
+											maxHealth={enemy.maxHealth}
+											mana={enemy.mana}
+											maxMana={enemy.maxMana}
+										/>
 									</div>
 								)}
 							</Droppable>
 						))}
 					</div>
+
+					<div className="d-flex mb-5">
+						{player && (
+							<div className="border rounded bg-white">
+								<Character
+									title={player.title}
+									health={player.health}
+									maxHealth={player.maxHealth}
+									mana={player.mana}
+									maxMana={player.maxMana}
+								/>
+							</div>
+						)}
+					</div>
+
+					<Droppable droppableId="SPELLS" isDropDisabled direction="horizontal">
+						{(droppableProvided) => (
+							<div
+								{...droppableProvided.droppableProps}
+								ref={droppableProvided.innerRef}
+								className="d-flex"
+							>
+								{(player?.spells ?? []).map((spell, spellIndex) => (
+									<Draggable key={spell.id} draggableId={spell.id} index={spellIndex}>
+										{(draggableProvided, draggableSnapshot) => (
+											<>
+												<div
+													{...draggableProvided.draggableProps}
+													{...draggableProvided.dragHandleProps}
+													ref={draggableProvided.innerRef}
+												>
+													<Spell title={spell.title} />
+												</div>
+												{draggableSnapshot.isDragging && (
+													<div style={{ transform: 'none !important' }}>
+														<Spell title={spell.title} />
+													</div>
+												)}
+											</>
+										)}
+									</Draggable>
+								))}
+							</div>
+						)}
+					</Droppable>
 				</>
 			</DragDropContext>
 

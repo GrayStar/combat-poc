@@ -1,5 +1,7 @@
 import { SpellEntity, SpellInstance } from '@/lib/instances';
 import { SPELL_IDS } from '@/lib/models/spell-models';
+import { HealthAdjuster } from './adjust-health';
+import { ManaAdjuster } from './adjust-mana';
 
 export type SpellCasterComponents = {
 	spells: SpellInstance[];
@@ -11,12 +13,12 @@ export type SpellCasterSystems = {
 	setSpells(spellIds: SPELL_IDS[]): void;
 	startCastAnimation(castTimeDuration: number, callback: () => void): void;
 	stopCastAnimation(): void;
-	castSpell(spellId: SPELL_IDS, targetId: string): void;
+	castSpell(spellId: SPELL_IDS): SpellInstance;
 };
 
-export type SpellCaster<T> = T & SpellCasterComponents & SpellCasterSystems;
+export type SpellCaster<T, K> = T & K & SpellCasterComponents & SpellCasterSystems;
 
-export function spellCaster<T>(entity: T): SpellCaster<T> {
+export function spellCaster<T extends HealthAdjuster<K> & ManaAdjuster<K>, K>(entity: T): SpellCaster<T, K> {
 	let castAnimationTimeout: NodeJS.Timeout | undefined = undefined;
 
 	return {
@@ -53,118 +55,39 @@ export function spellCaster<T>(entity: T): SpellCaster<T> {
 				castAnimationTimeout = undefined;
 			}
 		},
-		castSpell(spellId, targetId) {
-			const spellOnActionBar = this.spells.find((s) => s.spellId === spellId);
+		castSpell(spellId) {
+			const entityKnowsSpell = !!this.spells.find((s) => s.spellId === spellId);
 
-			if (!spellOnActionBar) {
-				console.log(`__ENTITY__ does not know ${spellId}.`);
-				return;
+			if (!entityKnowsSpell) {
+				throw new Error('entity does not know spell.');
 			}
 
-			// if (this.health <= 0) {
-			// 	return;
-			// }
+			if (this.health <= 0) {
+				throw new Error('entity is dead.');
+			}
 
 			if (this.isCasting) {
-				return;
+				throw new Error('entity is busy.');
 			}
 
-			if (spellOnActionBar.isCoolingDown || spellOnActionBar.isGloballyCoolingDown) {
-				console.log(`__ENTITY__ cannot cast ${spellOnActionBar.title}, it is on cooldown.`);
-				return;
+			const spell = SpellEntity(spellId);
+
+			const spellHealthCost = spell.casterEffects?.resources.health ?? 0;
+			const castersNextHealthValue = this.health + spellHealthCost;
+			if (castersNextHealthValue <= 0) {
+				throw new Error('entity does not have enough health.');
 			}
 
-			console.log(targetId);
+			const spellManaCost = spell.casterEffects?.resources.mana ?? 0;
+			const castersNextManaValue = this.mana + spellManaCost;
+			if (castersNextManaValue <= 0) {
+				throw new Error('entity does not have enough mana.');
+			}
 
-			// Create a castable instance of the spell and apply the caster's status effects
-			// const spell = SpellEntity(spellId);
-			//const spellWithStatusEffects = that.applyStatusEffectsToOutgoingSpell(spell);
+			this.adjustHealth(spellHealthCost);
+			this.adjustMana(spellManaCost);
 
-			// const spellHealthCost = spellOnActionBar.casterEffects?.resources.health ?? 0;
-			// const castersNextHealthValue = this.health + spellHealthCost;
-			// if (castersNextHealthValue < 0) {
-			// 	console.log(`__ENTITY__ cannot cast ${spellOnActionBar.title}, not enough health.`);
-			// 	return;
-			// }
-
-			// const spellManaCost = spellOnActionBar.casterEffects?.resources.mana ?? 0;
-			// const castersNextManaValue = this.mana + spellManaCost;
-			// if (castersNextManaValue < 0) {
-			// 	console.log(`__ENTITY__ cannot cast ${spellOnActionBar.title}, not enough mana.`);
-			// 	return;
-			// }
-
-			// Find the target
-			// const party = parties[entity.partyId];
-			// const entities = party.getEntities();
-			// const target = entities[targetId];
-
-			// Determine the spells cast time duration
-			// const castTime = spell.castTimeDurationInMs ?? 0;
-
-			// If the spell has a cast time, trigger it, else cast it immediately
-			// if (castTime > 0) {
-			// 	this.startCastAnimation(castTime, castSpellWithStatusEffects);
-			// } else {
-			// 	castSpellWithStatusEffects();
-			// }
-
-			//function castSpellWithStatusEffects() {
-			// Cooldown the spell
-			// if (!spellWithStatusEffects.isStatusEffectDependency) {
-			// 	entity.spells.forEach((s: SpellInstance) => {
-			// 		if (s.spellId === spellId) {
-			// 			s.cooldown(() => emitUpdate(entity));
-			// 		} else {
-			// 			s.globalCooldown(() => emitUpdate(entity));
-			// 		}
-			// 	});
-			// }
-
-			// Adjust the caster's resources
-			//const healthAmount = get(spellWithStatusEffects, 'casterEffects.resources.health', 0);
-			//const manaAmount = get(spellWithStatusEffects, 'casterEffects.resources.mana', 0);
-			///that.adjustHealth(healthAmount);
-			//that.adjustMana(manaAmount);
-
-			// Apply the spell's status effects to the caster
-			// TODO: STACKS/AMOUNT LOGIC
-			// const casterStatusEffectsToAddById = get(
-			// 	spellWithStatusEffects,
-			// 	'casterEffects.statusEffectsToAddById',
-			// 	[]
-			// );
-			// const casterStatusEffectsToRemoveById = get(
-			// 	spellWithStatusEffects,
-			// 	'casterEffects.statusEffectsToRemoveById',
-			// 	[]
-			// );
-			// const casterStatusEffectsToRemoveByType = get(
-			// 	spellWithStatusEffects,
-			// 	'casterEffects.statusEffectsToRemoveByType',
-			// 	[]
-			// );
-			// casterStatusEffectsToAddById.forEach((spellStatusEffect: SpellStatusEffect) => {
-			// 	entity.getStatusEffect(spellStatusEffect.statusEffectId, entity);
-			// });
-			// casterStatusEffectsToRemoveById.forEach((spellStatusEffect: SpellStatusEffect) => {
-			// 	entity.loseStatusEffect(spellStatusEffect.statusEffectId);
-			// });
-			// casterStatusEffectsToRemoveByType.forEach((spellStatusEffect: SpellStatusEffectType) => {
-			// 	entity.loseStatusEffect(spellStatusEffect.typeId);
-			// });
-
-			// Summon familiars
-			// const familiarsToSummon = get(spellWithStatusEffects, 'familiarsToSummon', []);
-			// familiarsToSummon.forEach((familiarId: string) => {
-			//     party.addFamiliar(familiarId, caster.id);
-			// });
-
-			// Have the target recieve the updated spell
-			//target.recieveSpell(entity, target, spellWithStatusEffects);
-
-			// emitUpdate(entity);
-			//}
+			return spell;
 		},
 	};
 }
