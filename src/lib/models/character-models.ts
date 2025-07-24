@@ -7,7 +7,7 @@ export enum CHARACTER_TYPE_IDS {
 }
 
 export type CharacterModel = {
-	characterTypeId: string;
+	characterTypeId: CHARACTER_TYPE_IDS;
 	title: string;
 	maxHealth: number;
 	maxMana: number;
