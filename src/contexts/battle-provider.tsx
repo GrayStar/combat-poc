@@ -70,11 +70,11 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 			});
 
 			setCombatLog((previousValue) => [
-				...previousValue,
 				`__CASTER__ casts ${spellCastInstance.title} on __TARGET__.`,
+				...previousValue,
 			]);
 		} catch (error) {
-			setCombatLog((previousValue) => [...previousValue, error as string]);
+			setCombatLog((previousValue) => [error as string, ...previousValue]);
 		}
 	};
 
