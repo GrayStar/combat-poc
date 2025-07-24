@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { healthAdjuster } from '@/entities/actions';
+import { healthAdjuster } from '@/ecs/actions';
 import { enemyData } from '@/lib/data';
 import { ENEMY_IDS, EnemyModel } from '@/lib/models';
 
