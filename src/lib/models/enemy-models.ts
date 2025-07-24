@@ -6,5 +6,5 @@ export enum ENEMY_IDS {
 export interface EnemyModel {
 	enemyId: string;
 	title: string;
-	health: number;
+	maxHealth: number;
 }
