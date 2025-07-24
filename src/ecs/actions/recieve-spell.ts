@@ -1,5 +1,5 @@
 import { SpellInstance } from '@/lib/instances';
-import { HealthAdjuster, ManaAdjuster } from '@/ecs/actions';
+import { HealthAdjuster, ManaAdjuster, StatusEffectsApplier } from '@/ecs/actions';
 
 export type SpellRecieverSystems = {
 	recieveSpell(spellInstance: SpellInstance): void;
@@ -7,7 +7,9 @@ export type SpellRecieverSystems = {
 
 export type SpellReciever<T, K> = T & K & SpellRecieverSystems;
 
-export function spellReciever<T extends HealthAdjuster<K> & ManaAdjuster<K>, K>(entity: T): SpellReciever<T, K> {
+export function spellReciever<T extends HealthAdjuster<K> & ManaAdjuster<K> & StatusEffectsApplier<K>, K>(
+	entity: T
+): SpellReciever<T, K> {
 	return {
 		...entity,
 
@@ -15,12 +17,16 @@ export function spellReciever<T extends HealthAdjuster<K> & ManaAdjuster<K>, K>(
 
 		// systems
 		recieveSpell(spellInstance: SpellInstance) {
-			// TODO: apply entity status effcts (buffs/debuffs) to spell instance values before calculating amounts
-			const healthAmount = spellInstance.targetEffects?.resources.health ?? 0;
-			const manaAmount = spellInstance.targetEffects?.resources.mana ?? 0;
+			const spellWithStatusEffects = this.applyStatusEffectsToIncomingSpell(spellInstance);
+
+			const healthAmount = spellWithStatusEffects.targetEffects?.resources?.health ?? 0;
+			const manaAmount = spellWithStatusEffects.targetEffects?.resources?.mana ?? 0;
 
 			this.adjustHealth(healthAmount);
 			this.adjustMana(manaAmount);
+
+			const statusEffectIdsToAdd = spellInstance.targetEffects?.statusEffectsToAdd ?? [];
+			statusEffectIdsToAdd.forEach((statusEffectId) => this.getStatusEffect(statusEffectId));
 		},
 	};
 }

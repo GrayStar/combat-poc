@@ -1,7 +1,6 @@
 import { SpellEntity, SpellInstance } from '@/lib/instances';
 import { SPELL_IDS } from '@/lib/models/spell-models';
-import { HealthAdjuster } from './adjust-health';
-import { ManaAdjuster } from './adjust-mana';
+import { HealthAdjuster, ManaAdjuster, StatusEffectsApplier } from '@/ecs/actions';
 
 export type SpellCasterComponents = {
 	spells: SpellInstance[];
@@ -18,7 +17,9 @@ export type SpellCasterSystems = {
 
 export type SpellCaster<T, K> = T & K & SpellCasterComponents & SpellCasterSystems;
 
-export function spellCaster<T extends HealthAdjuster<K> & ManaAdjuster<K>, K>(entity: T): SpellCaster<T, K> {
+export function spellCaster<T extends HealthAdjuster<K> & ManaAdjuster<K> & StatusEffectsApplier<K>, K>(
+	entity: T
+): SpellCaster<T, K> {
 	let castAnimationTimeout: NodeJS.Timeout | undefined = undefined;
 
 	return {
@@ -71,14 +72,15 @@ export function spellCaster<T extends HealthAdjuster<K> & ManaAdjuster<K>, K>(en
 			}
 
 			const spell = SpellEntity(spellId);
+			const spellWithStatusEffects = this.applyStatusEffectsToOutgoingSpell(spell);
 
-			const spellHealthCost = spell.casterEffects?.resources.health ?? 0;
+			const spellHealthCost = spellWithStatusEffects.casterEffects?.resources?.health ?? 0;
 			const castersNextHealthValue = this.health + spellHealthCost;
 			if (castersNextHealthValue <= 0) {
 				throw new Error('entity does not have enough health.');
 			}
 
-			const spellManaCost = spell.casterEffects?.resources.mana ?? 0;
+			const spellManaCost = spellWithStatusEffects.casterEffects?.resources?.mana ?? 0;
 			const castersNextManaValue = this.mana + spellManaCost;
 			if (castersNextManaValue <= 0) {
 				throw new Error('entity does not have enough mana.');
@@ -87,7 +89,7 @@ export function spellCaster<T extends HealthAdjuster<K> & ManaAdjuster<K>, K>(en
 			this.adjustHealth(spellHealthCost);
 			this.adjustMana(spellManaCost);
 
-			return spell;
+			return spellWithStatusEffects;
 		},
 	};
 }

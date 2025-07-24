@@ -1,4 +1,5 @@
 import { Meter } from '@/components';
+import { StatusEffectInstance } from '@/lib/instances/status-effect-instance';
 import { useTheme } from '@/styles/hooks';
 
 interface CharacterProps {
@@ -7,13 +8,17 @@ interface CharacterProps {
 	maxHealth: number;
 	mana: number;
 	maxMana: number;
+	statusEffects: StatusEffectInstance[];
 }
 
-export const Character = ({ title, health, maxHealth, mana, maxMana }: CharacterProps) => {
+export const Character = ({ title, health, maxHealth, mana, maxMana, statusEffects }: CharacterProps) => {
 	const { theme } = useTheme();
 
 	return (
 		<div>
+			{statusEffects.map((i) => (
+				<div>{i.title}</div>
+			))}
 			<p className="m-0">
 				HP: {health}/{maxHealth}
 			</p>

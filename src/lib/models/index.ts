@@ -1,4 +1,4 @@
 export * from './battle-models';
-export * from './enemy-models';
-export * from './player-models';
+export * from './character-models';
 export * from './spell-models';
+export * from './status-effect-models';

@@ -1,37 +1,15 @@
 import { PropsWithChildren, useState } from 'react';
 import { BattleModel, SPELL_IDS } from '@/lib/models';
 import { BattleContext } from '@/contexts';
-import { EnemyEntity, EnemyInstance } from '@/ecs/entities';
-import { PlayerEntity, PlayerInstance } from '@/ecs/entities/player-entity';
-import { SpellInstance } from '@/lib/instances';
+import { BattleEntity, BattleInstance } from '@/lib/instances';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
-	const [battle, setBattle] = useState<BattleModel>();
-
-	const [player, setPlayer] = useState<PlayerInstance>();
-	const [enemies, setEnemies] = useState<Record<string, EnemyInstance>>({});
+	const [battle, setBattle] = useState<BattleInstance>();
 	const [combatLog, setCombatLog] = useState<string[]>([]);
 
 	const startBattle = (battle: BattleModel) => {
-		setBattle(battle);
-
-		setPlayer(() => {
-			const player = PlayerEntity();
-			player.setSpells(player.spellIds);
-
-			return player;
-		});
-
-		setEnemies(
-			battle.enemyTypeIds.reduce((accumulator, currentValue) => {
-				const enemy = EnemyEntity(currentValue);
-
-				return {
-					...accumulator,
-					[enemy.id]: enemy,
-				};
-			}, {} as typeof enemies)
-		);
+		const b = BattleEntity(battle.battleId);
+		setBattle(b);
 	};
 
 	const handleCastSpell = async ({
@@ -43,36 +21,31 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		targetId: string;
 		spellId: SPELL_IDS;
 	}) => {
-		// todo: change this spell instance generation to caster.castSpell
-		// caster.castSpell should apply buff/debuff alterations to the spell instance before the target recieves it
-		// eslint-disable-next-line no-console
-		console.log('casterId:', casterId);
-
 		try {
-			if (!player) {
-				throw new Error('player is undefined.');
-			}
-
-			let spellCastInstance: SpellInstance;
-
-			setPlayer((previousValue) => {
+			setBattle((previousValue) => {
 				if (!previousValue) {
-					return;
+					return undefined;
 				}
 
-				spellCastInstance = previousValue.castSpell(spellId);
-				return previousValue;
+				const allCharacters = {
+					...previousValue.friendlyCharacters,
+					...previousValue.hostileCharacters,
+				};
+				const caster = allCharacters[casterId];
+				const target = allCharacters[targetId];
+
+				const spell = caster?.castSpell(spellId);
+				target.recieveSpell(spell);
+
+				return {
+					...previousValue,
+				};
 			});
 
-			setEnemies((previousValue) => {
-				previousValue[targetId].recieveSpell(spellCastInstance);
-				return previousValue;
-			});
-
-			setCombatLog((previousValue) => [
-				`__CASTER__ casts ${spellCastInstance.title} on __TARGET__.`,
-				...previousValue,
-			]);
+			// setCombatLog((previousValue) => [
+			// 	`__CASTER__ casts ${spellCastInstance.title} on __TARGET__.`,
+			// 	...previousValue,
+			// ]);
 		} catch (error) {
 			setCombatLog((previousValue) => [error as string, ...previousValue]);
 		}
@@ -81,8 +54,6 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const value = {
 		startBattle,
 		battle,
-		player,
-		enemies,
 		handleCastSpell,
 		combatLog,
 	};

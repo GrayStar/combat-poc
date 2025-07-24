@@ -3,21 +3,23 @@ import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea
 import { Character, Spell } from '@/components';
 
 export const Battle = () => {
-	const { battle, player, enemies, handleCastSpell, combatLog } = useBattle();
+	const { battle, handleCastSpell, combatLog } = useBattle();
+	const availableSpells = Object.values(battle?.friendlyCharacters ?? {}).flatMap((i) => i.spells);
+	const availableFriendlyIds = Object.values(battle?.friendlyCharacters ?? {}).flatMap((i) => i.id);
 
 	const handleDragEnd = (result: DropResult) => {
 		if (!result.destination) {
 			return;
 		}
 
-		const spellId = player?.spells.find((s) => s.id === result.draggableId)?.spellId;
+		const spellId = availableSpells.find((s) => s.id === result.draggableId)?.spellId;
 
 		if (!spellId) {
 			return;
 		}
 
 		handleCastSpell({
-			casterId: player?.id ?? '',
+			casterId: availableFriendlyIds[0],
 			targetId: result.destination.droppableId,
 			spellId,
 		});
@@ -30,7 +32,7 @@ export const Battle = () => {
 			<DragDropContext onDragEnd={handleDragEnd}>
 				<>
 					<div className="d-flex mb-5">
-						{Object.values(enemies).map((enemy) => (
+						{Object.values(battle?.hostileCharacters ?? {}).map((enemy) => (
 							<Droppable key={enemy.id} droppableId={enemy.id}>
 								{(provided) => (
 									<div
@@ -44,6 +46,7 @@ export const Battle = () => {
 											maxHealth={enemy.maxHealth}
 											mana={enemy.mana}
 											maxMana={enemy.maxMana}
+											statusEffects={enemy.statusEffects}
 										/>
 									</div>
 								)}
@@ -52,17 +55,26 @@ export const Battle = () => {
 					</div>
 
 					<div className="d-flex mb-5">
-						{player && (
-							<div className="border rounded bg-white">
-								<Character
-									title={player.title}
-									health={player.health}
-									maxHealth={player.maxHealth}
-									mana={player.mana}
-									maxMana={player.maxMana}
-								/>
-							</div>
-						)}
+						{Object.values(battle?.friendlyCharacters ?? {}).map((friend) => (
+							<Droppable key={friend.id} droppableId={friend.id}>
+								{(provided) => (
+									<div
+										{...provided.droppableProps}
+										ref={provided.innerRef}
+										className="border rounded bg-white"
+									>
+										<Character
+											title={friend.title}
+											health={friend.health}
+											maxHealth={friend.maxHealth}
+											mana={friend.mana}
+											maxMana={friend.maxMana}
+											statusEffects={friend.statusEffects}
+										/>
+									</div>
+								)}
+							</Droppable>
+						))}
 					</div>
 
 					<Droppable droppableId="SPELLS" isDropDisabled direction="horizontal">
@@ -72,7 +84,7 @@ export const Battle = () => {
 								ref={droppableProvided.innerRef}
 								className="d-flex"
 							>
-								{(player?.spells ?? []).map((spell, spellIndex) => (
+								{availableSpells.map((spell, spellIndex) => (
 									<Draggable key={spell.id} draggableId={spell.id} index={spellIndex}>
 										{(draggableProvided, draggableSnapshot) => (
 											<>

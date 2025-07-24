@@ -1,4 +1,5 @@
-import { ENEMY_TYPE_IDS } from '@/lib/models';
+import { CharacterInstance } from '@/ecs/entities';
+import { CHARACTER_TYPE_IDS } from '@/lib/models';
 
 export enum BATTLE_IDS {
 	TUTORIAL = 'TUTORIAL',
@@ -6,7 +7,13 @@ export enum BATTLE_IDS {
 }
 
 export interface BattleModel {
-	battleId: string;
+	battleId: BATTLE_IDS;
 	title: string;
-	enemyTypeIds: ENEMY_TYPE_IDS[];
+	enemyTypeIds: CHARACTER_TYPE_IDS[];
 }
+
+export type BattleComposite = BattleModel & {
+	id: string;
+	hostileCharacters: Record<string, CharacterInstance>;
+	friendlyCharacters: Record<string, CharacterInstance>;
+};

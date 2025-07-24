@@ -1,1 +1,1 @@
-export * from './enemy-entity';
+export * from './character-entity';
