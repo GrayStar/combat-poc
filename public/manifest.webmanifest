@@ -1,0 +1,14 @@
+{
+	"short_name": "Combat POC",
+	"name": "Combat POC",
+	"description": "Combat POC React App",
+	"icons": [
+		{ "src": "/fav-192.png", "type": "image/png", "sizes": "192x192" },
+		{ "src": "/fav-512-maskable.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" },
+		{ "src": "/fav-512.png", "type": "image/png", "sizes": "512x512" }
+	],
+	"start_url": ".",
+	"theme_color": "#77206E",
+	"background_color": "#FFFFFF",
+	"display": "standalone"
+}
