@@ -3,31 +3,31 @@ import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea
 import { Character, Spell } from '@/components';
 
 export const Battle = () => {
-	const { battle, combatLog } = useBattle();
+	const { battle, handleCastSpell, combatLog } = useBattle();
 
 	if (!battle) {
 		return null;
 	}
 
 	const availableSpells = Object.values(battle.friendlyCharacters).flatMap((i) => Object.values(i.spells));
-	//const availableFriendlyIds = Object.values(battle.friendlyCharacters).flatMap((i) => i.characterId);
+	const availableFriendlyIds = Object.values(battle.friendlyCharacters).flatMap((i) => i.characterId);
 
 	const handleDragEnd = (result: DropResult) => {
 		if (!result.destination) {
 			return;
 		}
 
-		const spellId = availableSpells.find((s) => s.spellId === result.draggableId)?.spellId;
+		const spellId = availableSpells.find((s) => s.spellId === result.draggableId)?.spellTypeId;
 
 		if (!spellId) {
 			return;
 		}
 
-		// handleCastSpell({
-		// 	casterId: availableFriendlyIds[0],
-		// 	targetId: result.destination.droppableId,
-		// 	spellId,
-		// });
+		handleCastSpell({
+			casterId: availableFriendlyIds[0],
+			targetId: result.destination.droppableId,
+			spellId,
+		});
 	};
 
 	return (
