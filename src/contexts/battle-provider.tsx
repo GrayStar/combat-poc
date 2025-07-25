@@ -171,8 +171,15 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		};
 
 		const target = allCharacters[characterId];
-		delete target.statusEffects[statusEffect.statusEffectId];
+		const spellTypeIdsToCastOnTimeout = statusEffect.timeoutSpellTypeIds ?? [];
 
+		spellTypeIdsToCastOnTimeout.forEach((spellTypeId) => {
+			const spellConfig = spellData[spellTypeId];
+			const spell = getSpellInstance(spellConfig);
+			applySpellToTarget(spell, target);
+		});
+
+		delete target.statusEffects[statusEffect.statusEffectId];
 		setBattle(battleClone);
 	};
 

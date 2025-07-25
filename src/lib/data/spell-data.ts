@@ -34,7 +34,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		title: 'Scar',
 		description: 'Scar the target, leaving behind a scar.',
 		targetEffects: {
-			statusEffectsTypeIdsToAdd: [],
+			statusEffectsTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.SCARRED],
 		},
 	},
 	[SPELL_TYPE_ID.HEAL]: {
