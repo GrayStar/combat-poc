@@ -1,7 +1,8 @@
-import { SPELL_TYPE_ID, SpellInstance } from '@/lib/models';
+import { SPELL_TYPE_ID } from '@/lib/models';
 
 export enum STATUS_EFFECT_TYPE_ID {
 	BURN = 'BURN',
+	SCARRED = 'SCARRED',
 }
 
 export interface StatusEffectModel {
@@ -18,7 +19,9 @@ export interface StatusEffectModel {
 }
 
 export interface StatusEffectModifier {
-	property: keyof SpellInstance;
+	property: string[];
+	operation: 'add' | 'subtract' | 'multiply' | 'divide';
+	amount: number;
 }
 
 export interface StatusEffectInstance extends StatusEffectModel {

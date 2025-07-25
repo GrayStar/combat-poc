@@ -4,7 +4,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.FIREBALL]: {
 		spellTypeId: SPELL_TYPE_ID.FIREBALL,
 		title: 'Fireball',
-		description: 'Throw a ball of fire dealing damage. Applies Burn',
+		description: 'Throw a ball of fire, dealing damage. Applies Burn',
 		castTimeDurationInMs: 0,
 		casterEffects: {
 			resources: {
@@ -21,13 +21,21 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.BURN_TICK]: {
 		spellTypeId: SPELL_TYPE_ID.BURN_TICK,
 		title: 'Burn Tick',
-		description: 'Burns the target',
+		description: 'Burns the target.',
 		targetEffects: {
 			resources: {
 				health: -1,
 			},
 		},
 		isStatusEffectDependeny: true,
+	},
+	[SPELL_TYPE_ID.SCAR]: {
+		spellTypeId: SPELL_TYPE_ID.SCAR,
+		title: 'Scar',
+		description: 'Scar the target, leaving behind a scar.',
+		targetEffects: {
+			statusEffectsTypeIdsToAdd: [],
+		},
 	},
 	[SPELL_TYPE_ID.HEAL]: {
 		spellTypeId: SPELL_TYPE_ID.HEAL,

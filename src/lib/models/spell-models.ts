@@ -3,6 +3,7 @@ import { STATUS_EFFECT_TYPE_ID } from './status-effect-models';
 export enum SPELL_TYPE_ID {
 	FIREBALL = 'FIREBALL',
 	BURN_TICK = 'BURN_TICK',
+	SCAR = 'SCAR',
 	HEAL = 'HEAL',
 	LIFE_TAP = 'LIFE_TAP',
 }
