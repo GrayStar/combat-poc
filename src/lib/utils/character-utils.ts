@@ -31,3 +31,35 @@ const getSpellRecord = (spellTypeIds: SPELL_TYPE_ID[]) => {
 		};
 	}, {} as Record<string, SpellInstance>);
 };
+
+export const adjustCharacterHeathByAmount = (character: CharacterInstance, amount: number) => {
+	const nextHealthValue = character.health + amount;
+
+	if (nextHealthValue <= 0) {
+		character.health = 0;
+		return;
+	}
+
+	if (nextHealthValue >= character.maxHealth) {
+		character.health = character.maxHealth;
+		return;
+	}
+
+	character.health = nextHealthValue;
+};
+
+export const adjustCharacterManaByAmount = (character: CharacterInstance, amount: number) => {
+	const nextManaValue = character.mana + amount;
+
+	if (nextManaValue <= 0) {
+		character.mana = 0;
+		return;
+	}
+
+	if (nextManaValue >= character.maxMana) {
+		character.mana = character.maxMana;
+		return;
+	}
+
+	character.mana = nextManaValue;
+};

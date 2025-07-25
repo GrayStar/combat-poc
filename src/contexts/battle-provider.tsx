@@ -2,7 +2,12 @@ import { cloneDeep } from 'lodash';
 import { PropsWithChildren, useState } from 'react';
 import { BattleInstance, BattleModel, SPELL_TYPE_ID } from '@/lib/models';
 import { BattleContext } from '@/contexts';
-import { getBattleInstance, getSpellInstance } from '@/lib/utils';
+import {
+	adjustCharacterHeathByAmount,
+	adjustCharacterManaByAmount,
+	getBattleInstance,
+	getSpellInstance,
+} from '@/lib/utils';
 import { spellData } from '@/lib/data';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
@@ -81,10 +86,8 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		setBattle(battleClone);
 
 		function castSpellWithStatusEffects() {
-			// Todo: probably make a function that can take in the caster
-			// and the spell instance and return a new caster with the correct values
-			caster.health = caster.health + spellHealthCost;
-			caster.mana = caster.mana + spellManaCost;
+			adjustCharacterHeathByAmount(caster, spellHealthCost);
+			adjustCharacterManaByAmount(caster, spellManaCost);
 			// Todo: cooldown caster spell instance.
 			// Todo: apply caster status effects.
 			// Todo: remove caster status effects.
@@ -92,8 +95,8 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 			const spellHealthDamage = spellWithCasterStatusEffects.targetEffects?.resources?.health ?? 0;
 			const spellManaDamage = spellWithCasterStatusEffects.targetEffects?.resources?.mana ?? 0;
 
-			target.health = target.health + spellHealthDamage;
-			target.mana = target.mana + spellManaDamage;
+			adjustCharacterHeathByAmount(target, spellHealthDamage);
+			adjustCharacterManaByAmount(target, spellManaDamage);
 			// Todo: apply target status effects.
 			// Todo: remove target status effects.
 			// Todo: interrupt target if spell can do that.
