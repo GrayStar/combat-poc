@@ -24,7 +24,6 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }
 		overflow: 'hidden',
 		position: 'relative',
 		backgroundColor: theme.colors.gray400,
-		border: `1px solid ${theme.colors.black}`,
 	},
 	cooldown: {
 		left: 0,

@@ -8,12 +8,12 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		castTimeDurationInMs: 0,
 		casterEffects: {
 			resources: {
-				mana: -1,
+				mana: -5,
 			},
 		},
 		targetEffects: {
 			resources: {
-				health: -3,
+				health: -5,
 			},
 			statusEffectsTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.BURN],
 		},
