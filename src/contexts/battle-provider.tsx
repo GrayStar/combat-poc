@@ -12,7 +12,7 @@ import { spellData } from '@/lib/data';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleInstance>();
-	const [combatLog] = useState<string[]>([]);
+	const [combatLog, setCombatLog] = useState<string[]>([]);
 
 	const startBattle = (battle: BattleModel) => {
 		setBattle(getBattleInstance(battle));
@@ -29,7 +29,7 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 	}) => {
 		const battleClone = cloneDeep(battle);
 		if (!battleClone) {
-			console.log('battleClone is undefined.');
+			setCombatLog((previousValue) => ['[ERROR]: battleClone is undefined.', ...previousValue]);
 			return;
 		}
 
@@ -47,37 +47,36 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		const spellWithCasterStatusEffects = cloneDeep(spell);
 
 		if (caster.health <= 0) {
-			console.log(`${caster.title} is dead.`);
+			setCombatLog((previousValue) => [`${caster.title} is dead.`, ...previousValue]);
 			return;
 		}
 
 		if (caster.isCasting) {
-			console.log(`${caster.title} is busy.`);
+			setCombatLog((previousValue) => [`${caster.title} is busy.`, ...previousValue]);
 			return;
 		}
 
 		if (!casterKnowsSpell) {
-			console.log(`${caster.title} does not know ${spell.title}.`);
+			setCombatLog((previousValue) => [`${caster.title} does not know ${spell.title}.`, ...previousValue]);
 			return;
 		}
 
 		const spellHealthCost = spellWithCasterStatusEffects.casterEffects?.resources?.health ?? 0;
 		const castersNextHealthValue = caster.health + spellHealthCost;
 		if (castersNextHealthValue <= 0) {
-			console.log(`${caster.title} does not have enough health.`);
+			setCombatLog((previousValue) => [`${caster.title} does not have enough health.`, ...previousValue]);
 			return;
 		}
 
 		const spellManaCost = spellWithCasterStatusEffects.casterEffects?.resources?.mana ?? 0;
 		const castersNextManaValue = caster.mana + spellManaCost;
 		if (castersNextManaValue <= 0) {
-			console.log(`${caster.title} does not have enough mana.`);
+			setCombatLog((previousValue) => [`${caster.title} does not have enough mana.`, ...previousValue]);
 			return;
 		}
 
 		const spellCastDurationInMs = spellWithCasterStatusEffects.castTimeDurationInMs ?? 0;
 		if (spellCastDurationInMs > 0) {
-			console.log('animation for casting');
 			// Todo: animate casting?
 		} else {
 			castSpellWithStatusEffects();
