@@ -13,7 +13,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		},
 		targetEffects: {
 			resources: {
-				health: -5,
+				health: -10,
 			},
 			statusEffectsTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.BURN],
 		},

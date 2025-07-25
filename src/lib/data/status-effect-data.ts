@@ -18,7 +18,7 @@ export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> 
 		statusEffectTypeId: STATUS_EFFECT_TYPE_ID.SCARRED,
 		title: 'Scarred',
 		description: 'A scar that is sensitive to the touch, increases all damage taken.',
-		duration: 10000,
+		duration: 6000,
 		interval: 0,
 		outgoingSpellModifiers: [],
 		incomingSpellModifiers: [
