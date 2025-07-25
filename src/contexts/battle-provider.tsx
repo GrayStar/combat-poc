@@ -22,17 +22,23 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		targetId: string;
 		spellTypeId: SPELL_TYPE_ID;
 	}) => {
+		const battleClone = cloneDeep(battle);
+		if (!battleClone) {
+			console.log('battleClone is undefined.');
+			return;
+		}
+
 		const allCharacters = {
-			...battle?.friendlyCharacters,
-			...battle?.hostileCharacters,
+			...battleClone.friendlyCharacters,
+			...battleClone.hostileCharacters,
 		};
 
-		const caster = cloneDeep(allCharacters[casterId]);
-		const target = cloneDeep(allCharacters[targetId]);
+		const caster = allCharacters[casterId];
+		const target = allCharacters[targetId];
 		const casterKnowsSpell = !!Object.values(caster.spells).find((spell) => spell.spellTypeId === spellTypeId);
 		const spellConfig = spellData[spellTypeId];
 		const spell = getSpellInstance(spellConfig);
-		// TODO: run spell through function that applies caster statusEffects to it.
+		// TODO: run spell through function that applies caster statusEffects to it and returns that instead of cloneDeep.
 		const spellWithCasterStatusEffects = cloneDeep(spell);
 
 		if (caster.health <= 0) {
@@ -69,12 +75,30 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 			console.log('animation for casting');
 			// Todo: animate casting?
 		} else {
-			console.log('cast spell with status effects?');
+			castSpellWithStatusEffects();
 		}
 
-		console.log('caster:', caster);
-		console.log('target:', target);
-		console.log('spellWithCasterStatusEffects', spellWithCasterStatusEffects);
+		setBattle(battleClone);
+
+		function castSpellWithStatusEffects() {
+			// Todo: probably make a function that can take in the caster
+			// and the spell instance and return a new caster with the correct values
+			caster.health = caster.health + spellHealthCost;
+			caster.mana = caster.mana + spellManaCost;
+			// Todo: cooldown caster spell instance.
+			// Todo: apply caster status effects.
+			// Todo: remove caster status effects.
+
+			const spellHealthDamage = spellWithCasterStatusEffects.targetEffects?.resources?.health ?? 0;
+			const spellManaDamage = spellWithCasterStatusEffects.targetEffects?.resources?.mana ?? 0;
+
+			target.health = target.health + spellHealthDamage;
+			target.mana = target.mana + spellManaDamage;
+			// Todo: apply target status effects.
+			// Todo: remove target status effects.
+			// Todo: interrupt target if spell can do that.
+			// Todo: update enemy phase if i ever model that out.
+		}
 	};
 
 	const value = {
