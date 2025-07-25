@@ -1,11 +1,11 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
-import { BattleInstance, BattleModel, SPELL_IDS } from '@/lib/models';
+import { BattleInstance, BattleModel, SPELL_TYPE_ID } from '@/lib/models';
 import { BattleContext } from '@/contexts';
 import { getBattleInstance } from '@/lib/utils';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleInstance>();
-	const [combatLog, setCombatLog] = useState<string[]>([]);
+	const [combatLog] = useState<string[]>([]);
 
 	const startBattle = (battle: BattleModel) => {
 		setBattle(getBattleInstance(battle));
@@ -22,36 +22,11 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 	}: {
 		casterId: string;
 		targetId: string;
-		spellId: SPELL_IDS;
+		spellId: SPELL_TYPE_ID;
 	}) => {
-		try {
-			setBattle((previousValue) => {
-				if (!previousValue) {
-					return undefined;
-				}
-
-				const allCharacters = {
-					...previousValue.friendlyCharacters,
-					...previousValue.hostileCharacters,
-				};
-				const caster = allCharacters[casterId];
-				const target = allCharacters[targetId];
-
-				const spell = caster?.castSpell(spellId);
-				target.recieveSpell(spell);
-
-				return {
-					...previousValue,
-				};
-			});
-
-			// setCombatLog((previousValue) => [
-			// 	`__CASTER__ casts ${spellCastInstance.title} on __TARGET__.`,
-			// 	...previousValue,
-			// ]);
-		} catch (error) {
-			setCombatLog((previousValue) => [error as string, ...previousValue]);
-		}
+		console.log('casterId', casterId);
+		console.log('targetId', targetId);
+		console.log('spellId', spellId);
 	};
 
 	const value = {

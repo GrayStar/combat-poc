@@ -1,38 +1,44 @@
 import { useBattle } from '@/hooks';
-// import {  DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
+import { Character, Spell } from '@/components';
 
 export const Battle = () => {
 	const { battle, combatLog } = useBattle();
-	// const availableSpells = Object.values(battle?.friendlyCharacters ?? {}).flatMap((i) => i.spells);
-	// const availableFriendlyIds = Object.values(battle?.friendlyCharacters ?? {}).flatMap((i) => i.id);
 
-	// const handleDragEnd = (result: DropResult) => {
-	// 	if (!result.destination) {
-	// 		return;
-	// 	}
+	if (!battle) {
+		return null;
+	}
 
-	// 	const spellId = availableSpells.find((s) => s.id === result.draggableId)?.spellId;
+	const availableSpells = Object.values(battle.friendlyCharacters).flatMap((i) => Object.values(i.spells));
+	//const availableFriendlyIds = Object.values(battle.friendlyCharacters).flatMap((i) => i.characterId);
 
-	// 	if (!spellId) {
-	// 		return;
-	// 	}
+	const handleDragEnd = (result: DropResult) => {
+		if (!result.destination) {
+			return;
+		}
 
-	// 	handleCastSpell({
-	// 		casterId: availableFriendlyIds[0],
-	// 		targetId: result.destination.droppableId,
-	// 		spellId,
-	// 	});
-	// };
+		const spellId = availableSpells.find((s) => s.spellId === result.draggableId)?.spellId;
+
+		if (!spellId) {
+			return;
+		}
+
+		// handleCastSpell({
+		// 	casterId: availableFriendlyIds[0],
+		// 	targetId: result.destination.droppableId,
+		// 	spellId,
+		// });
+	};
 
 	return (
 		<div>
 			<h3>{battle?.title}</h3>
 
-			{/* <DragDropContext onDragEnd={handleDragEnd}>
+			<DragDropContext onDragEnd={handleDragEnd}>
 				<>
 					<div className="d-flex mb-5">
 						{Object.values(battle?.hostileCharacters ?? {}).map((enemy) => (
-							<Droppable key={enemy.id} droppableId={enemy.id}>
+							<Droppable key={enemy.characterId} droppableId={enemy.characterId}>
 								{(provided) => (
 									<div
 										{...provided.droppableProps}
@@ -45,7 +51,6 @@ export const Battle = () => {
 											maxHealth={enemy.maxHealth}
 											mana={enemy.mana}
 											maxMana={enemy.maxMana}
-											statusEffects={enemy.statusEffects}
 										/>
 									</div>
 								)}
@@ -55,7 +60,7 @@ export const Battle = () => {
 
 					<div className="d-flex mb-5">
 						{Object.values(battle?.friendlyCharacters ?? {}).map((friend) => (
-							<Droppable key={friend.id} droppableId={friend.id}>
+							<Droppable key={friend.characterId} droppableId={friend.characterId}>
 								{(provided) => (
 									<div
 										{...provided.droppableProps}
@@ -68,7 +73,6 @@ export const Battle = () => {
 											maxHealth={friend.maxHealth}
 											mana={friend.mana}
 											maxMana={friend.maxMana}
-											statusEffects={friend.statusEffects}
 										/>
 									</div>
 								)}
@@ -84,7 +88,7 @@ export const Battle = () => {
 								className="d-flex"
 							>
 								{availableSpells.map((spell, spellIndex) => (
-									<Draggable key={spell.id} draggableId={spell.id} index={spellIndex}>
+									<Draggable key={spell.spellId} draggableId={spell.spellId} index={spellIndex}>
 										{(draggableProvided, draggableSnapshot) => (
 											<>
 												<div
@@ -107,7 +111,7 @@ export const Battle = () => {
 						)}
 					</Droppable>
 				</>
-			</DragDropContext> */}
+			</DragDropContext>
 
 			<div className="border bg-gray200 rounded">
 				<h3>Combat Log</h3>

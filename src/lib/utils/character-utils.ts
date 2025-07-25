@@ -4,13 +4,19 @@ import { spellData } from '@/lib/data';
 import { getSpellInstance } from '@/lib/utils';
 
 export const getCharacterInstance = (character: CharacterModel): CharacterInstance => {
-	return {
+	const characterInstance: CharacterInstance = {
+		title: character.title,
 		characterId: uuidv4(),
 		characterTypeId: character.characterTypeId,
+		health: character.maxHealth,
 		maxHealth: character.maxHealth,
+		mana: character.maxMana,
 		maxMana: character.maxMana,
 		spells: getSpellRecord(character.spellIds),
+		statusEffects: {},
 	};
+
+	return characterInstance;
 };
 
 const getSpellRecord = (spellTypeIds: SPELL_TYPE_ID[]) => {

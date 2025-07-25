@@ -4,13 +4,15 @@ import { getCharacterInstance } from './character-utils';
 import { characterData } from '@/lib/data';
 
 export const getBattleInstance = (battle: BattleModel): BattleInstance => {
-	return {
+	const battleInstance = {
 		battleId: uuidv4(),
 		battleTypeId: battle.battleTypeId,
 		title: battle.title,
 		hostileCharacters: getCharacterRecord(battle.hostileCharacterTypeIds),
 		friendlyCharacters: getCharacterRecord(battle.friendlyCharacterTypeIds),
 	};
+
+	return battleInstance;
 };
 
 const getCharacterRecord = (characterTypeIds: CHARACTER_TYPE_IDS[]) => {

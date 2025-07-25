@@ -1,5 +1,4 @@
 import { Meter } from '@/components';
-import { StatusEffectInstance } from '@/lib/instances/status-effect-instance';
 import { useTheme } from '@/styles/hooks';
 
 interface CharacterProps {
@@ -8,7 +7,6 @@ interface CharacterProps {
 	maxHealth: number;
 	mana: number;
 	maxMana: number;
-	statusEffects: StatusEffectInstance[];
 }
 
 export const Character = ({ title, health, maxHealth, mana, maxMana }: CharacterProps) => {

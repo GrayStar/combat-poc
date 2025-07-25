@@ -13,7 +13,7 @@ const POC = () => {
 
 	return (
 		<div>
-			<h1>Available Battles</h1>
+			<h3>Available Battles</h3>
 			<ul>
 				{Object.values(battleData).map((battle) => (
 					<li key={battle.battleTypeId}>

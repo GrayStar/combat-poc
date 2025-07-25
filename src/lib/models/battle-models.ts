@@ -1,5 +1,4 @@
-import { CharacterInstance } from '@/ecs/entities';
-import { CHARACTER_TYPE_IDS } from '@/lib/models';
+import { CHARACTER_TYPE_IDS, CharacterInstance } from '@/lib/models';
 
 export enum BATTLE_TYPE_ID {
 	TUTORIAL = 'TUTORIAL',
