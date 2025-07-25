@@ -13,14 +13,16 @@ export const Character = ({ character }: CharacterProps) => {
 
 	return (
 		<div>
-			{Object.entries(character.statusEffects).map(([key, value]) => (
-				<StatusEffect
-					key={key}
-					statusEffect={value}
-					intervalCallback={(se) => handleStatusEffectInterval(se, character.characterId)}
-					timeoutCallback={(se) => handleStatusEffectTimeout(se, character.characterId)}
-				/>
-			))}
+			<div className="d-flex">
+				{Object.entries(character.statusEffects).map(([key, value]) => (
+					<StatusEffect
+						key={key}
+						statusEffect={value}
+						intervalCallback={(se) => handleStatusEffectInterval(se, character.characterId)}
+						timeoutCallback={(se) => handleStatusEffectTimeout(se, character.characterId)}
+					/>
+				))}
+			</div>
 			<p className="m-0">
 				HP: {character.health}/{character.maxHealth}
 			</p>
