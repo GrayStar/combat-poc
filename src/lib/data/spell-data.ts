@@ -6,7 +6,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellTypeId: SPELL_TYPE_ID.FIREBALL,
 		title: 'Fireball',
 		description: 'Throw a ball of fire.',
-		castTimeDurationInMs: 1000,
+		castTimeDurationInMs: 0,
 		casterEffects: {
 			resources: {
 				mana: -1,

@@ -24,4 +24,5 @@ export type CharacterInstance = {
 	maxMana: number;
 	spells: Record<string, SpellInstance>;
 	statusEffects: Record<string, unknown>;
+	isCasting: boolean;
 };

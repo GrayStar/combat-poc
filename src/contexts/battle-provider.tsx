@@ -1,7 +1,9 @@
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { cloneDeep } from 'lodash';
+import { PropsWithChildren, useState } from 'react';
 import { BattleInstance, BattleModel, SPELL_TYPE_ID } from '@/lib/models';
 import { BattleContext } from '@/contexts';
-import { getBattleInstance } from '@/lib/utils';
+import { getBattleInstance, getSpellInstance } from '@/lib/utils';
+import { spellData } from '@/lib/data';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleInstance>();
@@ -11,22 +13,68 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		setBattle(getBattleInstance(battle));
 	};
 
-	useEffect(() => {
-		console.log('battle state:', battle);
-	}, [battle]);
-
 	const handleCastSpell = async ({
 		casterId,
 		targetId,
-		spellId,
+		spellTypeId,
 	}: {
 		casterId: string;
 		targetId: string;
-		spellId: SPELL_TYPE_ID;
+		spellTypeId: SPELL_TYPE_ID;
 	}) => {
-		console.log('casterId', casterId);
-		console.log('targetId', targetId);
-		console.log('spellId', spellId);
+		const allCharacters = {
+			...battle?.friendlyCharacters,
+			...battle?.hostileCharacters,
+		};
+
+		const caster = cloneDeep(allCharacters[casterId]);
+		const target = cloneDeep(allCharacters[targetId]);
+		const casterKnowsSpell = !!Object.values(caster.spells).find((spell) => spell.spellTypeId === spellTypeId);
+		const spellConfig = spellData[spellTypeId];
+		const spell = getSpellInstance(spellConfig);
+		// TODO: run spell through function that applies caster statusEffects to it.
+		const spellWithCasterStatusEffects = cloneDeep(spell);
+
+		if (caster.health <= 0) {
+			console.log(`${caster.title} is dead.`);
+			return;
+		}
+
+		if (caster.isCasting) {
+			console.log(`${caster.title} is busy.`);
+			return;
+		}
+
+		if (!casterKnowsSpell) {
+			console.log(`${caster.title} does not know ${spell.title}.`);
+			return;
+		}
+
+		const spellHealthCost = spellWithCasterStatusEffects.casterEffects?.resources?.health ?? 0;
+		const castersNextHealthValue = caster.health + spellHealthCost;
+		if (castersNextHealthValue <= 0) {
+			console.log(`${caster.title} does not have enough health.`);
+			return;
+		}
+
+		const spellManaCost = spellWithCasterStatusEffects.casterEffects?.resources?.mana ?? 0;
+		const castersNextManaValue = caster.mana + spellManaCost;
+		if (castersNextManaValue <= 0) {
+			console.log(`${caster.title} does not have enough mana.`);
+			return;
+		}
+
+		const spellCastDurationInMs = spellWithCasterStatusEffects.castTimeDurationInMs ?? 0;
+		if (spellCastDurationInMs > 0) {
+			console.log('animation for casting');
+			// Todo: animate casting?
+		} else {
+			console.log('cast spell with status effects?');
+		}
+
+		console.log('caster:', caster);
+		console.log('target:', target);
+		console.log('spellWithCasterStatusEffects', spellWithCasterStatusEffects);
 	};
 
 	const value = {

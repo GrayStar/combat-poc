@@ -17,16 +17,16 @@ export const Battle = () => {
 			return;
 		}
 
-		const spellId = availableSpells.find((s) => s.spellId === result.draggableId)?.spellTypeId;
+		const spellTypeId = availableSpells.find((s) => s.spellId === result.draggableId)?.spellTypeId;
 
-		if (!spellId) {
+		if (!spellTypeId) {
 			return;
 		}
 
 		handleCastSpell({
 			casterId: availableFriendlyIds[0],
 			targetId: result.destination.droppableId,
-			spellId,
+			spellTypeId,
 		});
 	};
 

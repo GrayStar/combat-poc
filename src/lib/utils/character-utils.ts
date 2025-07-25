@@ -14,6 +14,7 @@ export const getCharacterInstance = (character: CharacterModel): CharacterInstan
 		maxMana: character.maxMana,
 		spells: getSpellRecord(character.spellIds),
 		statusEffects: {},
+		isCasting: false,
 	};
 
 	return characterInstance;
