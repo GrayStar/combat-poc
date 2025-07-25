@@ -1,5 +1,4 @@
-import { STATUS_EFFECT_IDS } from '../models';
-import { SPELL_TYPE_ID, SpellModel } from '../models/spell-models';
+import { SPELL_TYPE_ID, SpellModel, STATUS_EFFECT_TYPE_ID } from '@/lib/models';
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.FIREBALL]: {
@@ -16,7 +15,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			resources: {
 				health: -1,
 			},
-			statusEffectsToAdd: [STATUS_EFFECT_IDS.BURN],
+			statusEffectsTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.BURN],
 		},
 	},
 	[SPELL_TYPE_ID.BURN_TICK]: {

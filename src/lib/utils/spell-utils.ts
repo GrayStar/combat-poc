@@ -3,7 +3,7 @@ import { SpellInstance, SpellModel } from '@/lib/models';
 
 export const getSpellInstance = (spell: SpellModel): SpellInstance => {
 	return {
-		spellId: uuidv4(),
 		...spell,
+		spellId: uuidv4(),
 	};
 };

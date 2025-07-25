@@ -1,12 +1,14 @@
 import { cloneDeep } from 'lodash';
 import { PropsWithChildren, useState } from 'react';
-import { BattleInstance, BattleModel, SPELL_TYPE_ID } from '@/lib/models';
+import { BattleInstance, BattleModel, SPELL_TYPE_ID, StatusEffectInstance } from '@/lib/models';
 import { BattleContext } from '@/contexts';
 import {
+	addStatusEffectTypeIdToCharacter,
 	adjustCharacterHeathByAmount,
 	adjustCharacterManaByAmount,
 	getBattleInstance,
 	getSpellInstance,
+	removeStatusEffectTypeIdFromCharacter,
 } from '@/lib/utils';
 import { spellData } from '@/lib/data';
 
@@ -85,19 +87,36 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		setBattle(battleClone);
 
 		function castSpellWithStatusEffects() {
+			const statusEffectTypeIdsToAddToCaster =
+				spellWithCasterStatusEffects.casterEffects?.statusEffectsTypeIdsToAdd ?? [];
+			const statusEffectTypeIdsToRemoveFromCaster =
+				spellWithCasterStatusEffects.casterEffects?.statusEffectsTypeIdsToRemove ?? [];
+
 			adjustCharacterHeathByAmount(caster, spellHealthCost);
 			adjustCharacterManaByAmount(caster, spellManaCost);
+			statusEffectTypeIdsToAddToCaster.forEach((statusEffectTypeId) => {
+				addStatusEffectTypeIdToCharacter(caster, statusEffectTypeId);
+			});
+			statusEffectTypeIdsToRemoveFromCaster.forEach((statusEffectTypeId) => {
+				removeStatusEffectTypeIdFromCharacter(caster, statusEffectTypeId);
+			});
 			// Todo: cooldown caster spell instance.
-			// Todo: apply caster status effects.
-			// Todo: remove caster status effects.
 
 			const spellTargetHealthAdjustment = spellWithCasterStatusEffects.targetEffects?.resources?.health ?? 0;
 			const spellTargetManaAdjustment = spellWithCasterStatusEffects.targetEffects?.resources?.mana ?? 0;
+			const statusEffectTypeIdsToAddToTarget =
+				spellWithCasterStatusEffects.targetEffects?.statusEffectsTypeIdsToAdd ?? [];
+			const statusEffectTypeIdsToRemoveFromTarget =
+				spellWithCasterStatusEffects.targetEffects?.statusEffectsTypeIdsToRemove ?? [];
 
 			adjustCharacterHeathByAmount(target, spellTargetHealthAdjustment);
 			adjustCharacterManaByAmount(target, spellTargetManaAdjustment);
-			// Todo: apply target status effects.
-			// Todo: remove target status effects.
+			statusEffectTypeIdsToAddToTarget.forEach((statusEffectTypeId) => {
+				addStatusEffectTypeIdToCharacter(target, statusEffectTypeId);
+			});
+			statusEffectTypeIdsToRemoveFromTarget.forEach((statusEffectTypeId) => {
+				removeStatusEffectTypeIdFromCharacter(target, statusEffectTypeId);
+			});
 			// Todo: interrupt target if spell can do that.
 			// Todo: update enemy phase if i ever model that out.
 
@@ -127,11 +146,48 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		}
 	};
 
+	const handleStatusEffectInterval = (statusEffect: StatusEffectInstance, characterId: string) => {
+		const battleClone = cloneDeep(battle);
+		if (!battleClone) {
+			setCombatLog((previousValue) => ['[ERROR]: battleClone is undefined.', ...previousValue]);
+			return;
+		}
+
+		const allCharacters = {
+			...battleClone.friendlyCharacters,
+			...battleClone.hostileCharacters,
+		};
+		const target = allCharacters[characterId];
+		const spellTypeIdsToCastOnInterval = statusEffect.intervalSpellTypeIds ?? [];
+
+		console.log('target', target);
+		console.log('spellTypeIdsToCastOnInterval', spellTypeIdsToCastOnInterval);
+	};
+	const handleStatusEffectTimeout = (statusEffect: StatusEffectInstance, characterId: string) => {
+		const battleClone = cloneDeep(battle);
+		if (!battleClone) {
+			setCombatLog((previousValue) => ['[ERROR]: battleClone is undefined.', ...previousValue]);
+			return;
+		}
+
+		const allCharacters = {
+			...battleClone.friendlyCharacters,
+			...battleClone.hostileCharacters,
+		};
+
+		const target = allCharacters[characterId];
+		delete target.statusEffects[statusEffect.statusEffectId];
+
+		setBattle(battleClone);
+	};
+
 	const value = {
 		startBattle,
 		battle,
 		handleCastSpell,
 		combatLog,
+		handleStatusEffectInterval,
+		handleStatusEffectTimeout,
 	};
 
 	return <BattleContext.Provider value={value}>{children}</BattleContext.Provider>;

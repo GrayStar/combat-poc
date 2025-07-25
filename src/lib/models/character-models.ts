@@ -1,4 +1,4 @@
-import { SPELL_TYPE_ID, SpellInstance } from '@/lib/models';
+import { SPELL_TYPE_ID, SpellInstance, StatusEffectInstance } from '@/lib/models';
 
 export enum CHARACTER_TYPE_IDS {
 	PLAYER = 'PLAYER',
@@ -23,6 +23,6 @@ export type CharacterInstance = {
 	mana: number;
 	maxMana: number;
 	spells: Record<string, SpellInstance>;
-	statusEffects: Record<string, unknown>;
+	statusEffects: Record<string, StatusEffectInstance>;
 	isCasting: boolean;
 };

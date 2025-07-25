@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { StatusEffectModel } from '@/lib/models';
+import { StatusEffectInstance } from '@/lib/models';
 
 interface StatusEffectProps {
-	statusEffect: StatusEffectModel;
-	intervalCallback(): void;
-	timeoutCallback(): void;
+	statusEffect: StatusEffectInstance;
+	intervalCallback(statusEffect: StatusEffectInstance): void;
+	timeoutCallback(statusEffect: StatusEffectInstance): void;
 }
 
 export const StatusEffect = ({ statusEffect, intervalCallback, timeoutCallback }: StatusEffectProps) => {
@@ -17,9 +17,9 @@ export const StatusEffect = ({ statusEffect, intervalCallback, timeoutCallback }
 		}
 
 		intervalRef.current = setInterval(() => {
-			intervalCallback();
+			intervalCallback(statusEffect);
 		}, statusEffect.interval);
-	}, [intervalCallback, statusEffect.interval]);
+	}, [intervalCallback, statusEffect]);
 
 	const stopInterval = () => {
 		if (!intervalRef.current) {
@@ -37,9 +37,9 @@ export const StatusEffect = ({ statusEffect, intervalCallback, timeoutCallback }
 
 		setTimeout(() => {
 			stopInterval();
-			timeoutCallback();
+			timeoutCallback(statusEffect);
 		}, statusEffect.duration);
-	}, [statusEffect.duration, timeoutCallback]);
+	}, [statusEffect, timeoutCallback]);
 
 	const stopTimeout = () => {
 		if (!timeoutRef.current) {

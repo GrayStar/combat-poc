@@ -1,39 +1,35 @@
-import { Meter } from '@/components';
+import { Meter, StatusEffect } from '@/components';
+import { useBattle } from '@/hooks';
+import { CharacterInstance } from '@/lib/models';
 import { useTheme } from '@/styles/hooks';
 
 interface CharacterProps {
-	title: string;
-	health: number;
-	maxHealth: number;
-	mana: number;
-	maxMana: number;
+	character: CharacterInstance;
 }
 
-export const Character = ({ title, health, maxHealth, mana, maxMana }: CharacterProps) => {
+export const Character = ({ character }: CharacterProps) => {
 	const { theme } = useTheme();
+	const { handleStatusEffectTimeout, handleStatusEffectInterval } = useBattle();
 
 	return (
 		<div>
-			{/* {statusEffects.map((i) => (
+			{Object.entries(character.statusEffects).map(([key, value]) => (
 				<StatusEffect
-					statusEffect={i}
-					intervalCallback={() => {
-						console.log('tick');
-					}}
-					timeoutCallback={() => {
-						console.log('expire');
-					}}
+					key={key}
+					statusEffect={value}
+					intervalCallback={(se) => handleStatusEffectInterval(se, character.characterId)}
+					timeoutCallback={(se) => handleStatusEffectTimeout(se, character.characterId)}
 				/>
-			))} */}
+			))}
 			<p className="m-0">
-				HP: {health}/{maxHealth}
+				HP: {character.health}/{character.maxHealth}
 			</p>
-			<Meter value={health} maxValue={maxHealth} color={theme.colors.success} />
+			<Meter value={character.health} maxValue={character.maxHealth} color={theme.colors.success} />
 			<p className="m-0">
-				MP: {mana}/{maxMana}
+				MP: {character.mana}/{character.maxMana}
 			</p>
-			<Meter value={mana} maxValue={maxMana} color={theme.colors.info} />
-			<h5 className="m-0">{title}</h5>
+			<Meter value={character.mana} maxValue={character.maxMana} color={theme.colors.info} />
+			<h5 className="m-0">{character.title}</h5>
 		</div>
 	);
 };

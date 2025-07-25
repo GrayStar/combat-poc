@@ -45,13 +45,7 @@ export const Battle = () => {
 										ref={provided.innerRef}
 										className="border rounded bg-white"
 									>
-										<Character
-											title={enemy.title}
-											health={enemy.health}
-											maxHealth={enemy.maxHealth}
-											mana={enemy.mana}
-											maxMana={enemy.maxMana}
-										/>
+										<Character character={enemy} />
 									</div>
 								)}
 							</Droppable>
@@ -67,13 +61,7 @@ export const Battle = () => {
 										ref={provided.innerRef}
 										className="border rounded bg-white"
 									>
-										<Character
-											title={friend.title}
-											health={friend.health}
-											maxHealth={friend.maxHealth}
-											mana={friend.mana}
-											maxMana={friend.maxMana}
-										/>
+										<Character character={friend} />
 									</div>
 								)}
 							</Droppable>

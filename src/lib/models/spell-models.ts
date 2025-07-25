@@ -1,4 +1,4 @@
-import { STATUS_EFFECT_IDS } from './status-effect-models';
+import { STATUS_EFFECT_TYPE_ID } from './status-effect-models';
 
 export enum SPELL_TYPE_ID {
 	FIREBALL = 'FIREBALL',
@@ -19,7 +19,8 @@ export interface SpellModel {
 
 export interface SpellEffect {
 	resources?: SpellResource;
-	statusEffectsToAdd?: STATUS_EFFECT_IDS[];
+	statusEffectsTypeIdsToAdd?: STATUS_EFFECT_TYPE_ID[];
+	statusEffectsTypeIdsToRemove?: STATUS_EFFECT_TYPE_ID[];
 }
 
 export interface SpellResource {
