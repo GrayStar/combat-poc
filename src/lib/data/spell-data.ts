@@ -34,7 +34,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellTypeId: SPELL_TYPE_ID.HEAL,
 		title: 'Heal',
 		description: 'Heal the target.',
-		castTimeDurationInMs: 1000,
+		castTimeDurationInMs: 0,
 		casterEffects: {
 			resources: {
 				mana: -1,
@@ -50,7 +50,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellTypeId: SPELL_TYPE_ID.LIFE_TAP,
 		title: 'Life Tap',
 		description: 'Convert targets health into mana.',
-		castTimeDurationInMs: 1000,
+		castTimeDurationInMs: 0,
 		casterEffects: {
 			resources: {
 				health: -1,

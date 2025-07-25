@@ -91,20 +91,39 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 			// Todo: apply caster status effects.
 			// Todo: remove caster status effects.
 
-			const spellHealthDamage = spellWithCasterStatusEffects.targetEffects?.resources?.health ?? 0;
-			const spellManaDamage = spellWithCasterStatusEffects.targetEffects?.resources?.mana ?? 0;
+			const spellTargetHealthAdjustment = spellWithCasterStatusEffects.targetEffects?.resources?.health ?? 0;
+			const spellTargetManaAdjustment = spellWithCasterStatusEffects.targetEffects?.resources?.mana ?? 0;
 
-			adjustCharacterHeathByAmount(target, spellHealthDamage);
-			adjustCharacterManaByAmount(target, spellManaDamage);
+			adjustCharacterHeathByAmount(target, spellTargetHealthAdjustment);
+			adjustCharacterManaByAmount(target, spellTargetManaAdjustment);
 			// Todo: apply target status effects.
 			// Todo: remove target status effects.
 			// Todo: interrupt target if spell can do that.
 			// Todo: update enemy phase if i ever model that out.
 
-			setCombatLog((previousValue) => [
-				`${caster.title} cast ${spellWithCasterStatusEffects.title} on ${target.title}.`,
-				...previousValue,
-			]);
+			if (spellTargetHealthAdjustment > 0) {
+				setCombatLog((previousValue) => [
+					`${caster.title}'s ${spellWithCasterStatusEffects.title} healed ${target.title} for ${spellTargetHealthAdjustment}.`,
+					...previousValue,
+				]);
+			} else if (spellTargetHealthAdjustment < 0) {
+				setCombatLog((previousValue) => [
+					`${caster.title}'s ${spellWithCasterStatusEffects.title} hit ${target.title} for ${spellTargetHealthAdjustment}.`,
+					...previousValue,
+				]);
+			}
+
+			if (spellTargetManaAdjustment > 0) {
+				setCombatLog((previousValue) => [
+					`${caster.title}'s ${spellWithCasterStatusEffects.title} gave ${target.title} ${spellTargetManaAdjustment} mana.`,
+					...previousValue,
+				]);
+			} else if (spellTargetManaAdjustment < 0) {
+				setCombatLog((previousValue) => [
+					`${caster.title}'s ${spellWithCasterStatusEffects.title} removed ${target.title} ${spellTargetManaAdjustment} mana.`,
+					...previousValue,
+				]);
+			}
 		}
 	};
 
