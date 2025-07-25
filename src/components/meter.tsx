@@ -1,11 +1,11 @@
 import { tss } from '@/styles';
 
-interface MeterStyleProps extends Record<string, unknown> {
+interface UseStyleProps extends Record<string, unknown> {
 	percent: number;
 	color?: string;
 }
 
-const useStyles = tss.withParams<MeterStyleProps>().create(({ percent, color, ...theme }) => ({
+const useStyles = tss.withParams<UseStyleProps>().create(({ percent, color, ...theme }) => ({
 	meterOuter: {
 		height: 8,
 		width: '100%',

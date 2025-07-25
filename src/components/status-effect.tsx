@@ -1,6 +1,41 @@
 import { useEffect, useRef } from 'react';
+import { keyframes } from 'tss-react';
 import { StatusEffectInstance } from '@/lib/models';
-import React from 'react';
+import { tss } from '@/styles';
+
+const cooldownAnimation = keyframes`
+	from {
+		height: 100%;
+	}
+	to {
+		height: 0%;
+	}
+`;
+
+interface UseStyleProps extends Record<string, unknown> {
+	duration: number;
+}
+
+const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }) => ({
+	statusEffect: {
+		width: 32,
+		height: 32,
+		borderRadius: 4,
+		overflow: 'hidden',
+		position: 'relative',
+		backgroundColor: theme.colors.gray400,
+		border: `1px solid ${theme.colors.black}`,
+	},
+	cooldown: {
+		left: 0,
+		right: 0,
+		bottom: 0,
+		height: '100%',
+		position: 'absolute',
+		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+		animation: `${cooldownAnimation} ${duration}ms linear forwards`,
+	},
+}));
 
 interface StatusEffectProps {
 	statusEffect: StatusEffectInstance;
@@ -8,12 +43,14 @@ interface StatusEffectProps {
 	timeoutCallback(statusEffect: StatusEffectInstance): void;
 }
 
-export const StatusEffect = React.memo(({ statusEffect, intervalCallback, timeoutCallback }: StatusEffectProps) => {
+export const StatusEffect = ({ statusEffect, intervalCallback, timeoutCallback }: StatusEffectProps) => {
 	const statusEffectRef = useRef(statusEffect);
 	const intervalRef = useRef<NodeJS.Timeout>(undefined);
 	const timeoutRef = useRef<NodeJS.Timeout>(undefined);
 	const intervalCallbackRef = useRef(intervalCallback);
 	const timeoutCallbackRef = useRef(timeoutCallback);
+
+	const { classes } = useStyles({ duration: statusEffectRef.current.duration });
 
 	useEffect(() => {
 		statusEffectRef.current = statusEffect;
@@ -50,8 +87,8 @@ export const StatusEffect = React.memo(({ statusEffect, intervalCallback, timeou
 	}, []);
 
 	return (
-		<div>
-			<p className="m-0">{statusEffect.title}</p>
+		<div className={classes.statusEffect}>
+			<div className={classes.cooldown} />
 		</div>
 	);
-});
+};
