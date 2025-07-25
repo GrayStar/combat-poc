@@ -70,6 +70,13 @@ export const addStatusEffectTypeIdToCharacter = (
 ) => {
 	const statusEffectConfig = statusEffectData[statusEffectTypeId];
 	const statusEffectInstance = getStatusEffectInstance(statusEffectConfig);
+	const matchingStatusEffect = Object.values(character.statusEffects).find(
+		(se) => se.statusEffectTypeId === statusEffectInstance.statusEffectTypeId
+	);
+
+	if (matchingStatusEffect) {
+		delete character.statusEffects[matchingStatusEffect.statusEffectId];
+	}
 
 	character.statusEffects = {
 		...character.statusEffects,

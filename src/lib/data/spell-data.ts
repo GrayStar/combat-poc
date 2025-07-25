@@ -4,7 +4,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.FIREBALL]: {
 		spellTypeId: SPELL_TYPE_ID.FIREBALL,
 		title: 'Fireball',
-		description: 'Throw a ball of fire.',
+		description: 'Throw a ball of fire dealing damage. Applies Burn',
 		castTimeDurationInMs: 0,
 		casterEffects: {
 			resources: {
@@ -13,7 +13,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		},
 		targetEffects: {
 			resources: {
-				health: -1,
+				health: -3,
 			},
 			statusEffectsTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.BURN],
 		},

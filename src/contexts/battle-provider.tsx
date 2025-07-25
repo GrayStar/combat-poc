@@ -1,6 +1,13 @@
 import { cloneDeep } from 'lodash';
 import { PropsWithChildren, useState } from 'react';
-import { BattleInstance, BattleModel, SPELL_TYPE_ID, StatusEffectInstance } from '@/lib/models';
+import {
+	BattleInstance,
+	BattleModel,
+	CharacterInstance,
+	SPELL_TYPE_ID,
+	SpellInstance,
+	StatusEffectInstance,
+} from '@/lib/models';
 import { BattleContext } from '@/contexts';
 import {
 	addStatusEffectTypeIdToCharacter,
@@ -87,69 +94,53 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		setBattle(battleClone);
 
 		function castSpellWithStatusEffects() {
-			const statusEffectTypeIdsToAddToCaster =
-				spellWithCasterStatusEffects.casterEffects?.statusEffectsTypeIdsToAdd ?? [];
-			const statusEffectTypeIdsToRemoveFromCaster =
-				spellWithCasterStatusEffects.casterEffects?.statusEffectsTypeIdsToRemove ?? [];
-
-			adjustCharacterHeathByAmount(caster, spellHealthCost);
-			adjustCharacterManaByAmount(caster, spellManaCost);
-			statusEffectTypeIdsToAddToCaster.forEach((statusEffectTypeId) => {
-				addStatusEffectTypeIdToCharacter(caster, statusEffectTypeId);
-			});
-			statusEffectTypeIdsToRemoveFromCaster.forEach((statusEffectTypeId) => {
-				removeStatusEffectTypeIdFromCharacter(caster, statusEffectTypeId);
-			});
-			// Todo: cooldown caster spell instance.
-
-			const spellTargetHealthAdjustment = spellWithCasterStatusEffects.targetEffects?.resources?.health ?? 0;
-			const spellTargetManaAdjustment = spellWithCasterStatusEffects.targetEffects?.resources?.mana ?? 0;
-			const statusEffectTypeIdsToAddToTarget =
-				spellWithCasterStatusEffects.targetEffects?.statusEffectsTypeIdsToAdd ?? [];
-			const statusEffectTypeIdsToRemoveFromTarget =
-				spellWithCasterStatusEffects.targetEffects?.statusEffectsTypeIdsToRemove ?? [];
-
-			adjustCharacterHeathByAmount(target, spellTargetHealthAdjustment);
-			adjustCharacterManaByAmount(target, spellTargetManaAdjustment);
-			statusEffectTypeIdsToAddToTarget.forEach((statusEffectTypeId) => {
-				addStatusEffectTypeIdToCharacter(target, statusEffectTypeId);
-			});
-			statusEffectTypeIdsToRemoveFromTarget.forEach((statusEffectTypeId) => {
-				removeStatusEffectTypeIdFromCharacter(target, statusEffectTypeId);
-			});
-			// Todo: interrupt target if spell can do that.
-			// Todo: update enemy phase if i ever model that out.
-
-			if (spellTargetHealthAdjustment > 0) {
-				setCombatLog((previousValue) => [
-					`${caster.title}'s ${spellWithCasterStatusEffects.title} healed ${target.title} for ${spellTargetHealthAdjustment}.`,
-					...previousValue,
-				]);
-			} else if (spellTargetHealthAdjustment < 0) {
-				setCombatLog((previousValue) => [
-					`${caster.title}'s ${spellWithCasterStatusEffects.title} hit ${target.title} for ${spellTargetHealthAdjustment}.`,
-					...previousValue,
-				]);
-			}
-
-			if (spellTargetManaAdjustment > 0) {
-				setCombatLog((previousValue) => [
-					`${caster.title}'s ${spellWithCasterStatusEffects.title} gave ${target.title} ${spellTargetManaAdjustment} mana.`,
-					...previousValue,
-				]);
-			} else if (spellTargetManaAdjustment < 0) {
-				setCombatLog((previousValue) => [
-					`${caster.title}'s ${spellWithCasterStatusEffects.title} removed ${target.title} ${spellTargetManaAdjustment} mana.`,
-					...previousValue,
-				]);
-			}
+			appleSpellToCaster(spellWithCasterStatusEffects, caster);
+			applySpellToTarget(spellWithCasterStatusEffects, target);
 		}
+	};
+
+	const appleSpellToCaster = (spell: SpellInstance, target: CharacterInstance) => {
+		const spellTargetHealthAdjustment = spell.casterEffects?.resources?.health ?? 0;
+		const spellTargetManaAdjustment = spell.casterEffects?.resources?.mana ?? 0;
+		const statusEffectTypeIdsToAddToTarget = spell.casterEffects?.statusEffectsTypeIdsToAdd ?? [];
+		const statusEffectTypeIdsToRemoveFromTarget = spell.casterEffects?.statusEffectsTypeIdsToRemove ?? [];
+
+		adjustCharacterHeathByAmount(target, spellTargetHealthAdjustment);
+		adjustCharacterManaByAmount(target, spellTargetManaAdjustment);
+
+		statusEffectTypeIdsToAddToTarget.forEach((statusEffectTypeId) => {
+			addStatusEffectTypeIdToCharacter(target, statusEffectTypeId);
+		});
+
+		statusEffectTypeIdsToRemoveFromTarget.forEach((statusEffectTypeId) => {
+			removeStatusEffectTypeIdFromCharacter(target, statusEffectTypeId);
+		});
+	};
+
+	const applySpellToTarget = (spell: SpellInstance, target: CharacterInstance) => {
+		const spellTargetHealthAdjustment = spell.targetEffects?.resources?.health ?? 0;
+		const spellTargetManaAdjustment = spell.targetEffects?.resources?.mana ?? 0;
+		const statusEffectTypeIdsToAddToTarget = spell.targetEffects?.statusEffectsTypeIdsToAdd ?? [];
+		const statusEffectTypeIdsToRemoveFromTarget = spell.targetEffects?.statusEffectsTypeIdsToRemove ?? [];
+
+		adjustCharacterHeathByAmount(target, spellTargetHealthAdjustment);
+		adjustCharacterManaByAmount(target, spellTargetManaAdjustment);
+
+		statusEffectTypeIdsToAddToTarget.forEach((statusEffectTypeId) => {
+			addStatusEffectTypeIdToCharacter(target, statusEffectTypeId);
+		});
+
+		statusEffectTypeIdsToRemoveFromTarget.forEach((statusEffectTypeId) => {
+			removeStatusEffectTypeIdFromCharacter(target, statusEffectTypeId);
+		});
+
+		// Todo: interrupt target if spell can do that.
+		// Todo: update enemy phase if i ever model that out.
 	};
 
 	const handleStatusEffectInterval = (statusEffect: StatusEffectInstance, characterId: string) => {
 		const battleClone = cloneDeep(battle);
 		if (!battleClone) {
-			setCombatLog((previousValue) => ['[ERROR]: battleClone is undefined.', ...previousValue]);
 			return;
 		}
 
@@ -160,13 +151,17 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		const target = allCharacters[characterId];
 		const spellTypeIdsToCastOnInterval = statusEffect.intervalSpellTypeIds ?? [];
 
-		console.log('target', target);
-		console.log('spellTypeIdsToCastOnInterval', spellTypeIdsToCastOnInterval);
+		spellTypeIdsToCastOnInterval.forEach((spellTypeId) => {
+			const spellConfig = spellData[spellTypeId];
+			const spell = getSpellInstance(spellConfig);
+			applySpellToTarget(spell, target);
+		});
+
+		setBattle(battleClone);
 	};
 	const handleStatusEffectTimeout = (statusEffect: StatusEffectInstance, characterId: string) => {
 		const battleClone = cloneDeep(battle);
 		if (!battleClone) {
-			setCombatLog((previousValue) => ['[ERROR]: battleClone is undefined.', ...previousValue]);
 			return;
 		}
 
