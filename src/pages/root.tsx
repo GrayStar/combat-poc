@@ -14,7 +14,7 @@ const POC = () => {
 	return (
 		<div>
 			<h3>Available Battles</h3>
-			<ul>
+			<ul className="list-unstyled d-flex align-items-center">
 				{Object.values(battleData).map((battle) => (
 					<li key={battle.battleTypeId}>
 						<button onClick={() => handleBattleButtonClick(battle)}>{battle.title}</button>
@@ -22,7 +22,6 @@ const POC = () => {
 				))}
 			</ul>
 
-			<h2>Battle</h2>
 			<Battle />
 		</div>
 	);
