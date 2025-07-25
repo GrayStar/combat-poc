@@ -100,6 +100,11 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 			// Todo: remove target status effects.
 			// Todo: interrupt target if spell can do that.
 			// Todo: update enemy phase if i ever model that out.
+
+			setCombatLog((previousValue) => [
+				`${caster.title} cast ${spellWithCasterStatusEffects.title} on ${target.title}.`,
+				...previousValue,
+			]);
 		}
 	};
 
