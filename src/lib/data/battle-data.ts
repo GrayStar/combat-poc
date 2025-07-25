@@ -1,14 +1,16 @@
-import { BATTLE_IDS, BattleModel, CHARACTER_TYPE_IDS } from '@/lib/models';
+import { BATTLE_TYPE_ID, BattleModel, CHARACTER_TYPE_IDS } from '@/lib/models';
 
-export const battleData: Record<BATTLE_IDS, BattleModel> = {
-	[BATTLE_IDS.TUTORIAL]: {
-		battleId: BATTLE_IDS.TUTORIAL,
+export const battleData: Record<BATTLE_TYPE_ID, BattleModel> = {
+	[BATTLE_TYPE_ID.TUTORIAL]: {
+		battleTypeId: BATTLE_TYPE_ID.TUTORIAL,
 		title: 'Tutorial',
-		enemyTypeIds: [CHARACTER_TYPE_IDS.SKELETON],
+		friendlyCharacterTypeIds: [CHARACTER_TYPE_IDS.PLAYER],
+		hostileCharacterTypeIds: [CHARACTER_TYPE_IDS.SPIDER, CHARACTER_TYPE_IDS.SPIDER],
 	},
-	[BATTLE_IDS.FIRST_BATTLE]: {
-		battleId: BATTLE_IDS.FIRST_BATTLE,
+	[BATTLE_TYPE_ID.FIRST_BATTLE]: {
+		battleTypeId: BATTLE_TYPE_ID.FIRST_BATTLE,
 		title: 'First Battle',
-		enemyTypeIds: [CHARACTER_TYPE_IDS.SPIDER, CHARACTER_TYPE_IDS.SPIDER],
+		friendlyCharacterTypeIds: [CHARACTER_TYPE_IDS.PLAYER],
+		hostileCharacterTypeIds: [CHARACTER_TYPE_IDS.SPIDER, CHARACTER_TYPE_IDS.SPIDER],
 	},
 };

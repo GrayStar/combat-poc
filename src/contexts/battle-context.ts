@@ -1,6 +1,5 @@
 import { createContext } from 'react';
-import { BattleModel, SPELL_IDS } from '@/lib/models';
-import { BattleInstance } from '@/lib/instances';
+import { BattleInstance, BattleModel, SPELL_IDS } from '@/lib/models';
 
 interface BattleContextConfig {
 	startBattle(battle: BattleModel): void;

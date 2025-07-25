@@ -1,6 +1,6 @@
 import { STATUS_EFFECT_IDS } from './status-effect-models';
 
-export enum SPELL_IDS {
+export enum SPELL_TYPE_ID {
 	FIREBALL = 'FIREBALL',
 	BURN_TICK = 'BURN_TICK',
 	HEAL = 'HEAL',
@@ -8,7 +8,7 @@ export enum SPELL_IDS {
 }
 
 export interface SpellModel {
-	spellId: SPELL_IDS;
+	spellTypeId: SPELL_TYPE_ID;
 	title: string;
 	description: string;
 	castTimeDurationInMs?: number;
@@ -25,4 +25,8 @@ export interface SpellEffect {
 export interface SpellResource {
 	health?: number;
 	mana?: number;
+}
+
+export interface SpellInstance extends SpellModel {
+	spellId: string;
 }

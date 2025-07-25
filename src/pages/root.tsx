@@ -16,7 +16,7 @@ const POC = () => {
 			<h1>Available Battles</h1>
 			<ul>
 				{Object.values(battleData).map((battle) => (
-					<li key={battle.battleId}>
+					<li key={battle.battleTypeId}>
 						<button onClick={() => handleBattleButtonClick(battle)}>{battle.title}</button>
 					</li>
 				))}

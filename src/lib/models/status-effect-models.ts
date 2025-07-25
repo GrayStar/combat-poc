@@ -1,5 +1,4 @@
-import { SPELL_IDS } from '@/lib/models';
-import { SpellInstance } from '../instances';
+import { SPELL_TYPE_ID, SpellInstance } from '@/lib/models';
 
 export enum STATUS_EFFECT_IDS {
 	BURN = 'BURN',
@@ -13,9 +12,9 @@ export interface StatusEffectModel {
 	interval: number;
 	outgoingSpellModifiers: StatusEffectModifier[];
 	incomingSpellModifiers: StatusEffectModifier[];
-	intervalTickSpellIds: SPELL_IDS[];
-	timeoutExpireSpellIds: SPELL_IDS[];
-	timeoutClearedSpellIds: SPELL_IDS[];
+	intervalTickSpellIds: SPELL_TYPE_ID[];
+	timeoutExpireSpellIds: SPELL_TYPE_ID[];
+	timeoutClearedSpellIds: SPELL_TYPE_ID[];
 }
 
 export interface StatusEffectModifier {

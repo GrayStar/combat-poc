@@ -1,35 +1,34 @@
 import { useBattle } from '@/hooks';
-import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
-import { Character, Spell } from '@/components';
+// import {  DropResult } from '@hello-pangea/dnd';
 
 export const Battle = () => {
-	const { battle, handleCastSpell, combatLog } = useBattle();
-	const availableSpells = Object.values(battle?.friendlyCharacters ?? {}).flatMap((i) => i.spells);
-	const availableFriendlyIds = Object.values(battle?.friendlyCharacters ?? {}).flatMap((i) => i.id);
+	const { battle, combatLog } = useBattle();
+	// const availableSpells = Object.values(battle?.friendlyCharacters ?? {}).flatMap((i) => i.spells);
+	// const availableFriendlyIds = Object.values(battle?.friendlyCharacters ?? {}).flatMap((i) => i.id);
 
-	const handleDragEnd = (result: DropResult) => {
-		if (!result.destination) {
-			return;
-		}
+	// const handleDragEnd = (result: DropResult) => {
+	// 	if (!result.destination) {
+	// 		return;
+	// 	}
 
-		const spellId = availableSpells.find((s) => s.id === result.draggableId)?.spellId;
+	// 	const spellId = availableSpells.find((s) => s.id === result.draggableId)?.spellId;
 
-		if (!spellId) {
-			return;
-		}
+	// 	if (!spellId) {
+	// 		return;
+	// 	}
 
-		handleCastSpell({
-			casterId: availableFriendlyIds[0],
-			targetId: result.destination.droppableId,
-			spellId,
-		});
-	};
+	// 	handleCastSpell({
+	// 		casterId: availableFriendlyIds[0],
+	// 		targetId: result.destination.droppableId,
+	// 		spellId,
+	// 	});
+	// };
 
 	return (
 		<div>
 			<h3>{battle?.title}</h3>
 
-			<DragDropContext onDragEnd={handleDragEnd}>
+			{/* <DragDropContext onDragEnd={handleDragEnd}>
 				<>
 					<div className="d-flex mb-5">
 						{Object.values(battle?.hostileCharacters ?? {}).map((enemy) => (
@@ -108,7 +107,7 @@ export const Battle = () => {
 						)}
 					</Droppable>
 				</>
-			</DragDropContext>
+			</DragDropContext> */}
 
 			<div className="border bg-gray200 rounded">
 				<h3>Combat Log</h3>

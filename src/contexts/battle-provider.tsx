@@ -1,16 +1,19 @@
-import { PropsWithChildren, useState } from 'react';
-import { BattleModel, SPELL_IDS } from '@/lib/models';
+import { PropsWithChildren, useEffect, useState } from 'react';
+import { BattleInstance, BattleModel, SPELL_IDS } from '@/lib/models';
 import { BattleContext } from '@/contexts';
-import { BattleEntity, BattleInstance } from '@/lib/instances';
+import { getBattleInstance } from '@/lib/utils';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleInstance>();
 	const [combatLog, setCombatLog] = useState<string[]>([]);
 
 	const startBattle = (battle: BattleModel) => {
-		const b = BattleEntity(battle.battleId);
-		setBattle(b);
+		setBattle(getBattleInstance(battle));
 	};
+
+	useEffect(() => {
+		console.log('battle state:', battle);
+	}, [battle]);
 
 	const handleCastSpell = async ({
 		casterId,

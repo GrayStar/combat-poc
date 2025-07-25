@@ -1,4 +1,4 @@
-import { CHARACTER_TYPE_IDS, CharacterModel, SPELL_IDS } from '@/lib/models';
+import { CHARACTER_TYPE_IDS, CharacterModel, SPELL_TYPE_ID } from '@/lib/models';
 
 export const characterData: Record<CHARACTER_TYPE_IDS, CharacterModel> = {
 	[CHARACTER_TYPE_IDS.PLAYER]: {
@@ -6,7 +6,7 @@ export const characterData: Record<CHARACTER_TYPE_IDS, CharacterModel> = {
 		title: 'Player',
 		maxHealth: 10,
 		maxMana: 100,
-		spellIds: [SPELL_IDS.FIREBALL],
+		spellIds: [SPELL_TYPE_ID.FIREBALL],
 	},
 	[CHARACTER_TYPE_IDS.SKELETON]: {
 		characterTypeId: CHARACTER_TYPE_IDS.SKELETON,

@@ -1,4 +1,4 @@
-import { SPELL_IDS, STATUS_EFFECT_IDS, StatusEffectModel } from '../models';
+import { SPELL_TYPE_ID, STATUS_EFFECT_IDS, StatusEffectModel } from '../models';
 
 export const statusEffectData: Record<STATUS_EFFECT_IDS, StatusEffectModel> = {
 	[STATUS_EFFECT_IDS.BURN]: {
@@ -9,7 +9,7 @@ export const statusEffectData: Record<STATUS_EFFECT_IDS, StatusEffectModel> = {
 		interval: 500,
 		outgoingSpellModifiers: [],
 		incomingSpellModifiers: [],
-		intervalTickSpellIds: [SPELL_IDS.BURN_TICK],
+		intervalTickSpellIds: [SPELL_TYPE_ID.BURN_TICK],
 		timeoutExpireSpellIds: [],
 		timeoutClearedSpellIds: [],
 	},

@@ -11,14 +11,22 @@ interface CharacterProps {
 	statusEffects: StatusEffectInstance[];
 }
 
-export const Character = ({ title, health, maxHealth, mana, maxMana, statusEffects }: CharacterProps) => {
+export const Character = ({ title, health, maxHealth, mana, maxMana }: CharacterProps) => {
 	const { theme } = useTheme();
 
 	return (
 		<div>
-			{statusEffects.map((i) => (
-				<div>{i.title}</div>
-			))}
+			{/* {statusEffects.map((i) => (
+				<StatusEffect
+					statusEffect={i}
+					intervalCallback={() => {
+						console.log('tick');
+					}}
+					timeoutCallback={() => {
+						console.log('expire');
+					}}
+				/>
+			))} */}
 			<p className="m-0">
 				HP: {health}/{maxHealth}
 			</p>

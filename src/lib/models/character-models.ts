@@ -1,4 +1,4 @@
-import { SPELL_IDS } from '@/lib/models';
+import { SPELL_TYPE_ID, SpellInstance } from '@/lib/models';
 
 export enum CHARACTER_TYPE_IDS {
 	PLAYER = 'PLAYER',
@@ -11,7 +11,13 @@ export type CharacterModel = {
 	title: string;
 	maxHealth: number;
 	maxMana: number;
-	spellIds: SPELL_IDS[];
+	spellIds: SPELL_TYPE_ID[];
 };
 
-export type CharacterComposite = CharacterModel & { id: string };
+export type CharacterInstance = {
+	characterId: string;
+	characterTypeId: CHARACTER_TYPE_IDS;
+	maxHealth: number;
+	maxMana: number;
+	spells: Record<string, SpellInstance>;
+};
