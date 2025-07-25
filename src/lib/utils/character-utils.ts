@@ -70,11 +70,22 @@ export const addStatusEffectTypeIdToCharacter = (
 ) => {
 	const statusEffectConfig = statusEffectData[statusEffectTypeId];
 	const statusEffectInstance = getStatusEffectInstance(statusEffectConfig);
+
+	if (statusEffectInstance.canStack) {
+		statusEffectInstance.stacks = 1;
+	}
+
 	const matchingStatusEffect = Object.values(character.statusEffects).find(
 		(se) => se.statusEffectTypeId === statusEffectInstance.statusEffectTypeId
 	);
 
 	if (matchingStatusEffect) {
+		const stacks = (matchingStatusEffect.stacks ?? 0) + 1;
+
+		if (statusEffectInstance.canStack) {
+			statusEffectInstance.stacks = stacks;
+		}
+
 		delete character.statusEffects[matchingStatusEffect.statusEffectId];
 	}
 

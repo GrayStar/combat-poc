@@ -12,6 +12,7 @@ export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> 
 		intervalSpellTypeIds: [SPELL_TYPE_ID.BURN_TICK],
 		timeoutSpellTypeIds: [SPELL_TYPE_ID.SCAR],
 		clearedSpellTypeIds: [],
+		canStack: false,
 	},
 	[STATUS_EFFECT_TYPE_ID.SCARRED]: {
 		statusEffectTypeId: STATUS_EFFECT_TYPE_ID.SCARRED,
@@ -30,5 +31,6 @@ export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> 
 		intervalSpellTypeIds: [],
 		timeoutSpellTypeIds: [],
 		clearedSpellTypeIds: [],
+		canStack: true,
 	},
 };

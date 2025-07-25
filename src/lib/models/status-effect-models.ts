@@ -16,6 +16,7 @@ export interface StatusEffectModel {
 	intervalSpellTypeIds: SPELL_TYPE_ID[];
 	timeoutSpellTypeIds: SPELL_TYPE_ID[];
 	clearedSpellTypeIds: SPELL_TYPE_ID[];
+	canStack: boolean;
 }
 
 export interface StatusEffectModifier {
@@ -26,4 +27,5 @@ export interface StatusEffectModifier {
 
 export interface StatusEffectInstance extends StatusEffectModel {
 	statusEffectId: string;
+	stacks?: number;
 }

@@ -34,6 +34,11 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }
 		backgroundColor: 'rgba(0, 0, 0, 0.5)',
 		animation: `${cooldownAnimation} ${duration}ms linear forwards`,
 	},
+	stackCount: {
+		right: 0,
+		bottom: 0,
+		position: 'absolute',
+	},
 }));
 
 interface StatusEffectProps {
@@ -88,6 +93,8 @@ export const StatusEffect = ({ statusEffect, intervalCallback, timeoutCallback }
 	return (
 		<div className={classes.statusEffect}>
 			<div className={classes.cooldown} />
+			<p className="m-0">{statusEffectRef.current.title}</p>
+			<div className={classes.stackCount}>{statusEffectRef.current.stacks}</div>
 		</div>
 	);
 };
