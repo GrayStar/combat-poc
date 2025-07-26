@@ -18,7 +18,6 @@ import {
 	getSpellInstance,
 	removeStatusEffectTypeIdFromCharacter,
 } from '@/lib/utils';
-import { spellData } from '@/lib/data';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleInstance>();
@@ -51,8 +50,7 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		const caster = allCharacters[casterId];
 		const target = allCharacters[targetId];
 		const casterKnowsSpell = !!Object.values(caster.spells).find((spell) => spell.spellTypeId === spellTypeId);
-		const spellConfig = spellData[spellTypeId];
-		const spell = getSpellInstance(spellConfig);
+		const spell = getSpellInstance(spellTypeId);
 		// TODO: run spell through function that applies caster statusEffects to it and returns that instead of cloneDeep.
 		const spellWithCasterStatusEffects = cloneDeep(spell);
 
@@ -144,8 +142,6 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 	};
 
 	const handleStatusEffectInterval = (statusEffect: StatusEffectInstance, characterId: string) => {
-		console.log('statusEffect', statusEffect);
-
 		const battleClone = cloneDeep(battle);
 		if (!battleClone) {
 			return;
@@ -159,10 +155,7 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		const spellTypeIdsToCastOnInterval = statusEffect.intervalSpellTypeIds ?? [];
 
 		spellTypeIdsToCastOnInterval.forEach((spellTypeId) => {
-			const spellConfig = spellData[spellTypeId];
-			const spell = getSpellInstance(spellConfig);
-
-			console.log('spell', spell);
+			const spell = getSpellInstance(spellTypeId);
 			applySpellToTarget(spell, target);
 		});
 
@@ -183,8 +176,7 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		const spellTypeIdsToCastOnTimeout = statusEffect.timeoutSpellTypeIds ?? [];
 
 		spellTypeIdsToCastOnTimeout.forEach((spellTypeId) => {
-			const spellConfig = spellData[spellTypeId];
-			const spell = getSpellInstance(spellConfig);
+			const spell = getSpellInstance(spellTypeId);
 			applySpellToTarget(spell, target);
 		});
 

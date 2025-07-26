@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { CharacterInstance, CharacterModel, SPELL_TYPE_ID, SpellInstance, STATUS_EFFECT_TYPE_ID } from '@/lib/models';
-import { spellData, statusEffectData } from '@/lib/data';
+import { statusEffectData } from '@/lib/data';
 import { getSpellInstance, getStatusEffectInstance } from '@/lib/utils';
 
 export const getCharacterInstance = (character: CharacterModel): CharacterInstance => {
@@ -22,8 +22,7 @@ export const getCharacterInstance = (character: CharacterModel): CharacterInstan
 
 const getSpellRecord = (spellTypeIds: SPELL_TYPE_ID[]) => {
 	return spellTypeIds.reduce((accumulator, currentValue) => {
-		const spellConfig = spellData[currentValue];
-		const spellInstance = getSpellInstance(spellConfig);
+		const spellInstance = getSpellInstance(currentValue);
 
 		return {
 			...accumulator,

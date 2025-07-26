@@ -1,9 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
-import { SpellInstance, SpellModel } from '@/lib/models';
+import { cloneDeep } from 'lodash';
+import { SPELL_TYPE_ID, SpellInstance } from '@/lib/models';
+import { spellData } from '../data';
 
-export const getSpellInstance = (spell: SpellModel): SpellInstance => {
+export const getSpellInstance = (spellTypeId: SPELL_TYPE_ID): SpellInstance => {
+	const spellConfig = cloneDeep(spellData[spellTypeId]);
+
 	return {
-		...spell,
+		...spellConfig,
 		spellId: uuidv4(),
 	};
 };
