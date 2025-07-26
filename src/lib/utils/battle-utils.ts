@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { BattleInstance, BattleModel, CHARACTER_TYPE_IDS, CharacterInstance } from '@/lib/models';
 import { getCharacterInstance } from './character-utils';
-import { characterData } from '@/lib/data';
 
 export const getBattleInstance = (battle: BattleModel): BattleInstance => {
 	const battleInstance = {
@@ -17,8 +16,7 @@ export const getBattleInstance = (battle: BattleModel): BattleInstance => {
 
 const getCharacterRecord = (characterTypeIds: CHARACTER_TYPE_IDS[]) => {
 	return characterTypeIds.reduce((accumulator, currentValue) => {
-		const characterConfig = characterData[currentValue];
-		const characterInstance = getCharacterInstance(characterConfig);
+		const characterInstance = getCharacterInstance(currentValue);
 
 		return {
 			...accumulator,

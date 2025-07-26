@@ -1,18 +1,27 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CharacterInstance, CharacterModel, SPELL_TYPE_ID, SpellInstance, STATUS_EFFECT_TYPE_ID } from '@/lib/models';
-import { statusEffectData } from '@/lib/data';
+import {
+	CHARACTER_TYPE_IDS,
+	CharacterInstance,
+	SPELL_TYPE_ID,
+	SpellInstance,
+	STATUS_EFFECT_TYPE_ID,
+} from '@/lib/models';
+import { characterData } from '@/lib/data';
 import { getSpellInstance, getStatusEffectInstance } from '@/lib/utils';
+import { cloneDeep } from 'lodash';
 
-export const getCharacterInstance = (character: CharacterModel): CharacterInstance => {
+export const getCharacterInstance = (characterTypeId: CHARACTER_TYPE_IDS): CharacterInstance => {
+	const characterConfig = cloneDeep(characterData[characterTypeId]);
+
 	const characterInstance: CharacterInstance = {
-		title: character.title,
 		characterId: uuidv4(),
-		characterTypeId: character.characterTypeId,
-		health: character.maxHealth,
-		maxHealth: character.maxHealth,
-		mana: character.maxMana,
-		maxMana: character.maxMana,
-		spells: getSpellRecord(character.spellIds),
+		characterTypeId: characterConfig.characterTypeId,
+		title: characterConfig.title,
+		health: characterConfig.maxHealth,
+		maxHealth: characterConfig.maxHealth,
+		mana: characterConfig.maxMana,
+		maxMana: characterConfig.maxMana,
+		spells: getSpellRecord(characterConfig.spellIds),
 		statusEffects: {},
 		isCasting: false,
 	};
@@ -67,8 +76,7 @@ export const addStatusEffectTypeIdToCharacter = (
 	character: CharacterInstance,
 	statusEffectTypeId: STATUS_EFFECT_TYPE_ID
 ) => {
-	const statusEffectConfig = statusEffectData[statusEffectTypeId];
-	const statusEffectInstance = getStatusEffectInstance(statusEffectConfig);
+	const statusEffectInstance = getStatusEffectInstance(statusEffectTypeId);
 
 	if (statusEffectInstance.canStack) {
 		statusEffectInstance.stacks = 1;
