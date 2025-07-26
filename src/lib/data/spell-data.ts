@@ -1,6 +1,16 @@
 import { SPELL_TYPE_ID, SpellModel, STATUS_EFFECT_TYPE_ID } from '@/lib/models';
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
+	[SPELL_TYPE_ID.PUNCH]: {
+		spellTypeId: SPELL_TYPE_ID.PUNCH,
+		title: 'Punch',
+		description: 'punch em.',
+		targetEffects: {
+			resources: {
+				health: -5,
+			},
+		},
+	},
 	[SPELL_TYPE_ID.FIREBALL]: {
 		spellTypeId: SPELL_TYPE_ID.FIREBALL,
 		title: 'Fireball',
@@ -15,7 +25,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			resources: {
 				health: -10,
 			},
-			statusEffectsTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.BURN],
+			statusEffectTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.BURN],
 		},
 	},
 	[SPELL_TYPE_ID.BURN_TICK]: {
@@ -27,14 +37,13 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				health: -1,
 			},
 		},
-		isStatusEffectDependeny: true,
 	},
 	[SPELL_TYPE_ID.SCAR]: {
 		spellTypeId: SPELL_TYPE_ID.SCAR,
 		title: 'Scar',
-		description: 'Scar the target, leaving behind a scar.',
+		description: 'Scar the target. Applies Scarred.',
 		targetEffects: {
-			statusEffectsTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.SCARRED],
+			statusEffectTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.SCARRED],
 		},
 	},
 	[SPELL_TYPE_ID.HEAL]: {

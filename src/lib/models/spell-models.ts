@@ -1,6 +1,7 @@
 import { STATUS_EFFECT_TYPE_ID } from './status-effect-models';
 
 export enum SPELL_TYPE_ID {
+	PUNCH = 'PUNCH',
 	FIREBALL = 'FIREBALL',
 	BURN_TICK = 'BURN_TICK',
 	SCAR = 'SCAR',
@@ -15,13 +16,12 @@ export interface SpellModel {
 	castTimeDurationInMs?: number;
 	casterEffects?: SpellEffect;
 	targetEffects?: SpellEffect;
-	isStatusEffectDependeny?: boolean;
 }
 
 export interface SpellEffect {
 	resources?: SpellResource;
-	statusEffectsTypeIdsToAdd?: STATUS_EFFECT_TYPE_ID[];
-	statusEffectsTypeIdsToRemove?: STATUS_EFFECT_TYPE_ID[];
+	statusEffectTypeIdsToAdd?: STATUS_EFFECT_TYPE_ID[];
+	statusEffectTypeIdsToRemove?: STATUS_EFFECT_TYPE_ID[];
 }
 
 export interface SpellResource {

@@ -13,6 +13,7 @@ import {
 	addStatusEffectTypeIdToCharacter,
 	adjustCharacterHeathByAmount,
 	adjustCharacterManaByAmount,
+	applyStatusEffectToIncomingSpell,
 	getBattleInstance,
 	getSpellInstance,
 	removeStatusEffectTypeIdFromCharacter,
@@ -94,16 +95,16 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		setBattle(battleClone);
 
 		function castSpellWithStatusEffects() {
-			appleSpellToCaster(spellWithCasterStatusEffects, caster);
+			applySpellToCaster(spellWithCasterStatusEffects, caster);
 			applySpellToTarget(spellWithCasterStatusEffects, target);
 		}
 	};
 
-	const appleSpellToCaster = (spell: SpellInstance, target: CharacterInstance) => {
+	const applySpellToCaster = (spell: SpellInstance, target: CharacterInstance) => {
 		const spellTargetHealthAdjustment = spell.casterEffects?.resources?.health ?? 0;
 		const spellTargetManaAdjustment = spell.casterEffects?.resources?.mana ?? 0;
-		const statusEffectTypeIdsToAddToTarget = spell.casterEffects?.statusEffectsTypeIdsToAdd ?? [];
-		const statusEffectTypeIdsToRemoveFromTarget = spell.casterEffects?.statusEffectsTypeIdsToRemove ?? [];
+		const statusEffectTypeIdsToAddToTarget = spell.casterEffects?.statusEffectTypeIdsToAdd ?? [];
+		const statusEffectTypeIdsToRemoveFromTarget = spell.casterEffects?.statusEffectTypeIdsToRemove ?? [];
 
 		adjustCharacterHeathByAmount(target, spellTargetHealthAdjustment);
 		adjustCharacterManaByAmount(target, spellTargetManaAdjustment);
@@ -118,10 +119,14 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 	};
 
 	const applySpellToTarget = (spell: SpellInstance, target: CharacterInstance) => {
+		Object.values(target.statusEffects).forEach((statusEffect) => {
+			applyStatusEffectToIncomingSpell(statusEffect, spell);
+		});
+
 		const spellTargetHealthAdjustment = spell.targetEffects?.resources?.health ?? 0;
 		const spellTargetManaAdjustment = spell.targetEffects?.resources?.mana ?? 0;
-		const statusEffectTypeIdsToAddToTarget = spell.targetEffects?.statusEffectsTypeIdsToAdd ?? [];
-		const statusEffectTypeIdsToRemoveFromTarget = spell.targetEffects?.statusEffectsTypeIdsToRemove ?? [];
+		const statusEffectTypeIdsToAddToTarget = spell.targetEffects?.statusEffectTypeIdsToAdd ?? [];
+		const statusEffectTypeIdsToRemoveFromTarget = spell.targetEffects?.statusEffectTypeIdsToRemove ?? [];
 
 		adjustCharacterHeathByAmount(target, spellTargetHealthAdjustment);
 		adjustCharacterManaByAmount(target, spellTargetManaAdjustment);
@@ -139,6 +144,8 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 	};
 
 	const handleStatusEffectInterval = (statusEffect: StatusEffectInstance, characterId: string) => {
+		console.log('statusEffect', statusEffect);
+
 		const battleClone = cloneDeep(battle);
 		if (!battleClone) {
 			return;
@@ -154,6 +161,8 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		spellTypeIdsToCastOnInterval.forEach((spellTypeId) => {
 			const spellConfig = spellData[spellTypeId];
 			const spell = getSpellInstance(spellConfig);
+
+			console.log('spell', spell);
 			applySpellToTarget(spell, target);
 		});
 

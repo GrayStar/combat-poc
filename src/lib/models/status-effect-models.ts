@@ -20,7 +20,7 @@ export interface StatusEffectModel {
 }
 
 export interface StatusEffectModifier {
-	property: string[];
+	path: string[];
 	operation: 'add' | 'subtract' | 'multiply' | 'divide';
 	amount: number;
 }

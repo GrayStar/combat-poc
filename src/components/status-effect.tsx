@@ -74,18 +74,17 @@ export const StatusEffect = ({ statusEffect, intervalCallback, timeoutCallback }
 	}, [statusEffect, intervalCallback, timeoutCallback]);
 
 	useEffect(() => {
-		intervalRef.current = setInterval(() => {
-			intervalCallbackRef.current(statusEffectRef.current);
-		}, statusEffectRef.current.interval);
+		if (statusEffectRef.current.interval > 0) {
+			intervalRef.current = setInterval(() => {
+				intervalCallbackRef.current(statusEffectRef.current);
+			}, statusEffectRef.current.interval);
+		}
 
 		timeoutRef.current = setTimeout(() => {
-			if (!intervalRef.current) {
-				return;
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+				intervalRef.current = undefined;
 			}
-
-			clearInterval(intervalRef.current);
-			intervalRef.current = undefined;
-
 			timeoutCallbackRef.current(statusEffectRef.current);
 		}, statusEffectRef.current.duration);
 

@@ -1,9 +1,38 @@
 import { v4 as uuidv4 } from 'uuid';
-import { StatusEffectInstance, StatusEffectModel } from '@/lib/models';
+import { SpellInstance, StatusEffectInstance, StatusEffectModel } from '@/lib/models';
+import { get, set } from 'lodash';
 
 export const getStatusEffectInstance = (statusEffect: StatusEffectModel): StatusEffectInstance => {
 	return {
 		...statusEffect,
 		statusEffectId: uuidv4(),
 	};
+};
+
+export const applyStatusEffectToIncomingSpell = (statusEffect: StatusEffectInstance, spell: SpellInstance) => {
+	statusEffect.incomingSpellModifiers.forEach((modifier) => {
+		const spellProperty = get(spell, modifier.path);
+
+		if (!spellProperty || typeof spellProperty !== 'number') {
+			return;
+		}
+
+		const modiferOperationMap: Record<typeof modifier.operation, (value: number) => number> = {
+			add: (value) => {
+				return value + modifier.amount;
+			},
+			subtract: (value) => {
+				return value - modifier.amount;
+			},
+			multiply: (value) => {
+				return value * modifier.amount;
+			},
+			divide: (value) => {
+				return value / modifier.amount;
+			},
+		};
+
+		const result = modiferOperationMap[modifier.operation](spellProperty);
+		set(spell, modifier.path, result);
+	});
 };
