@@ -13,29 +13,33 @@ export const getStatusEffectInstance = (statusEffectTypeId: STATUS_EFFECT_TYPE_I
 };
 
 export const applyStatusEffectToIncomingSpell = (statusEffect: StatusEffectInstance, spell: SpellInstance) => {
-	statusEffect.incomingSpellModifiers.forEach((modifier) => {
-		const spellProperty = get(spell, modifier.path);
+	const stackCount = statusEffect.stacks ?? 0;
 
-		if (!spellProperty || typeof spellProperty !== 'number') {
-			return;
-		}
+	for (let i = 0; i < stackCount; i++) {
+		statusEffect.incomingSpellModifiers.forEach((modifier) => {
+			const spellProperty = get(spell, modifier.path);
 
-		const modiferOperationMap: Record<typeof modifier.operation, (value: number) => number> = {
-			add: (value) => {
-				return value + modifier.amount;
-			},
-			subtract: (value) => {
-				return value - modifier.amount;
-			},
-			multiply: (value) => {
-				return value * modifier.amount;
-			},
-			divide: (value) => {
-				return value / modifier.amount;
-			},
-		};
+			if (!spellProperty || typeof spellProperty !== 'number') {
+				return;
+			}
 
-		const result = modiferOperationMap[modifier.operation](spellProperty);
-		set(spell, modifier.path, result);
-	});
+			const modiferOperationMap: Record<typeof modifier.operation, (value: number) => number> = {
+				add: (value) => {
+					return value + modifier.amount;
+				},
+				subtract: (value) => {
+					return value - modifier.amount;
+				},
+				multiply: (value) => {
+					return value * modifier.amount;
+				},
+				divide: (value) => {
+					return value / modifier.amount;
+				},
+			};
+
+			const result = modiferOperationMap[modifier.operation](spellProperty);
+			set(spell, modifier.path, result);
+		});
+	}
 };
