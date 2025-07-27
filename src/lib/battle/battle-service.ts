@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 import { Battle, BATTLE_TYPE_ID, battleData, BattleInstance } from '@/lib/battle';
 
-const battleStore: Record<string, BattleInstance> = {};
+const battleStore: Record<string, { battle: BattleInstance; notify: () => void }> = {};
 
 export const battleService = {
 	getBattleOptions() {
@@ -10,10 +10,10 @@ export const battleService = {
 	},
 	createBattleByBattleTypeId(battleTypeId: BATTLE_TYPE_ID) {
 		const battleConfig = cloneDeep(battleData[battleTypeId]);
-		const battle = Battle(battleConfig);
-		battleStore[battle.battleId] = battle;
+		const { battle, notify, subscribe } = Battle(battleConfig);
+		battleStore[battle.battleId] = { battle, notify };
 
-		return battle;
+		return { battle, subscribe };
 	},
 	getBattleByBattleId(battleId: string) {
 		return battleStore[battleId];
@@ -23,14 +23,23 @@ export const battleService = {
 	},
 	castSpell(battleId: string, data: { casterId: string; targetId: string; spellId: string }) {
 		const { casterId, targetId, spellId } = data;
-		const battle = battleStore[battleId];
+		const { battle, notify } = battleStore[battleId];
 
 		const caster = battle.characters[casterId];
 		const target = battle.characters[targetId];
 		const spell = battle.spells[spellId];
 
-		console.log('caster:', caster);
-		console.log('target:', target);
-		console.log('spell:', spell);
+		const spellManaCost = spell.casterEffects?.resources?.mana ?? 0;
+		const castersNextManaValue = caster.mana + spellManaCost;
+		if (castersNextManaValue <= 0) {
+			return;
+		}
+
+		const damage = spell.targetEffects?.resources?.health ?? 0;
+
+		caster.mana += spellManaCost;
+		target.health += damage;
+
+		notify();
 	},
 };

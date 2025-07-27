@@ -1,9 +1,9 @@
 import { createContext } from 'react';
-import { BattleInstance } from '@/lib/battle';
+import { BATTLE_TYPE_ID, BattleInstance } from '@/lib/battle';
 
 interface BattleContextConfig {
 	battle: BattleInstance | undefined;
-	setBattle: React.Dispatch<React.SetStateAction<BattleInstance | undefined>>;
+	startBattle(battleTypeId: BATTLE_TYPE_ID): void;
 	handleCastSpell(payload: { casterId: string; targetId: string; spellId: string }): void;
 }
 

@@ -5,7 +5,7 @@ import { useBattle } from '@/hooks';
 import { Battle } from '@/components';
 
 const POC = () => {
-	const { battle, setBattle } = useBattle();
+	const { battle, startBattle } = useBattle();
 	const [battleOptions, setBattlesOptions] = useState<BattleModel[]>([]);
 
 	useEffect(() => {
@@ -14,8 +14,7 @@ const POC = () => {
 	}, []);
 
 	const handleBattleOptionButtonClick = (battleTypeId: BATTLE_TYPE_ID) => {
-		const battle = battleService.createBattleByBattleTypeId(battleTypeId);
-		setBattle(battle);
+		startBattle(battleTypeId);
 	};
 
 	return (

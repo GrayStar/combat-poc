@@ -3,7 +3,9 @@ import { BattleInstance, BattleModel } from '@/lib/battle';
 import { Character, CHARACTER_TYPE_ID, CharacterInstance } from '@/lib/character';
 import { SpellInstance } from '@/lib/spell';
 
-export const Battle = (battleConfig: BattleModel): BattleInstance => {
+type NotificationSubscriber = (state: BattleInstance) => void;
+
+export const Battle = (battleConfig: BattleModel) => {
 	const playerCharacter = Character(battleConfig.playerCharacterTypeId);
 	const friendlyNonPlayerRecords = getCharacterAndSpellRecordsByCharacterTypeId(
 		battleConfig.friendlyNonPlayerCharacterTypeIds
@@ -11,7 +13,6 @@ export const Battle = (battleConfig: BattleModel): BattleInstance => {
 	const hostileNonPlayerRecords = getCharacterAndSpellRecordsByCharacterTypeId(
 		battleConfig.hostileNonPlayerCharacterTypeIds
 	);
-
 	const battle: BattleInstance = {
 		battleId: uuidv4(),
 		battleTypeId: battleConfig.battleTypeId,
@@ -31,7 +32,28 @@ export const Battle = (battleConfig: BattleModel): BattleInstance => {
 		},
 	};
 
-	return battle;
+	const notificationSubscribers = new Set<NotificationSubscriber>();
+
+	return {
+		battle,
+		notify() {
+			for (const notificationSubscriber of notificationSubscribers) {
+				try {
+					notificationSubscriber(battle);
+				} catch (error) {
+					// eslint-disable-next-line no-console
+					console.error('subscriber threw:', error);
+				}
+			}
+		},
+		subscribe(notificationSubscriber: NotificationSubscriber): () => void {
+			notificationSubscribers.add(notificationSubscriber);
+			notificationSubscriber(battle);
+			return () => {
+				notificationSubscribers.delete(notificationSubscriber);
+			};
+		},
+	};
 };
 
 const getCharacterAndSpellRecordsByCharacterTypeId = (characterTypeIds: CHARACTER_TYPE_ID[]) => {

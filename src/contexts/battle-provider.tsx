@@ -1,13 +1,10 @@
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useCallback, useRef, useState } from 'react';
 import { BattleContext } from '@/contexts';
-import { BattleInstance, battleService } from '@/lib/battle';
+import { BATTLE_TYPE_ID, BattleInstance, battleService } from '@/lib/battle';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleInstance>();
-
-	useEffect(() => {
-		console.log('battle updated:', battle);
-	}, [battle]);
+	const unsubscribeRef = useRef<() => void>(() => {});
 
 	const handleCastSpell = (payload: { casterId: string; targetId: string; spellId: string }) => {
 		if (!battle) {
@@ -16,6 +13,17 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 
 		battleService.castSpell(battle?.battleId, payload);
 	};
+
+	const startBattle = useCallback((battleTypeId: BATTLE_TYPE_ID) => {
+		unsubscribeRef.current();
+		const { battle: newBattle, subscribe } = battleService.createBattleByBattleTypeId(battleTypeId);
+
+		setBattle(newBattle);
+
+		unsubscribeRef.current = subscribe((updatedBattleState) => {
+			setBattle(updatedBattleState);
+		});
+	}, []);
 
 	// const [combatLog, setCombatLog] = useState<string[]>([]);
 
@@ -182,7 +190,7 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 
 	const value = {
 		battle,
-		setBattle,
+		startBattle,
 		handleCastSpell,
 	};
 
