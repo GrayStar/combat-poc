@@ -8,7 +8,6 @@ interface CharacterProps {
 
 export const Character = ({ character }: CharacterProps) => {
 	const { theme } = useTheme();
-	// const { handleStatusEffectTimeout, handleStatusEffectInterval } = useBattle();
 
 	return (
 		<div>
