@@ -3,7 +3,7 @@ import { useBattle } from '@/hooks';
 import { Character, Spell } from '@/components';
 
 export const Battle = () => {
-	const { battle } = useBattle();
+	const { battle, handleCastSpell } = useBattle();
 
 	if (!battle) {
 		return null;
@@ -11,25 +11,16 @@ export const Battle = () => {
 
 	const playerCharacter = battle.characters[battle.playerCharacterId];
 
-	// const availableSpells = Object.values(battle.friendlyCharacters).flatMap((i) => Object.values(i.spells));
-	// const availableFriendlyIds = Object.values(battle.friendlyCharacters).flatMap((i) => i.characterId);
-
 	const handleDragEnd = (result: DropResult) => {
 		if (!result.destination) {
 			return;
 		}
 
-		// const spellTypeId = availableSpells.find((s) => s.spellId === result.draggableId)?.spellTypeId;
-
-		// if (!spellTypeId) {
-		// 	return;
-		// }
-
-		// handleCastSpell({
-		// 	casterId: availableFriendlyIds[0],
-		// 	targetId: result.destination.droppableId,
-		// 	spellTypeId,
-		// });
+		handleCastSpell({
+			casterId: playerCharacter.characterId,
+			targetId: result.destination.droppableId,
+			spellId: result.draggableId,
+		});
 	};
 
 	return (

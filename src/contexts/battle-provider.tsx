@@ -9,6 +9,28 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		console.log('battle updated:', battle);
 	}, [battle]);
 
+	const handleCastSpell = ({
+		casterId,
+		targetId,
+		spellId,
+	}: {
+		casterId: string;
+		targetId: string;
+		spellId: string;
+	}) => {
+		if (!battle) {
+			return;
+		}
+
+		console.log('handleCastSpell casterId:', casterId);
+		console.log('handleCastSpell targetId:', targetId);
+		console.log('handleCastSpell spellId:', spellId);
+
+		console.log('handleCastSpell caster:', battle?.characters[casterId]);
+		console.log('handleCastSpell target:', battle?.characters[targetId]);
+		console.log('handleCastSpell spell:', battle?.spells[spellId]);
+	};
+
 	// const [combatLog, setCombatLog] = useState<string[]>([]);
 
 	// const startBattle = (battle: BattleModel) => {
@@ -175,6 +197,7 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const value = {
 		battle,
 		setBattle,
+		handleCastSpell,
 	};
 
 	return <BattleContext.Provider value={value}>{children}</BattleContext.Provider>;
