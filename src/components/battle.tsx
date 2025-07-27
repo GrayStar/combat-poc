@@ -1,33 +1,35 @@
+import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 import { useBattle } from '@/hooks';
-import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
-import { Character, Spell } from '@/components';
+import { Character } from '@/components/character';
 
 export const Battle = () => {
-	const { battle, handleCastSpell, combatLog } = useBattle();
+	const { battle } = useBattle();
 
 	if (!battle) {
 		return null;
 	}
 
-	const availableSpells = Object.values(battle.friendlyCharacters).flatMap((i) => Object.values(i.spells));
-	const availableFriendlyIds = Object.values(battle.friendlyCharacters).flatMap((i) => i.characterId);
+	const playerCharacter = battle.characters[battle.playerCharacterId];
+
+	// const availableSpells = Object.values(battle.friendlyCharacters).flatMap((i) => Object.values(i.spells));
+	// const availableFriendlyIds = Object.values(battle.friendlyCharacters).flatMap((i) => i.characterId);
 
 	const handleDragEnd = (result: DropResult) => {
 		if (!result.destination) {
 			return;
 		}
 
-		const spellTypeId = availableSpells.find((s) => s.spellId === result.draggableId)?.spellTypeId;
+		// const spellTypeId = availableSpells.find((s) => s.spellId === result.draggableId)?.spellTypeId;
 
-		if (!spellTypeId) {
-			return;
-		}
+		// if (!spellTypeId) {
+		// 	return;
+		// }
 
-		handleCastSpell({
-			casterId: availableFriendlyIds[0],
-			targetId: result.destination.droppableId,
-			spellTypeId,
-		});
+		// handleCastSpell({
+		// 	casterId: availableFriendlyIds[0],
+		// 	targetId: result.destination.droppableId,
+		// 	spellTypeId,
+		// });
 	};
 
 	return (
@@ -36,36 +38,62 @@ export const Battle = () => {
 
 			<DragDropContext onDragEnd={handleDragEnd}>
 				<>
-					<div className="d-flex mb-5">
-						{Object.values(battle?.hostileCharacters ?? {}).map((enemy) => (
-							<Droppable key={enemy.characterId} droppableId={enemy.characterId}>
-								{(provided) => (
-									<div
-										{...provided.droppableProps}
-										ref={provided.innerRef}
-										className="border rounded bg-white"
-									>
-										<Character character={enemy} />
-									</div>
-								)}
-							</Droppable>
-						))}
-					</div>
+					{battle.hostileNonPlayerCharacterIds.length > 0 && (
+						<div className="d-flex mb-5">
+							{battle.hostileNonPlayerCharacterIds.map((characterId) => {
+								const character = battle.characters[characterId];
+
+								return (
+									<Droppable key={character.characterId} droppableId={character.characterId}>
+										{(provided) => (
+											<div
+												{...provided.droppableProps}
+												ref={provided.innerRef}
+												className="border rounded bg-white"
+											>
+												<Character character={character} />
+											</div>
+										)}
+									</Droppable>
+								);
+							})}
+						</div>
+					)}
+
+					{battle.friendlyNonPlayerCharacterIds.length > 0 && (
+						<div className="d-flex mb-5">
+							{battle.friendlyNonPlayerCharacterIds.map((characterId) => {
+								const character = battle.characters[characterId];
+
+								return (
+									<Droppable key={character.characterId} droppableId={character.characterId}>
+										{(provided) => (
+											<div
+												{...provided.droppableProps}
+												ref={provided.innerRef}
+												className="border rounded bg-white"
+											>
+												<Character character={character} />
+											</div>
+										)}
+									</Droppable>
+								);
+							})}
+						</div>
+					)}
 
 					<div className="d-flex mb-5">
-						{Object.values(battle?.friendlyCharacters ?? {}).map((friend) => (
-							<Droppable key={friend.characterId} droppableId={friend.characterId}>
-								{(provided) => (
-									<div
-										{...provided.droppableProps}
-										ref={provided.innerRef}
-										className="border rounded bg-white"
-									>
-										<Character character={friend} />
-									</div>
-								)}
-							</Droppable>
-						))}
+						<Droppable droppableId={playerCharacter.characterId}>
+							{(provided) => (
+								<div
+									{...provided.droppableProps}
+									ref={provided.innerRef}
+									className="border rounded bg-white"
+								>
+									<Character character={playerCharacter} />
+								</div>
+							)}
+						</Droppable>
 					</div>
 
 					<Droppable droppableId="SPELLS" isDropDisabled direction="horizontal">
@@ -75,7 +103,7 @@ export const Battle = () => {
 								ref={droppableProvided.innerRef}
 								className="d-flex"
 							>
-								{availableSpells.map((spell, spellIndex) => (
+								{/* {availableSpells.map((spell, spellIndex) => (
 									<Draggable key={spell.spellId} draggableId={spell.spellId} index={spellIndex}>
 										{(draggableProvided, draggableSnapshot) => (
 											<>
@@ -94,19 +122,12 @@ export const Battle = () => {
 											</>
 										)}
 									</Draggable>
-								))}
+								))} */}
 							</div>
 						)}
 					</Droppable>
 				</>
 			</DragDropContext>
-
-			<div className="border bg-gray200 rounded">
-				<h3>Combat Log</h3>
-				{combatLog.map((message, messageIndex) => (
-					<p key={messageIndex}>{message}</p>
-				))}
-			</div>
 		</div>
 	);
 };

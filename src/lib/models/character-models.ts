@@ -1,13 +1,13 @@
 import { SPELL_TYPE_ID, SpellInstance, StatusEffectInstance } from '@/lib/models';
 
-export enum CHARACTER_TYPE_IDS {
+export enum CHARACTER_TYPE_ID {
 	PLAYER = 'PLAYER',
 	SKELETON = 'SKELETON',
 	SPIDER = 'SPIDER',
 }
 
 export type CharacterModel = {
-	characterTypeId: CHARACTER_TYPE_IDS;
+	characterTypeId: CHARACTER_TYPE_ID;
 	title: string;
 	maxHealth: number;
 	maxMana: number;
@@ -17,7 +17,7 @@ export type CharacterModel = {
 export type CharacterInstance = {
 	title: string;
 	characterId: string;
-	characterTypeId: CHARACTER_TYPE_IDS;
+	characterTypeId: CHARACTER_TYPE_ID;
 	health: number;
 	maxHealth: number;
 	mana: number;
