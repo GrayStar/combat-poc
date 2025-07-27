@@ -1,6 +1,6 @@
-import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import { useBattle } from '@/hooks';
-import { Character } from '@/components/character';
+import { Character, Spell } from '@/components';
 
 export const Battle = () => {
 	const { battle } = useBattle();
@@ -103,26 +103,30 @@ export const Battle = () => {
 								ref={droppableProvided.innerRef}
 								className="d-flex"
 							>
-								{/* {availableSpells.map((spell, spellIndex) => (
-									<Draggable key={spell.spellId} draggableId={spell.spellId} index={spellIndex}>
-										{(draggableProvided, draggableSnapshot) => (
-											<>
-												<div
-													{...draggableProvided.draggableProps}
-													{...draggableProvided.dragHandleProps}
-													ref={draggableProvided.innerRef}
-												>
-													<Spell title={spell.title} />
-												</div>
-												{draggableSnapshot.isDragging && (
-													<div style={{ transform: 'none !important' }}>
+								{playerCharacter.spellIds.map((spellId, spellIndex) => {
+									const spell = battle.spells[spellId];
+
+									return (
+										<Draggable key={spell.spellId} draggableId={spell.spellId} index={spellIndex}>
+											{(draggableProvided, draggableSnapshot) => (
+												<>
+													<div
+														{...draggableProvided.draggableProps}
+														{...draggableProvided.dragHandleProps}
+														ref={draggableProvided.innerRef}
+													>
 														<Spell title={spell.title} />
 													</div>
-												)}
-											</>
-										)}
-									</Draggable>
-								))} */}
+													{draggableSnapshot.isDragging && (
+														<div style={{ transform: 'none !important' }}>
+															<Spell title={spell.title} />
+														</div>
+													)}
+												</>
+											)}
+										</Draggable>
+									);
+								})}
 							</div>
 						)}
 					</Droppable>

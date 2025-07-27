@@ -1,44 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
-import {
-	CHARACTER_TYPE_ID,
-	CharacterInstance,
-	SPELL_TYPE_ID,
-	SpellInstance,
-	STATUS_EFFECT_TYPE_ID,
-} from '@/lib/models';
-import { characterData } from '@/lib/data';
-import { getSpellInstance, getStatusEffectInstance } from '@/lib/utils';
-import { cloneDeep } from 'lodash';
-
-export const getCharacterInstance = (characterTypeId: CHARACTER_TYPE_ID): CharacterInstance => {
-	const characterConfig = cloneDeep(characterData[characterTypeId]);
-
-	const characterInstance: CharacterInstance = {
-		characterId: uuidv4(),
-		characterTypeId: characterConfig.characterTypeId,
-		title: characterConfig.title,
-		health: characterConfig.maxHealth,
-		maxHealth: characterConfig.maxHealth,
-		mana: characterConfig.maxMana,
-		maxMana: characterConfig.maxMana,
-		spells: getSpellRecord(characterConfig.spellIds),
-		statusEffects: {},
-		isCasting: false,
-	};
-
-	return characterInstance;
-};
-
-const getSpellRecord = (spellTypeIds: SPELL_TYPE_ID[]) => {
-	return spellTypeIds.reduce((accumulator, currentValue) => {
-		const spellInstance = getSpellInstance(currentValue);
-
-		return {
-			...accumulator,
-			[spellInstance.spellId]: spellInstance,
-		};
-	}, {} as Record<string, SpellInstance>);
-};
+import { STATUS_EFFECT_TYPE_ID } from '@/lib/models';
+import { getStatusEffectInstance } from '@/lib/utils';
+import { CharacterInstance } from '@/lib/character';
 
 export const adjustCharacterHeathByAmount = (character: CharacterInstance, amount: number) => {
 	const nextHealthValue = character.health + amount;

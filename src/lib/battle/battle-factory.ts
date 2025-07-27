@@ -1,14 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CHARACTER_TYPE_ID, CharacterInstance } from '@/lib/models';
-import { getCharacterInstance } from '@/lib/utils';
 import { BattleInstance, BattleModel } from '@/lib/battle';
+import { Character, CHARACTER_TYPE_ID, CharacterInstance } from '@/lib/character';
+import { SpellInstance } from '@/lib/models';
 
 export const Battle = (battleConfig: BattleModel): BattleInstance => {
-	const playerCharacter = getCharacterInstance(battleConfig.playerCharacterTypeId);
-	const friendlyNonPlayerCharacters = getRecordOfCharacterInstancesByCharacterTypeId(
+	const playerCharacter = Character(battleConfig.playerCharacterTypeId);
+	const friendlyNonPlayerRecords = getCharacterAndSpellRecordsByCharacterTypeId(
 		battleConfig.friendlyNonPlayerCharacterTypeIds
 	);
-	const hostileNonPlayerCharacters = getRecordOfCharacterInstancesByCharacterTypeId(
+	const hostileNonPlayerRecords = getCharacterAndSpellRecordsByCharacterTypeId(
 		battleConfig.hostileNonPlayerCharacterTypeIds
 	);
 
@@ -16,26 +16,41 @@ export const Battle = (battleConfig: BattleModel): BattleInstance => {
 		battleId: uuidv4(),
 		battleTypeId: battleConfig.battleTypeId,
 		title: battleConfig.title,
-		playerCharacterId: playerCharacter.characterId,
-		friendlyNonPlayerCharacterIds: Object.keys(friendlyNonPlayerCharacters),
-		hostileNonPlayerCharacterIds: Object.keys(hostileNonPlayerCharacters),
+		playerCharacterId: playerCharacter.character.characterId,
+		friendlyNonPlayerCharacterIds: Object.keys(friendlyNonPlayerRecords.characterRecord),
+		hostileNonPlayerCharacterIds: Object.keys(hostileNonPlayerRecords.characterRecord),
+		spells: {
+			...playerCharacter.characterSpellsBySpellId,
+			...friendlyNonPlayerRecords.spellRecord,
+			...hostileNonPlayerRecords.spellRecord,
+		},
 		characters: {
-			[playerCharacter.characterId]: playerCharacter,
-			...friendlyNonPlayerCharacters,
-			...hostileNonPlayerCharacters,
+			[playerCharacter.character.characterId]: playerCharacter.character,
+			...friendlyNonPlayerRecords.characterRecord,
+			...hostileNonPlayerRecords.characterRecord,
 		},
 	};
 
 	return battle;
 };
 
-const getRecordOfCharacterInstancesByCharacterTypeId = (characterTypeIds: CHARACTER_TYPE_ID[]) => {
-	return characterTypeIds.reduce((accumulator, currentValue) => {
-		const characterInstance = getCharacterInstance(currentValue);
-
+const getCharacterAndSpellRecordsByCharacterTypeId = (characterTypeIds: CHARACTER_TYPE_ID[]) => {
+	const characters = characterTypeIds.map((characterTypeId) => Character(characterTypeId));
+	const characterRecord = characters.reduce((accumulator, currentvalue) => {
 		return {
 			...accumulator,
-			[characterInstance.characterId]: characterInstance,
+			[currentvalue.character.characterId]: currentvalue.character,
 		};
 	}, {} as Record<string, CharacterInstance>);
+	const spellRecord = characters.reduce((accumulator, currentvalue) => {
+		return {
+			...accumulator,
+			...currentvalue.characterSpellsBySpellId,
+		};
+	}, {} as Record<string, SpellInstance>);
+
+	return {
+		characterRecord,
+		spellRecord,
+	};
 };

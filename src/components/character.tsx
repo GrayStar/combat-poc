@@ -1,5 +1,5 @@
+import { CharacterInstance } from '@/lib/character';
 import { Meter } from '@/components';
-import { CharacterInstance } from '@/lib/models';
 import { useTheme } from '@/styles/hooks';
 
 interface CharacterProps {

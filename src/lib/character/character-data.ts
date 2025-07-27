@@ -1,4 +1,11 @@
-import { CHARACTER_TYPE_ID, CharacterModel, SPELL_TYPE_ID } from '@/lib/models';
+import { CharacterModel } from '@/lib/character';
+import { SPELL_TYPE_ID } from '@/lib/models';
+
+export enum CHARACTER_TYPE_ID {
+	PLAYER = 'PLAYER',
+	SKELETON = 'SKELETON',
+	SPIDER = 'SPIDER',
+}
 
 export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 	[CHARACTER_TYPE_ID.PLAYER]: {

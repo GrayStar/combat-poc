@@ -1,5 +1,6 @@
-import { CHARACTER_TYPE_ID, CharacterInstance } from '@/lib/models';
 import { BATTLE_TYPE_ID } from '@/lib/battle';
+import { CHARACTER_TYPE_ID, CharacterInstance } from '@/lib/character';
+import { SpellInstance } from '../models';
 
 export interface BattleModel {
 	battleTypeId: BATTLE_TYPE_ID;
@@ -14,6 +15,7 @@ export interface BattleInstance {
 	battleTypeId: BATTLE_TYPE_ID;
 	title: string;
 	characters: Record<string, CharacterInstance>;
+	spells: Record<string, SpellInstance>;
 	playerCharacterId: string;
 	friendlyNonPlayerCharacterIds: string[];
 	hostileNonPlayerCharacterIds: string[];
