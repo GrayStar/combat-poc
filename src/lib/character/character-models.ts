@@ -1,5 +1,6 @@
-import { SPELL_TYPE_ID, StatusEffectInstance } from '@/lib/models';
+import { StatusEffectInstance } from '@/lib/models';
 import { CHARACTER_TYPE_ID } from '@/lib/character';
+import { SPELL_TYPE_ID } from '@/lib/spell';
 
 export type CharacterModel = {
 	characterTypeId: CHARACTER_TYPE_ID;

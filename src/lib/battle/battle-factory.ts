@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { BattleInstance, BattleModel } from '@/lib/battle';
 import { Character, CHARACTER_TYPE_ID, CharacterInstance } from '@/lib/character';
-import { SpellInstance } from '@/lib/models';
+import { SpellInstance } from '@/lib/spell';
 
 export const Battle = (battleConfig: BattleModel): BattleInstance => {
 	const playerCharacter = Character(battleConfig.playerCharacterTypeId);

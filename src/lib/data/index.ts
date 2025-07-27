@@ -1,2 +1,1 @@
-export * from './spell-data';
 export * from './status-effect-data';

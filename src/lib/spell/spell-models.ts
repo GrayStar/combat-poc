@@ -1,13 +1,5 @@
-import { STATUS_EFFECT_TYPE_ID } from './status-effect-models';
-
-export enum SPELL_TYPE_ID {
-	PUNCH = 'PUNCH',
-	FIREBALL = 'FIREBALL',
-	BURN_TICK = 'BURN_TICK',
-	SCAR = 'SCAR',
-	HEAL = 'HEAL',
-	LIFE_TAP = 'LIFE_TAP',
-}
+import { STATUS_EFFECT_TYPE_ID } from '@/lib/models';
+import { SPELL_TYPE_ID } from '@/lib/spell';
 
 export interface SpellModel {
 	spellTypeId: SPELL_TYPE_ID;

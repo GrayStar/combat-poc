@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CHARACTER_TYPE_ID, characterData, CharacterInstance } from '@/lib/character';
 import { cloneDeep } from 'lodash';
-import { SPELL_TYPE_ID, SpellInstance } from '@/lib/models';
 import { getSpellInstance } from '@/lib/utils';
+import { CHARACTER_TYPE_ID, characterData, CharacterInstance } from '@/lib/character';
+import { SPELL_TYPE_ID, SpellInstance } from '@/lib/spell';
 
 export const Character = (characterTypeId: CHARACTER_TYPE_ID) => {
 	const characterConfig = cloneDeep(characterData[characterTypeId]);

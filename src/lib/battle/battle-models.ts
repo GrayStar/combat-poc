@@ -1,6 +1,6 @@
 import { BATTLE_TYPE_ID } from '@/lib/battle';
 import { CHARACTER_TYPE_ID, CharacterInstance } from '@/lib/character';
-import { SpellInstance } from '../models';
+import { SpellInstance } from '@/lib/spell';
 
 export interface BattleModel {
 	battleTypeId: BATTLE_TYPE_ID;

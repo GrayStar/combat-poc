@@ -1,4 +1,5 @@
-import { SPELL_TYPE_ID, STATUS_EFFECT_TYPE_ID, StatusEffectModel } from '../models';
+import { STATUS_EFFECT_TYPE_ID, StatusEffectModel } from '../models';
+import { SPELL_TYPE_ID } from '@/lib/spell';
 
 export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> = {
 	[STATUS_EFFECT_TYPE_ID.BURN]: {

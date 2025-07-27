@@ -1,6 +1,6 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { BattleContext } from '@/contexts';
-import { BattleInstance } from '@/lib/battle';
+import { BattleInstance, battleService } from '@/lib/battle';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
 	const [battle, setBattle] = useState<BattleInstance>();
@@ -9,26 +9,12 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		console.log('battle updated:', battle);
 	}, [battle]);
 
-	const handleCastSpell = ({
-		casterId,
-		targetId,
-		spellId,
-	}: {
-		casterId: string;
-		targetId: string;
-		spellId: string;
-	}) => {
+	const handleCastSpell = (payload: { casterId: string; targetId: string; spellId: string }) => {
 		if (!battle) {
-			return;
+			throw new Error('battle is undefined.');
 		}
 
-		console.log('handleCastSpell casterId:', casterId);
-		console.log('handleCastSpell targetId:', targetId);
-		console.log('handleCastSpell spellId:', spellId);
-
-		console.log('handleCastSpell caster:', battle?.characters[casterId]);
-		console.log('handleCastSpell target:', battle?.characters[targetId]);
-		console.log('handleCastSpell spell:', battle?.spells[spellId]);
+		battleService.castSpell(battle?.battleId, payload);
 	};
 
 	// const [combatLog, setCombatLog] = useState<string[]>([]);

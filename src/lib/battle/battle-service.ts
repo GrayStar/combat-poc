@@ -21,4 +21,16 @@ export const battleService = {
 	deleteBattleByBattleId(battleId: string) {
 		delete battleStore[battleId];
 	},
+	castSpell(battleId: string, data: { casterId: string; targetId: string; spellId: string }) {
+		const { casterId, targetId, spellId } = data;
+		const battle = battleStore[battleId];
+
+		const caster = battle.characters[casterId];
+		const target = battle.characters[targetId];
+		const spell = battle.spells[spellId];
+
+		console.log('caster:', caster);
+		console.log('target:', target);
+		console.log('spell:', spell);
+	},
 };
