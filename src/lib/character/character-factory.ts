@@ -1,37 +1,27 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
-import { getSpellInstance } from '@/lib/utils';
-import { CHARACTER_TYPE_ID, characterData, CharacterInstance } from '@/lib/character';
-import { SPELL_TYPE_ID, SpellInstance } from '@/lib/spell';
+import { CHARACTER_TYPE_ID, characterData } from '@/lib/character';
+import { healthAdjuster, manaAdjuster, spellCaster } from '@/lib/character/actions';
 
 export const Character = (characterTypeId: CHARACTER_TYPE_ID) => {
-	const characterConfig = cloneDeep(characterData[characterTypeId]);
-	const characterSpellsBySpellId = getRecordOfSpellInstancesBySpellId(characterConfig.spellIds);
-	const characterSpellIds = Object.keys(characterSpellsBySpellId);
+	const { maxHealth, maxMana, spellTypeIds, title } = cloneDeep(characterData[characterTypeId]);
+	const characterId = uuidv4();
 
-	const character: CharacterInstance = {
-		characterId: uuidv4(),
-		characterTypeId: characterConfig.characterTypeId,
-		title: characterConfig.title,
-		health: characterConfig.maxHealth,
-		maxHealth: characterConfig.maxHealth,
-		mana: characterConfig.maxMana,
-		maxMana: characterConfig.maxMana,
-		spellIds: characterSpellIds,
-		statusEffects: {},
-		isCasting: false,
+	const health = healthAdjuster(maxHealth);
+	const mana = manaAdjuster(maxMana);
+	const { spellsBySpellId, ...spells } = spellCaster(spellTypeIds);
+
+	const character = {
+		characterId,
+		characterTypeId,
+		title,
+		...health,
+		...mana,
+		...spells,
 	};
 
-	return { character, characterSpellsBySpellId };
-};
-
-const getRecordOfSpellInstancesBySpellId = (spellTypeIds: SPELL_TYPE_ID[]) => {
-	return spellTypeIds.reduce((accumulator, currentValue) => {
-		const spellInstance = getSpellInstance(currentValue);
-
-		return {
-			...accumulator,
-			[spellInstance.spellId]: spellInstance,
-		};
-	}, {} as Record<string, SpellInstance>);
+	return {
+		character,
+		characterSpellsBySpellId: spellsBySpellId,
+	};
 };

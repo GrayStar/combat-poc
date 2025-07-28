@@ -1,4 +1,3 @@
-import { StatusEffectInstance } from '@/lib/models';
 import { CHARACTER_TYPE_ID } from '@/lib/character';
 import { SPELL_TYPE_ID } from '@/lib/spell';
 
@@ -7,7 +6,7 @@ export type CharacterModel = {
 	title: string;
 	maxHealth: number;
 	maxMana: number;
-	spellIds: SPELL_TYPE_ID[];
+	spellTypeIds: SPELL_TYPE_ID[];
 };
 
 export type CharacterInstance = {
@@ -19,6 +18,5 @@ export type CharacterInstance = {
 	mana: number;
 	maxMana: number;
 	spellIds: string[];
-	statusEffects: Record<string, StatusEffectInstance>;
 	isCasting: boolean;
 };

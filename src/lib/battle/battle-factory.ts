@@ -13,6 +13,7 @@ export const Battle = (battleConfig: BattleModel) => {
 	const hostileNonPlayerRecords = getCharacterAndSpellRecordsByCharacterTypeId(
 		battleConfig.hostileNonPlayerCharacterTypeIds
 	);
+
 	const battle: BattleInstance = {
 		battleId: uuidv4(),
 		battleTypeId: battleConfig.battleTypeId,
