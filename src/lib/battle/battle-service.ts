@@ -39,6 +39,7 @@ export const battleService = {
 
 		caster.adjustMana(spellManaCost);
 		target.adjustHealth(damage);
+		spell.isOnCooldown = true;
 
 		notify();
 	},

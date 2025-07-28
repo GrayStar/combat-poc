@@ -1,15 +1,12 @@
-import { SPELL_TYPE_ID, SpellInstance } from '@/lib/spell';
-import { getSpellInstance } from '@/lib/utils';
+import { getSpellInstance, SPELL_TYPE_ID, SpellInstance } from '@/lib/spell';
 
 export type SpellCasterComponents = {
-	readonly spellIds: string[];
-	readonly isCasting: boolean;
+	spellIds: string[];
+	isCasting: boolean;
 };
 
 export type SpellCasterSystems = {
-	getSpellIds(): string[];
 	setSpellIds(spellIds: string[]): void;
-	getIsCasting(): boolean;
 	setIsCasting(isCasting: boolean): void;
 };
 
@@ -20,37 +17,16 @@ export function spellCaster(
 ): SpellCaster & { spellsBySpellId: Record<string, SpellInstance> } {
 	const spellsBySpellId = getRecordOfSpellInstancesBySpellId(spellTypeIds);
 
-	let spellIds = Object.keys(spellsBySpellId);
-	let isCasting = false;
-
-	const components: SpellCasterComponents = {
-		get spellIds() {
-			return spellIds;
-		},
-		get isCasting() {
-			return isCasting;
-		},
-	};
-
-	const systems: SpellCasterSystems = {
-		getSpellIds() {
-			return spellIds;
-		},
-		setSpellIds(value) {
-			spellIds = value;
-		},
-		getIsCasting() {
-			return isCasting;
-		},
-		setIsCasting(value) {
-			isCasting = value;
-		},
-	};
-
 	return {
 		spellsBySpellId,
-		...components,
-		...systems,
+		spellIds: Object.keys(spellsBySpellId),
+		isCasting: false,
+		setSpellIds(value) {
+			this.spellIds = value;
+		},
+		setIsCasting(value) {
+			this.isCasting = value;
+		},
 	};
 }
 

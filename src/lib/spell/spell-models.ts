@@ -23,4 +23,5 @@ export interface SpellResource {
 
 export interface SpellInstance extends SpellModel {
 	spellId: string;
+	isOnCooldown: boolean;
 }

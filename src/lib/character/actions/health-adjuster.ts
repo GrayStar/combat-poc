@@ -1,12 +1,10 @@
 export type HealthAdjusterComponents = {
-	readonly health: number;
-	readonly maxHealth: number;
+	health: number;
+	maxHealth: number;
 };
 
 export type HealthAdjusterSystems = {
-	getHealth(): number;
 	setHealth(amount: number): void;
-	getMaxHealth(): number;
 	setMaxHealth(amount: number): void;
 	adjustHealth(amount: number): void;
 };
@@ -14,43 +12,22 @@ export type HealthAdjusterSystems = {
 export type HealthAdjuster = HealthAdjusterComponents & HealthAdjusterSystems;
 
 export function healthAdjuster(maxHealthValue: number): HealthAdjuster {
-	let health = maxHealthValue;
-	let maxHealth = maxHealthValue;
-
-	const components: HealthAdjusterComponents = {
-		get health() {
-			return health;
-		},
-		get maxHealth() {
-			return maxHealth;
-		},
-	};
-
-	const systems: HealthAdjusterSystems = {
-		getHealth() {
-			return health;
-		},
+	return {
+		health: maxHealthValue,
+		maxHealth: maxHealthValue,
 		setHealth(amount: number) {
-			health = amount;
-		},
-		getMaxHealth() {
-			return maxHealth;
+			this.health = amount;
 		},
 		setMaxHealth(amount: number) {
-			maxHealth = amount;
+			this.maxHealth = amount;
 		},
 		adjustHealth(amount: number) {
-			const next = health + amount;
+			const next = this.health + amount;
 			if (next <= 0) {
-				health = 0;
+				this.health = 0;
 			} else {
-				health = Math.min(maxHealth, next);
+				this.health = Math.min(this.maxHealth, next);
 			}
 		},
-	};
-
-	return {
-		...components,
-		...systems,
 	};
 }

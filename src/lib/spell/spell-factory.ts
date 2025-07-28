@@ -8,5 +8,6 @@ export const getSpellInstance = (spellTypeId: SPELL_TYPE_ID): SpellInstance => {
 	return {
 		...spellConfig,
 		spellId: uuidv4(),
+		isOnCooldown: false,
 	};
 };

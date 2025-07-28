@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { SpellInstance, STATUS_EFFECT_TYPE_ID, StatusEffectInstance } from '@/lib/models';
+import { STATUS_EFFECT_TYPE_ID, StatusEffectInstance } from '@/lib/models';
 import { cloneDeep, get, set } from 'lodash';
-import { statusEffectData } from '../data';
+import { statusEffectData } from '@/lib/data';
+import { SpellInstance } from '@/lib/spell';
 
 export const getStatusEffectInstance = (statusEffectTypeId: STATUS_EFFECT_TYPE_ID): StatusEffectInstance => {
 	const statusEffectConfig = cloneDeep(statusEffectData[statusEffectTypeId]);
