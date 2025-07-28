@@ -20,7 +20,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		title: 'Skeleton',
 		maxHealth: 100,
 		maxMana: 100,
-		spellTypeIds: [],
+		spellTypeIds: [SPELL_TYPE_ID.PUNCH],
 	},
 	[CHARACTER_TYPE_ID.SPIDER]: {
 		characterTypeId: CHARACTER_TYPE_ID.SPIDER,

@@ -9,8 +9,7 @@ export const battleService = {
 		return Object.values(data);
 	},
 	createBattleByBattleTypeId(battleTypeId: BATTLE_TYPE_ID) {
-		const battleConfig = cloneDeep(battleData[battleTypeId]);
-		const { battle, notify, subscribe } = Battle(battleConfig);
+		const { battle, notify, subscribe } = Battle(battleTypeId);
 		battleStore[battle.battleId] = { battle, notify };
 
 		return { battle, subscribe };

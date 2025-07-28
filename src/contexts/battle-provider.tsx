@@ -1,4 +1,4 @@
-import { PropsWithChildren, useCallback, useRef, useState } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import { BattleContext } from '@/contexts';
 import { BATTLE_TYPE_ID, BattleInstance, battleService } from '@/lib/battle';
 
@@ -21,9 +21,14 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		setBattle(newBattle);
 
 		unsubscribeRef.current = subscribe((updatedBattleState) => {
+			console.log('notified.', updatedBattleState.spells);
 			setBattle(updatedBattleState);
 		});
 	}, []);
+
+	useEffect(() => {
+		console.log('battle', battle);
+	}, [battle]);
 
 	// const [combatLog, setCombatLog] = useState<string[]>([]);
 

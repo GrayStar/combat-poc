@@ -20,15 +20,21 @@ export const Spell = (spellTypeId: SPELL_TYPE_ID, notify: () => void) => {
 			clearTimeout(cooldownTimeout);
 			cooldownTimeout = undefined;
 			this.isOnCooldown = false;
+
+			console.log('stopCooldown');
 			notify();
 		},
 		startCooldown() {
 			this.stopCooldown();
 			this.isOnCooldown = true;
+
+			console.log('startCooldown');
 			notify();
 
 			cooldownTimeout = setTimeout(() => {
 				this.isOnCooldown = false;
+
+				console.log('cooldownComplete');
 				notify();
 			}, this.cooldownDurationInMs);
 		},
