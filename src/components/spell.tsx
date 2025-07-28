@@ -12,10 +12,10 @@ const cooldownAnimation = keyframes`
 `;
 
 interface UseStyleProps extends Record<string, unknown> {
-	duration: number;
+	cooldownDurationInMs: number;
 }
 
-const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }) => ({
+const useStyles = tss.withParams<UseStyleProps>().create(({ cooldownDurationInMs, ...theme }) => ({
 	spell: {
 		width: 48,
 		height: 48,
@@ -33,7 +33,7 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }
 		height: '100%',
 		position: 'absolute',
 		backgroundColor: 'rgba(0, 0, 0, 0.5)',
-		animation: `${cooldownAnimation} ${duration}ms linear forwards`,
+		animation: `${cooldownAnimation} ${cooldownDurationInMs}ms linear forwards`,
 	},
 }));
 
@@ -42,7 +42,7 @@ interface SpellProps {
 }
 
 export const Spell = ({ spell }: SpellProps) => {
-	const { classes } = useStyles({ duration: spell.cooldownDurationInMs });
+	const { classes } = useStyles({ cooldownDurationInMs: spell.cooldownDurationInMs });
 	return (
 		<div className={classes.spell}>
 			{spell.isOnCooldown && <div className={classes.cooldown} />}
