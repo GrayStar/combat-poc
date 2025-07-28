@@ -1,5 +1,4 @@
 import { StatusEffectModel } from '@/lib/status-effect';
-import { SPELL_TYPE_ID } from '@/lib/spell';
 
 export enum STATUS_EFFECT_TYPE_ID {
 	BURN = 'BURN',
@@ -15,7 +14,7 @@ export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> 
 		interval: 1000,
 		outgoingSpellModifiers: [],
 		incomingSpellModifiers: [],
-		intervalSpellTypeIds: [SPELL_TYPE_ID.BURN_TICK],
+		intervalSpellTypeIds: [],
 		timeoutSpellTypeIds: [],
 		clearedSpellTypeIds: [],
 		canStack: false,
@@ -27,13 +26,7 @@ export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> 
 		duration: 6000,
 		interval: 0,
 		outgoingSpellModifiers: [],
-		incomingSpellModifiers: [
-			{
-				path: ['targetEffects', 'resources', 'health'],
-				operation: 'multiply',
-				amount: 2,
-			},
-		],
+		incomingSpellModifiers: [],
 		intervalSpellTypeIds: [],
 		timeoutSpellTypeIds: [],
 		clearedSpellTypeIds: [],
