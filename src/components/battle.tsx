@@ -98,7 +98,12 @@ export const Battle = () => {
 									const spell = battle.spells[spellId];
 
 									return (
-										<Draggable key={spell.spellId} draggableId={spell.spellId} index={spellIndex}>
+										<Draggable
+											key={spell.spellId}
+											draggableId={spell.spellId}
+											index={spellIndex}
+											isDragDisabled={spell.isOnCooldown}
+										>
 											{(draggableProvided, draggableSnapshot) => (
 												<>
 													<div

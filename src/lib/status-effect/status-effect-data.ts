@@ -1,5 +1,10 @@
-import { STATUS_EFFECT_TYPE_ID, StatusEffectModel } from '../models';
 import { SPELL_TYPE_ID } from '@/lib/spell';
+import { StatusEffectModel } from '@/lib/status-effect';
+
+export enum STATUS_EFFECT_TYPE_ID {
+	BURN = 'BURN',
+	SCARRED = 'SCARRED',
+}
 
 export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> = {
 	[STATUS_EFFECT_TYPE_ID.BURN]: {

@@ -1,9 +1,5 @@
 import { SPELL_TYPE_ID } from '@/lib/spell';
-
-export enum STATUS_EFFECT_TYPE_ID {
-	BURN = 'BURN',
-	SCARRED = 'SCARRED',
-}
+import { STATUS_EFFECT_TYPE_ID } from '@/lib/status-effect';
 
 export interface StatusEffectModel {
 	statusEffectTypeId: STATUS_EFFECT_TYPE_ID;
