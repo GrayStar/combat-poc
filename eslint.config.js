@@ -24,7 +24,7 @@ export default tseslint.config(
 			curly: 'error',
 			'no-unreachable': 'error',
 			eqeqeq: 'error',
-			'no-console': 'warn',
+			// 'no-console': 'warn',
 			complexity: ['warn', 20],
 		},
 	}
