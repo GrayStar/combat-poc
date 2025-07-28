@@ -5,13 +5,13 @@ import { healthAdjuster, manaAdjuster, spellCaster } from '@/lib/character/actio
 
 export type CharacterInstance = ReturnType<typeof Character>['character'];
 
-export const Character = (characterTypeId: CHARACTER_TYPE_ID) => {
+export const Character = (characterTypeId: CHARACTER_TYPE_ID, notify: () => void) => {
 	const { maxHealth, maxMana, spellTypeIds, title } = cloneDeep(characterData[characterTypeId]);
 	const characterId = uuidv4();
 
 	const health = healthAdjuster(maxHealth);
 	const mana = manaAdjuster(maxMana);
-	const { spellsBySpellId, ...spells } = spellCaster(spellTypeIds);
+	const { spellsBySpellId, ...spells } = spellCaster(spellTypeIds, notify);
 
 	const character = {
 		characterId,

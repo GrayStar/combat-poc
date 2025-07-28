@@ -106,11 +106,11 @@ export const Battle = () => {
 														{...draggableProvided.dragHandleProps}
 														ref={draggableProvided.innerRef}
 													>
-														<Spell title={spell.title} />
+														<Spell spell={spell} />
 													</div>
 													{draggableSnapshot.isDragging && (
 														<div style={{ transform: 'none !important' }}>
-															<Spell title={spell.title} />
+															<Spell spell={spell} />
 														</div>
 													)}
 												</>

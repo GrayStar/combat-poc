@@ -6,12 +6,26 @@ import { SpellInstance } from '@/lib/spell';
 type NotificationSubscriber = (state: BattleInstance) => void;
 
 export const Battle = (battleConfig: BattleModel) => {
-	const playerCharacter = Character(battleConfig.playerCharacterTypeId);
+	const notificationSubscribers = new Set<NotificationSubscriber>();
+	function notify() {
+		for (const notificationSubscriber of notificationSubscribers) {
+			try {
+				notificationSubscriber(battle);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error('subscriber threw:', error);
+			}
+		}
+	}
+
+	const playerCharacter = Character(battleConfig.playerCharacterTypeId, notify);
 	const friendlyNonPlayerRecords = getCharacterAndSpellRecordsByCharacterTypeId(
-		battleConfig.friendlyNonPlayerCharacterTypeIds
+		battleConfig.friendlyNonPlayerCharacterTypeIds,
+		notify
 	);
 	const hostileNonPlayerRecords = getCharacterAndSpellRecordsByCharacterTypeId(
-		battleConfig.hostileNonPlayerCharacterTypeIds
+		battleConfig.hostileNonPlayerCharacterTypeIds,
+		notify
 	);
 
 	const battle: BattleInstance = {
@@ -33,20 +47,9 @@ export const Battle = (battleConfig: BattleModel) => {
 		},
 	};
 
-	const notificationSubscribers = new Set<NotificationSubscriber>();
-
 	return {
 		battle,
-		notify() {
-			for (const notificationSubscriber of notificationSubscribers) {
-				try {
-					notificationSubscriber(battle);
-				} catch (error) {
-					// eslint-disable-next-line no-console
-					console.error('subscriber threw:', error);
-				}
-			}
-		},
+		notify,
 		subscribe(notificationSubscriber: NotificationSubscriber): () => void {
 			notificationSubscribers.add(notificationSubscriber);
 			notificationSubscriber(battle);
@@ -57,8 +60,8 @@ export const Battle = (battleConfig: BattleModel) => {
 	};
 };
 
-const getCharacterAndSpellRecordsByCharacterTypeId = (characterTypeIds: CHARACTER_TYPE_ID[]) => {
-	const characters = characterTypeIds.map((characterTypeId) => Character(characterTypeId));
+const getCharacterAndSpellRecordsByCharacterTypeId = (characterTypeIds: CHARACTER_TYPE_ID[], notify: () => void) => {
+	const characters = characterTypeIds.map((characterTypeId) => Character(characterTypeId, notify));
 	const characterRecord = characters.reduce((accumulator, currentvalue) => {
 		return {
 			...accumulator,

@@ -5,6 +5,7 @@ export interface SpellModel {
 	spellTypeId: SPELL_TYPE_ID;
 	title: string;
 	description: string;
+	cooldownDurationInMs: number;
 	castTimeDurationInMs?: number;
 	casterEffects?: SpellEffect;
 	targetEffects?: SpellEffect;
@@ -19,9 +20,4 @@ export interface SpellEffect {
 export interface SpellResource {
 	health?: number;
 	mana?: number;
-}
-
-export interface SpellInstance extends SpellModel {
-	spellId: string;
-	isOnCooldown: boolean;
 }

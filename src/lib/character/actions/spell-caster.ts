@@ -1,4 +1,4 @@
-import { getSpellInstance, SPELL_TYPE_ID, SpellInstance } from '@/lib/spell';
+import { Spell, SPELL_TYPE_ID, SpellInstance } from '@/lib/spell';
 
 export type SpellCasterComponents = {
 	spellIds: string[];
@@ -13,9 +13,10 @@ export type SpellCasterSystems = {
 export type SpellCaster = SpellCasterComponents & SpellCasterSystems;
 
 export function spellCaster(
-	spellTypeIds: SPELL_TYPE_ID[]
+	spellTypeIds: SPELL_TYPE_ID[],
+	notify: () => void
 ): SpellCaster & { spellsBySpellId: Record<string, SpellInstance> } {
-	const spellsBySpellId = getRecordOfSpellInstancesBySpellId(spellTypeIds);
+	const spellsBySpellId = getRecordOfSpellInstancesBySpellId(spellTypeIds, notify);
 
 	return {
 		spellsBySpellId,
@@ -30,9 +31,9 @@ export function spellCaster(
 	};
 }
 
-const getRecordOfSpellInstancesBySpellId = (spellTypeIds: SPELL_TYPE_ID[]) => {
+const getRecordOfSpellInstancesBySpellId = (spellTypeIds: SPELL_TYPE_ID[], notify: () => void) => {
 	return spellTypeIds.reduce((accumulator, currentValue) => {
-		const spellInstance = getSpellInstance(currentValue);
+		const spellInstance = Spell(currentValue, notify);
 
 		return {
 			...accumulator,
