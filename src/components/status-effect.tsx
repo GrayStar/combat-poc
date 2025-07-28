@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { keyframes } from 'tss-react';
-import { StatusEffectInstance } from '@/lib/models';
+import { StatusEffectInstance } from '@/lib/status-effect';
 import { tss } from '@/styles';
 
 const cooldownAnimation = keyframes`

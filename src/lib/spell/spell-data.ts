@@ -1,5 +1,5 @@
 import { SpellModel } from '@/lib/spell';
-import { STATUS_EFFECT_TYPE_ID } from '@/lib/models';
+import { STATUS_EFFECT_TYPE_ID } from '@/lib/status-effect';
 
 export enum SPELL_TYPE_ID {
 	PUNCH = 'PUNCH',

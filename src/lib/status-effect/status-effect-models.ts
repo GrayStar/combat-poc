@@ -20,8 +20,3 @@ export interface StatusEffectModifier {
 	operation: 'add' | 'subtract' | 'multiply' | 'divide';
 	amount: number;
 }
-
-export interface StatusEffectInstance extends StatusEffectModel {
-	statusEffectId: string;
-	stacks?: number;
-}

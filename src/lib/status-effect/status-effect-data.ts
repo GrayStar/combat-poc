@@ -1,5 +1,5 @@
-import { SPELL_TYPE_ID } from '@/lib/spell';
 import { StatusEffectModel } from '@/lib/status-effect';
+import { SPELL_TYPE_ID } from '@/lib/spell';
 
 export enum STATUS_EFFECT_TYPE_ID {
 	BURN = 'BURN',

@@ -1,5 +1,5 @@
-import { STATUS_EFFECT_TYPE_ID } from '@/lib/models';
-import { getStatusEffectInstance } from '@/lib/utils';
+//import { STATUS_EFFECT_TYPE_ID } from '@/lib/models';
+//import { getStatusEffectInstance } from '@/lib/utils';
 import { CharacterInstance } from '@/lib/character';
 
 export const adjustCharacterHeathByAmount = (character: CharacterInstance, amount: number) => {
@@ -34,42 +34,42 @@ export const adjustCharacterManaByAmount = (character: CharacterInstance, amount
 	character.mana = nextManaValue;
 };
 
-export const addStatusEffectTypeIdToCharacter = (
-	character: CharacterInstance,
-	statusEffectTypeId: STATUS_EFFECT_TYPE_ID
-) => {
-	const statusEffectInstance = getStatusEffectInstance(statusEffectTypeId);
+// export const addStatusEffectTypeIdToCharacter = (
+// 	character: CharacterInstance,
+// 	statusEffectTypeId: STATUS_EFFECT_TYPE_ID
+// ) => {
+// 	const statusEffectInstance = getStatusEffectInstance(statusEffectTypeId);
 
-	if (statusEffectInstance.canStack) {
-		statusEffectInstance.stacks = 1;
-	}
+// 	if (statusEffectInstance.canStack) {
+// 		statusEffectInstance.stacks = 1;
+// 	}
 
-	const matchingStatusEffect = Object.values(character.statusEffects).find(
-		(se) => se.statusEffectTypeId === statusEffectInstance.statusEffectTypeId
-	);
+// 	const matchingStatusEffect = Object.values(character.statusEffects).find(
+// 		(se) => se.statusEffectTypeId === statusEffectInstance.statusEffectTypeId
+// 	);
 
-	if (matchingStatusEffect) {
-		const stacks = (matchingStatusEffect.stacks ?? 0) + 1;
+// 	if (matchingStatusEffect) {
+// 		const stacks = (matchingStatusEffect.stacks ?? 0) + 1;
 
-		if (statusEffectInstance.canStack) {
-			statusEffectInstance.stacks = stacks;
-		}
+// 		if (statusEffectInstance.canStack) {
+// 			statusEffectInstance.stacks = stacks;
+// 		}
 
-		delete character.statusEffects[matchingStatusEffect.statusEffectId];
-	}
+// 		delete character.statusEffects[matchingStatusEffect.statusEffectId];
+// 	}
 
-	character.statusEffects = {
-		...character.statusEffects,
-		[statusEffectInstance.statusEffectId]: statusEffectInstance,
-	};
-};
+// 	character.statusEffects = {
+// 		...character.statusEffects,
+// 		[statusEffectInstance.statusEffectId]: statusEffectInstance,
+// 	};
+// };
 
-export const removeStatusEffectTypeIdFromCharacter = (
-	character: CharacterInstance,
-	statusEffectTypeId: STATUS_EFFECT_TYPE_ID
-) => {
-	console.group('removeStatusEffectFromCharacter');
-	console.log('character', character);
-	console.log('statusEffectTypeId', statusEffectTypeId);
-	console.groupEnd();
-};
+// export const removeStatusEffectTypeIdFromCharacter = (
+// 	character: CharacterInstance,
+// 	statusEffectTypeId: STATUS_EFFECT_TYPE_ID
+// ) => {
+// 	console.group('removeStatusEffectFromCharacter');
+// 	console.log('character', character);
+// 	console.log('statusEffectTypeId', statusEffectTypeId);
+// 	console.groupEnd();
+// };
