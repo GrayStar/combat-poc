@@ -1,3 +1,3 @@
+export * from './character-class';
 export * from './character-data';
-export * from './character-factory';
 export * from './character-models';

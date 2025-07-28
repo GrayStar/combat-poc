@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle';
-import { Character, CHARACTER_TYPE_ID, CharacterInstance } from '@/lib/character';
+import { Character, CHARACTER_TYPE_ID, CharacterState } from '@/lib/character';
 import { Spell, SpellInstance } from '@/lib/spell';
 
 export type BattleState = {
@@ -11,7 +11,7 @@ export type BattleState = {
 	playerCharacterId: string;
 	friendlyNonPlayerCharacterIds: string[];
 	hostileNonPlayerCharacterIds: string[];
-	characters: Record<string, CharacterInstance>;
+	characters: Record<string, CharacterState>;
 	spells: Record<string, SpellInstance>;
 };
 
@@ -23,7 +23,7 @@ export class Battle {
 	private _playerCharacterId: string = '';
 	private _friendlyNonPlayerCharacterIds: string[] = [];
 	private _hostileNonPlayerCharacterIds: string[] = [];
-	private _characters: Record<string, CharacterInstance> = {};
+	private _characters: Record<string, Character> = {};
 	private _spells: Record<string, SpellInstance> = {};
 	private _notificationSubscribers = new Set<(state: BattleState) => void>();
 
@@ -62,6 +62,11 @@ export class Battle {
 	}
 
 	public getState(): BattleState {
+		const characterStates: Record<string, CharacterState> = {};
+		for (const [id, instance] of Object.entries(this._characters)) {
+			characterStates[id] = instance.getState();
+		}
+
 		return {
 			battleId: this.battleId,
 			battleTypeId: this.battleTypeId,
@@ -69,7 +74,7 @@ export class Battle {
 			playerCharacterId: this.playerCharacterId,
 			friendlyNonPlayerCharacterIds: this.friendlyNonPlayerCharacterIds,
 			hostileNonPlayerCharacterIds: this.hostileNonPlayerCharacterIds,
-			characters: this.characters,
+			characters: characterStates,
 			spells: this.spells,
 		};
 	}
@@ -107,7 +112,7 @@ export class Battle {
 	}
 
 	private initializeCharacters(config: (typeof battleData)[BATTLE_TYPE_ID]): void {
-		const player = Character(config.playerCharacterTypeId);
+		const player = new Character(config.playerCharacterTypeId);
 		const friendly = this.createCharacterRecord(config.friendlyNonPlayerCharacterTypeIds);
 		const hostile = this.createCharacterRecord(config.hostileNonPlayerCharacterTypeIds);
 
@@ -137,15 +142,15 @@ export class Battle {
 		};
 	}
 
-	private createCharacterRecord(ids: CHARACTER_TYPE_ID[]): Record<string, CharacterInstance> {
+	private createCharacterRecord(ids: CHARACTER_TYPE_ID[]): Record<string, Character> {
 		return ids.reduce((acc, id) => {
-			const character = Character(id);
+			const character = new Character(id);
 			acc[character.characterId] = character;
 			return acc;
-		}, {} as Record<string, CharacterInstance>);
+		}, {} as Record<string, Character>);
 	}
 
-	private createSpellsForCharacter(character: CharacterInstance): Record<string, SpellInstance> {
+	private createSpellsForCharacter(character: Character): Record<string, SpellInstance> {
 		return character.spellTypeIds.reduce((acc, spellTypeId) => {
 			const spell = Spell(spellTypeId, this.notify.bind(this));
 			acc[spell.spellId] = spell;
