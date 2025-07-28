@@ -3,6 +3,8 @@ import { cloneDeep } from 'lodash';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character';
 import { healthAdjuster, manaAdjuster, spellCaster } from '@/lib/character/actions';
 
+export type CharacterInstance = ReturnType<typeof Character>['character'];
+
 export const Character = (characterTypeId: CHARACTER_TYPE_ID) => {
 	const { maxHealth, maxMana, spellTypeIds, title } = cloneDeep(characterData[characterTypeId]);
 	const characterId = uuidv4();

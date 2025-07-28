@@ -37,8 +37,8 @@ export const battleService = {
 
 		const damage = spell.targetEffects?.resources?.health ?? 0;
 
-		caster.mana += spellManaCost;
-		target.health += damage;
+		caster.adjustMana(spellManaCost);
+		target.adjustHealth(damage);
 
 		notify();
 	},
