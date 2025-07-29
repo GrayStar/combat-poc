@@ -149,8 +149,7 @@ export class Battle {
 			if (newEffect.canStack) {
 				newEffect.stacks = existing.stacks + 1;
 			}
-			existing.stopInterval();
-			existing.stopTimeout();
+			existing.stopAllTimers();
 			delete this._statusEffects[matchingId];
 
 			character.removeStatusEffectId(matchingId);
