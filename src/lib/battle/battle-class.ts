@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle';
 import { Character, CHARACTER_TYPE_ID, CharacterState } from '@/lib/character';
-import { Spell, SpellInstance } from '@/lib/spell';
+import { Spell, SpellState } from '@/lib/spell';
 
 export type BattleState = {
 	battleId: string;
@@ -12,7 +12,7 @@ export type BattleState = {
 	friendlyNonPlayerCharacterIds: string[];
 	hostileNonPlayerCharacterIds: string[];
 	characters: Record<string, CharacterState>;
-	spells: Record<string, SpellInstance>;
+	spells: Record<string, SpellState>;
 };
 
 export class Battle {
@@ -24,7 +24,7 @@ export class Battle {
 	private _friendlyNonPlayerCharacterIds: string[] = [];
 	private _hostileNonPlayerCharacterIds: string[] = [];
 	private _characters: Record<string, Character> = {};
-	private _spells: Record<string, SpellInstance> = {};
+	private _spells: Record<string, Spell> = {};
 	private _notificationSubscribers = new Set<(state: BattleState) => void>();
 
 	constructor(battleTypeId: BATTLE_TYPE_ID) {
@@ -63,8 +63,14 @@ export class Battle {
 
 	public getState(): BattleState {
 		const characterStates: Record<string, CharacterState> = {};
+		const spellStates: Record<string, SpellState> = {};
+
 		for (const [id, instance] of Object.entries(this._characters)) {
 			characterStates[id] = instance.getState();
+		}
+
+		for (const [id, instance] of Object.entries(this._spells)) {
+			spellStates[id] = instance.getState();
 		}
 
 		return {
@@ -75,7 +81,7 @@ export class Battle {
 			friendlyNonPlayerCharacterIds: this.friendlyNonPlayerCharacterIds,
 			hostileNonPlayerCharacterIds: this.hostileNonPlayerCharacterIds,
 			characters: characterStates,
-			spells: this.spells,
+			spells: spellStates,
 		};
 	}
 
@@ -150,20 +156,20 @@ export class Battle {
 		}, {} as Record<string, Character>);
 	}
 
-	private createSpellsForCharacter(character: Character): Record<string, SpellInstance> {
+	private createSpellsForCharacter(character: Character): Record<string, Spell> {
 		return character.spellTypeIds.reduce((acc, spellTypeId) => {
-			const spell = Spell(spellTypeId, this.notify.bind(this));
+			const spell = new Spell(spellTypeId, this.notify.bind(this));
 			acc[spell.spellId] = spell;
 			return acc;
-		}, {} as Record<string, SpellInstance>);
+		}, {} as Record<string, Spell>);
 	}
 
-	private createSpellsForMultipleCharacters(ids: string[]): Record<string, SpellInstance> {
+	private createSpellsForMultipleCharacters(ids: string[]): Record<string, Spell> {
 		return ids.reduce((acc, id) => {
 			const character = this._characters[id];
 			const spells = this.createSpellsForCharacter(character);
 			character.setSpellIds(Object.keys(spells));
 			return { ...acc, ...spells };
-		}, {} as Record<string, SpellInstance>);
+		}, {} as Record<string, Spell>);
 	}
 }
