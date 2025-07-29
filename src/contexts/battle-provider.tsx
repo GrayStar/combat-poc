@@ -1,9 +1,9 @@
 import { PropsWithChildren, useCallback, useRef, useState } from 'react';
 import { BattleContext } from '@/contexts';
-import { BATTLE_TYPE_ID, BattleInstance, battleService } from '@/lib/battle';
+import { BATTLE_TYPE_ID, battleService, BattleState } from '@/lib/battle';
 
 export const BattleProvider = ({ children }: PropsWithChildren) => {
-	const [battle, setBattle] = useState<BattleInstance>();
+	const [battle, setBattle] = useState<BattleState>();
 	const unsubscribeRef = useRef<() => void>(() => {});
 
 	const handleCastSpell = (payload: { casterId: string; targetId: string; spellId: string }) => {

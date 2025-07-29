@@ -8,6 +8,7 @@ export type CharacterState = {
 	characterTypeId: CHARACTER_TYPE_ID;
 	title: string;
 	spellIds: string[];
+	statusEffectIds: string[];
 	isCasting: boolean;
 	health: number;
 	maxHealth: number;
@@ -22,6 +23,7 @@ export class Character {
 	public readonly spellTypeIds: SPELL_TYPE_ID[];
 
 	private _spellIds: string[];
+	private _statusEffectIds: string[];
 	private _isCasting: boolean;
 	private _health: number;
 	private _maxHealth: number;
@@ -37,6 +39,7 @@ export class Character {
 		this.spellTypeIds = config.spellTypeIds;
 
 		this._spellIds = [];
+		this._statusEffectIds = [];
 		this._isCasting = false;
 		this._health = config.maxHealth;
 		this._maxHealth = config.maxHealth;
@@ -105,6 +108,21 @@ export class Character {
 		this._isCasting = isCasting;
 	}
 
+	// --- Status Effects ---
+	public get statusEffectIds(): string[] {
+		return [...this._statusEffectIds];
+	}
+
+	public addStatusEffectId(id: string): void {
+		if (!this._statusEffectIds.includes(id)) {
+			this._statusEffectIds.push(id);
+		}
+	}
+
+	public removeStatusEffectId(id: string): void {
+		this._statusEffectIds = this._statusEffectIds.filter((existing) => existing !== id);
+	}
+
 	// --- State Snapshot ---
 	public getState(): CharacterState {
 		return {
@@ -112,6 +130,7 @@ export class Character {
 			characterTypeId: this.characterTypeId,
 			title: this.title,
 			spellIds: this.spellIds,
+			statusEffectIds: this.statusEffectIds,
 			isCasting: this._isCasting,
 			health: this._health,
 			maxHealth: this._maxHealth,

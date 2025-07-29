@@ -1,9 +1,9 @@
-import { CharacterInstance } from '@/lib/character';
+import { CharacterState } from '@/lib/character';
 import { Meter } from '@/components';
 import { useTheme } from '@/styles/hooks';
 
 interface CharacterProps {
-	character: CharacterInstance;
+	character: CharacterState;
 }
 
 export const Character = ({ character }: CharacterProps) => {

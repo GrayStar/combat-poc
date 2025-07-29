@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle';
 import { Character, CHARACTER_TYPE_ID, CharacterState } from '@/lib/character';
 import { Spell, SpellState } from '@/lib/spell';
+import { STATUS_EFFECT_TYPE_ID, StatusEffect, StatusEffectState } from '@/lib/status-effect';
 
 export type BattleState = {
 	battleId: string;
@@ -13,6 +14,7 @@ export type BattleState = {
 	hostileNonPlayerCharacterIds: string[];
 	characters: Record<string, CharacterState>;
 	spells: Record<string, SpellState>;
+	statusEffects: Record<string, StatusEffectState>;
 };
 
 export class Battle {
@@ -25,6 +27,7 @@ export class Battle {
 	private _hostileNonPlayerCharacterIds: string[] = [];
 	private _characters: Record<string, Character> = {};
 	private _spells: Record<string, Spell> = {};
+	private _statusEffects: Record<string, StatusEffect> = {};
 	private _notificationSubscribers = new Set<(state: BattleState) => void>();
 
 	constructor(battleTypeId: BATTLE_TYPE_ID) {
@@ -57,6 +60,10 @@ export class Battle {
 		return this._spells;
 	}
 
+	public get statusEffects() {
+		return this._statusEffects;
+	}
+
 	public get subscribe() {
 		return this._subscribe.bind(this);
 	}
@@ -64,6 +71,7 @@ export class Battle {
 	public getState(): BattleState {
 		const characterStates: Record<string, CharacterState> = {};
 		const spellStates: Record<string, SpellState> = {};
+		const statusEffectStates: Record<string, StatusEffectState> = {};
 
 		for (const [id, instance] of Object.entries(this._characters)) {
 			characterStates[id] = instance.getState();
@@ -71,6 +79,10 @@ export class Battle {
 
 		for (const [id, instance] of Object.entries(this._spells)) {
 			spellStates[id] = instance.getState();
+		}
+
+		for (const [id, instance] of Object.entries(this._statusEffects)) {
+			statusEffectStates[id] = instance.getState();
 		}
 
 		return {
@@ -82,6 +94,7 @@ export class Battle {
 			hostileNonPlayerCharacterIds: this.hostileNonPlayerCharacterIds,
 			characters: characterStates,
 			spells: spellStates,
+			statusEffects: statusEffectStates,
 		};
 	}
 
@@ -99,12 +112,67 @@ export class Battle {
 	public handleCastSpell(data: { casterId: string; targetId: string; spellId: string }): void {
 		const { casterId, targetId, spellId } = data;
 		const caster = this._characters[casterId];
-		const target = this._characters[targetId];
 		const spell = this._spells[spellId];
 
 		console.log('handleCastSpell caster', caster);
-		console.log('handleCastSpell target', target);
 		console.log('handleCastSpell spell', spell);
+
+		spell.targetEffects?.statusEffectTypeIdsToAdd?.forEach((statusEffectTypeId) => {
+			this.applyStatusEffectToCharacter(targetId, statusEffectTypeId);
+		});
+
+		this.notify();
+	}
+
+	public applyStatusEffectToCharacter(characterId: string, statusEffectTypeId: STATUS_EFFECT_TYPE_ID): void {
+		const character = this._characters[characterId];
+		if (!character) {
+			return;
+		}
+
+		const newEffect = new StatusEffect(
+			statusEffectTypeId,
+			this.handleStatusEffectInterval.bind(this),
+			this.handleStatusEffectTimeout.bind(this)
+		);
+		if (newEffect.canStack) {
+			newEffect.stacks = 1;
+		}
+
+		const matchingId = character.statusEffectIds.find(
+			(id) => this._statusEffects[id]?.statusEffectTypeId === statusEffectTypeId
+		);
+
+		if (matchingId) {
+			const existing = this._statusEffects[matchingId];
+			if (newEffect.canStack) {
+				newEffect.stacks = existing.stacks + 1;
+			}
+			existing.stopInterval();
+			existing.stopTimeout();
+			delete this._statusEffects[matchingId];
+
+			character.removeStatusEffectId(matchingId);
+		}
+
+		this._statusEffects[newEffect.statusEffectId] = newEffect;
+		character.addStatusEffectId(newEffect.statusEffectId);
+	}
+
+	private handleStatusEffectInterval(statusEffectId: string) {
+		const whatToCast = this._statusEffects[statusEffectId].intervalSpellTypeIds;
+		// TODO: handle timeout spellIds
+		console.log(whatToCast);
+		this.notify();
+	}
+
+	private handleStatusEffectTimeout(statusEffectId: string) {
+		// TODO: handle timeout spellIds
+		delete this._statusEffects[statusEffectId];
+
+		for (const character of Object.values(this._characters)) {
+			character.removeStatusEffectId(statusEffectId);
+		}
 
 		this.notify();
 	}

@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react';
 import { keyframes } from 'tss-react';
-import { StatusEffectInstance } from '@/lib/status-effect';
 import { tss } from '@/styles';
+import { StatusEffectState } from '@/lib/status-effect';
 
 const cooldownAnimation = keyframes`
 	from {
@@ -53,60 +52,17 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }
 }));
 
 interface StatusEffectProps {
-	statusEffect: StatusEffectInstance;
-	intervalCallback(statusEffect: StatusEffectInstance): void;
-	timeoutCallback(statusEffect: StatusEffectInstance): void;
+	statusEffect: StatusEffectState;
 }
 
-export const StatusEffect = ({ statusEffect, intervalCallback, timeoutCallback }: StatusEffectProps) => {
-	const statusEffectRef = useRef(statusEffect);
-	const intervalRef = useRef<NodeJS.Timeout>(undefined);
-	const timeoutRef = useRef<NodeJS.Timeout>(undefined);
-	const intervalCallbackRef = useRef(intervalCallback);
-	const timeoutCallbackRef = useRef(timeoutCallback);
-
-	const { classes } = useStyles({ duration: statusEffectRef.current.duration });
-
-	useEffect(() => {
-		statusEffectRef.current = statusEffect;
-		intervalCallbackRef.current = intervalCallback;
-		timeoutCallbackRef.current = timeoutCallback;
-	}, [statusEffect, intervalCallback, timeoutCallback]);
-
-	useEffect(() => {
-		if (statusEffectRef.current.interval > 0) {
-			intervalRef.current = setInterval(() => {
-				intervalCallbackRef.current(statusEffectRef.current);
-			}, statusEffectRef.current.interval);
-		}
-
-		timeoutRef.current = setTimeout(() => {
-			if (intervalRef.current) {
-				clearInterval(intervalRef.current);
-				intervalRef.current = undefined;
-			}
-			timeoutCallbackRef.current(statusEffectRef.current);
-		}, statusEffectRef.current.duration);
-
-		return () => {
-			if (intervalRef.current) {
-				clearInterval(intervalRef.current);
-				intervalRef.current = undefined;
-			}
-			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current);
-				timeoutRef.current = undefined;
-			}
-		};
-	}, []);
+export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
+	const { classes } = useStyles({ duration: statusEffect.durationInMs });
 
 	return (
 		<div className={classes.statusEffect}>
 			<div className={classes.cooldown} />
-			<p className="m-0">{statusEffectRef.current.title}</p>
-			{(statusEffectRef.current.stacks ?? 0) > 0 && (
-				<div className={classes.stackCount}>{statusEffectRef.current.stacks}</div>
-			)}
+			<p className="m-0">{statusEffect.title}</p>
+			{(statusEffect.stacks ?? 0) > 0 && <div className={classes.stackCount}>{statusEffect.stacks}</div>}
 		</div>
 	);
 };

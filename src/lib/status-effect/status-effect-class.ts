@@ -1,13 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep, get, set } from 'lodash';
 import { STATUS_EFFECT_TYPE_ID, statusEffectData, StatusEffectModifier } from '@/lib/status-effect';
-import { Spell } from '@/lib/spell';
+import { Spell, SPELL_TYPE_ID } from '@/lib/spell';
 
 export type StatusEffectState = {
 	statusEffectId: string;
 	statusEffectTypeId: STATUS_EFFECT_TYPE_ID;
 	title: string;
 	description: string;
+	durationInMs: number;
+	intervalInMs: number;
+	outgoingSpellModifiers: StatusEffectModifier[];
+	incomingSpellModifiers: StatusEffectModifier[];
+	intervalSpellTypeIds: SPELL_TYPE_ID[];
+	timeoutSpellTypeIds: SPELL_TYPE_ID[];
+	clearedSpellTypeIds: SPELL_TYPE_ID[];
 	stacks: number;
 };
 
@@ -18,25 +25,36 @@ export class StatusEffect {
 	public readonly description: string;
 	public readonly durationInMs: number;
 	public readonly intervalInMs: number;
+	public readonly outgoingSpellModifiers: StatusEffectModifier[];
 	public readonly incomingSpellModifiers: StatusEffectModifier[];
+	public readonly intervalSpellTypeIds: SPELL_TYPE_ID[];
+	public readonly timeoutSpellTypeIds: SPELL_TYPE_ID[];
+	public readonly clearedSpellTypeIds: SPELL_TYPE_ID[];
+	public readonly canStack: boolean;
 
 	private _stacks = 0;
 	private _interval?: NodeJS.Timeout;
 	private _timeout?: NodeJS.Timeout;
-	private readonly _notify: () => void;
 
-	constructor(statusEffectTypeId: STATUS_EFFECT_TYPE_ID, notify: () => void) {
+	constructor(
+		statusEffectTypeId: STATUS_EFFECT_TYPE_ID,
+		private readonly intervalCallback: (statusEffectId: string) => void,
+		private readonly timeoutCallback: (statusEffectId: string) => void
+	) {
 		const config = cloneDeep(statusEffectData[statusEffectTypeId]);
 
 		this.statusEffectId = uuidv4();
 		this.statusEffectTypeId = statusEffectTypeId;
 		this.title = config.title;
 		this.description = config.description;
-		this.durationInMs = config.duration;
-		this.intervalInMs = config.interval;
+		this.durationInMs = config.durationInMs;
+		this.intervalInMs = config.intervalInMs;
+		this.outgoingSpellModifiers = config.outgoingSpellModifiers;
 		this.incomingSpellModifiers = config.incomingSpellModifiers;
-
-		this._notify = notify;
+		this.intervalSpellTypeIds = config.intervalSpellTypeIds;
+		this.timeoutSpellTypeIds = config.timeoutSpellTypeIds;
+		this.clearedSpellTypeIds = config.clearedSpellTypeIds;
+		this.canStack = config.canStack;
 
 		if (this.intervalInMs > 0) {
 			this.startInterval();
@@ -66,16 +84,6 @@ export class StatusEffect {
 		}
 	}
 
-	public getStatus(): StatusEffectState {
-		return {
-			statusEffectId: this.statusEffectId,
-			statusEffectTypeId: this.statusEffectTypeId,
-			title: this.title,
-			description: this.description,
-			stacks: this._stacks,
-		};
-	}
-
 	private modifyValue(value: number, modifier: StatusEffectModifier): number {
 		switch (modifier.operation) {
 			case 'add':
@@ -91,8 +99,7 @@ export class StatusEffect {
 
 	private startInterval(): void {
 		this._interval = setInterval(() => {
-			console.log('status effect tick.');
-			this._notify();
+			this.intervalCallback(this.statusEffectId);
 		}, this.intervalInMs);
 	}
 
@@ -106,8 +113,7 @@ export class StatusEffect {
 	private startTimeout(): void {
 		this._timeout = setTimeout(() => {
 			this.stopInterval();
-			console.log('status effect expired.');
-			this._notify();
+			this.timeoutCallback(this.statusEffectId);
 		}, this.durationInMs);
 	}
 
@@ -116,5 +122,27 @@ export class StatusEffect {
 			clearTimeout(this._timeout);
 			this._timeout = undefined;
 		}
+	}
+
+	public stopAllTimers(): void {
+		this.stopInterval();
+		this.stopTimeout();
+	}
+
+	public getState(): StatusEffectState {
+		return {
+			statusEffectId: this.statusEffectId,
+			statusEffectTypeId: this.statusEffectTypeId,
+			title: this.title,
+			description: this.description,
+			durationInMs: this.durationInMs,
+			intervalInMs: this.intervalInMs,
+			outgoingSpellModifiers: this.outgoingSpellModifiers,
+			incomingSpellModifiers: this.incomingSpellModifiers,
+			intervalSpellTypeIds: this.intervalSpellTypeIds,
+			timeoutSpellTypeIds: this.timeoutSpellTypeIds,
+			clearedSpellTypeIds: this.clearedSpellTypeIds,
+			stacks: this._stacks,
+		};
 	}
 }

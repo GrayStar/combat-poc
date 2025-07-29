@@ -5,8 +5,8 @@ export interface StatusEffectModel {
 	statusEffectTypeId: STATUS_EFFECT_TYPE_ID;
 	title: string;
 	description: string;
-	duration: number;
-	interval: number;
+	durationInMs: number;
+	intervalInMs: number;
 	outgoingSpellModifiers: StatusEffectModifier[];
 	incomingSpellModifiers: StatusEffectModifier[];
 	intervalSpellTypeIds: SPELL_TYPE_ID[];

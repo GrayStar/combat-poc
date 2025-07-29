@@ -1,44 +1,8 @@
-//import { STATUS_EFFECT_TYPE_ID } from '@/lib/models';
-//import { getStatusEffectInstance } from '@/lib/utils';
-import { CharacterInstance } from '@/lib/character';
-
-export const adjustCharacterHeathByAmount = (character: CharacterInstance, amount: number) => {
-	const nextHealthValue = character.health + amount;
-
-	if (nextHealthValue <= 0) {
-		character.health = 0;
-		return;
-	}
-
-	if (nextHealthValue >= character.maxHealth) {
-		character.health = character.maxHealth;
-		return;
-	}
-
-	character.health = nextHealthValue;
-};
-
-export const adjustCharacterManaByAmount = (character: CharacterInstance, amount: number) => {
-	const nextManaValue = character.mana + amount;
-
-	if (nextManaValue <= 0) {
-		character.mana = 0;
-		return;
-	}
-
-	if (nextManaValue >= character.maxMana) {
-		character.mana = character.maxMana;
-		return;
-	}
-
-	character.mana = nextManaValue;
-};
-
 // export const addStatusEffectTypeIdToCharacter = (
-// 	character: CharacterInstance,
+// 	character: Character,
 // 	statusEffectTypeId: STATUS_EFFECT_TYPE_ID
 // ) => {
-// 	const statusEffectInstance = getStatusEffectInstance(statusEffectTypeId);
+// 	const statusEffectInstance = new StatusEffect(statusEffectTypeId);
 
 // 	if (statusEffectInstance.canStack) {
 // 		statusEffectInstance.stacks = 1;
