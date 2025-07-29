@@ -1,5 +1,5 @@
 import { CharacterModel } from '@/lib/character';
-import { SPELL_TYPE_ID } from '@/lib/spell';
+import { SPELL_TYPE_ID } from '../status-effect';
 
 export enum CHARACTER_TYPE_ID {
 	PLAYER = 'PLAYER',

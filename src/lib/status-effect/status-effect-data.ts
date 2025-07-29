@@ -1,9 +1,5 @@
-import { StatusEffectModel } from '@/lib/status-effect';
-
-export enum STATUS_EFFECT_TYPE_ID {
-	BURN = 'BURN',
-	SCARRED = 'SCARRED',
-}
+import { SPELL_TYPE_ID, STATUS_EFFECT_TYPE_ID } from './status-effect-type-id';
+import { StatusEffectModel } from './status-effect-models';
 
 export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> = {
 	[STATUS_EFFECT_TYPE_ID.BURN]: {
@@ -14,7 +10,7 @@ export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> 
 		intervalInMs: 1000,
 		outgoingSpellModifiers: [],
 		incomingSpellModifiers: [],
-		intervalSpellTypeIds: [],
+		intervalSpellTypeIds: [SPELL_TYPE_ID.BURN_TICK],
 		timeoutSpellTypeIds: [],
 		clearedSpellTypeIds: [],
 		canStack: false,

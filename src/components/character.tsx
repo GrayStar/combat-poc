@@ -1,6 +1,7 @@
 import { CharacterState } from '@/lib/character';
-import { Meter } from '@/components';
+import { Meter, StatusEffect } from '@/components';
 import { useTheme } from '@/styles/hooks';
+import { useBattle } from '@/hooks';
 
 interface CharacterProps {
 	character: CharacterState;
@@ -8,6 +9,11 @@ interface CharacterProps {
 
 export const Character = ({ character }: CharacterProps) => {
 	const { theme } = useTheme();
+	const { battle } = useBattle();
+
+	if (!battle) {
+		return null;
+	}
 
 	return (
 		<div>
@@ -21,14 +27,10 @@ export const Character = ({ character }: CharacterProps) => {
 			</p>
 			<Meter value={character.mana} maxValue={character.maxMana} color={theme.colors.info} />
 			<div className="d-flex">
-				{/* {Object.entries(character.statusEffects).map(([key, value]) => (
-					<StatusEffect
-						key={key}
-						statusEffect={value}
-						intervalCallback={(se) => handleStatusEffectInterval(se, character.characterId)}
-						timeoutCallback={(se) => handleStatusEffectTimeout(se, character.characterId)}
-					/>
-				))} */}
+				{character.statusEffectIds.map((statusEffectId) => {
+					const statusEffect = battle.statusEffects[statusEffectId];
+					return <StatusEffect key={statusEffect.statusEffectId} statusEffect={statusEffect} />;
+				})}
 			</div>
 		</div>
 	);

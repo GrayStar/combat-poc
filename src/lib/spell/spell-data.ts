@@ -1,14 +1,5 @@
 import { SpellModel } from '@/lib/spell';
-import { STATUS_EFFECT_TYPE_ID } from '@/lib/status-effect';
-
-export enum SPELL_TYPE_ID {
-	PUNCH = 'PUNCH',
-	FIREBALL = 'FIREBALL',
-	BURN_TICK = 'BURN_TICK',
-	SCAR = 'SCAR',
-	HEAL = 'HEAL',
-	LIFE_TAP = 'LIFE_TAP',
-}
+import { SPELL_TYPE_ID, STATUS_EFFECT_TYPE_ID } from '../status-effect';
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.PUNCH]: {

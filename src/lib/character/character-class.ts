@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character';
-import { SPELL_TYPE_ID } from '@/lib/spell';
+import { SPELL_TYPE_ID } from '../status-effect';
 
 export type CharacterState = {
 	characterId: string;

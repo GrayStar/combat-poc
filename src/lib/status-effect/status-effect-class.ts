@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep, get, set } from 'lodash';
-import { STATUS_EFFECT_TYPE_ID, statusEffectData, StatusEffectModifier } from '@/lib/status-effect';
-import { Spell, SPELL_TYPE_ID } from '@/lib/spell';
+import { SPELL_TYPE_ID, STATUS_EFFECT_TYPE_ID, statusEffectData, StatusEffectModifier } from '@/lib/status-effect';
+import { Spell } from '@/lib/spell';
 
 export type StatusEffectState = {
 	statusEffectId: string;
@@ -98,6 +98,10 @@ export class StatusEffect {
 	}
 
 	private startInterval(): void {
+		if (this._interval) {
+			this.stopInterval();
+		}
+
 		this._interval = setInterval(() => {
 			this.intervalCallback(this.statusEffectId);
 		}, this.intervalInMs);
@@ -111,6 +115,10 @@ export class StatusEffect {
 	}
 
 	private startTimeout(): void {
+		if (this._timeout) {
+			this.stopTimeout();
+		}
+
 		this._timeout = setTimeout(() => {
 			this.stopInterval();
 			this.timeoutCallback(this.statusEffectId);

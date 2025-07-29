@@ -121,6 +121,7 @@ export class Battle {
 			this.applyStatusEffectToCharacter(targetId, statusEffectTypeId);
 		});
 
+		spell.startCooldown();
 		this.notify();
 	}
 

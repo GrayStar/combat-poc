@@ -1,0 +1,13 @@
+export enum SPELL_TYPE_ID {
+	PUNCH = 'PUNCH',
+	FIREBALL = 'FIREBALL',
+	BURN_TICK = 'BURN_TICK',
+	SCAR = 'SCAR',
+	HEAL = 'HEAL',
+	LIFE_TAP = 'LIFE_TAP',
+}
+
+export enum STATUS_EFFECT_TYPE_ID {
+	BURN = 'BURN',
+	SCARRED = 'SCARRED',
+}
