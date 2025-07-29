@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle';
 import { Character, CHARACTER_TYPE_ID, CharacterState } from '@/lib/character';
-import { Spell, SpellState } from '@/lib/spell';
+import { Spell, SpellEffect, SpellState } from '@/lib/spell';
 import { STATUS_EFFECT_TYPE_ID, StatusEffect, StatusEffectState } from '@/lib/status-effect';
 
 export type BattleState = {
@@ -111,21 +111,41 @@ export class Battle {
 
 	public handleCastSpell(data: { casterId: string; targetId: string; spellId: string }): void {
 		const { casterId, targetId, spellId } = data;
-		const caster = this._characters[casterId];
 		const spell = this._spells[spellId];
 
-		console.log('handleCastSpell caster', caster);
-		console.log('handleCastSpell spell', spell);
-
-		spell.targetEffects?.statusEffectTypeIdsToAdd?.forEach((statusEffectTypeId) => {
-			this.applyStatusEffectToCharacter(targetId, statusEffectTypeId);
-		});
+		this.applySpellEffectsToChracterById(spell, casterId, spell.casterEffects);
+		this.applySpellEffectsToChracterById(spell, targetId, spell.targetEffects);
 
 		spell.startCooldown();
 		this.notify();
 	}
 
-	public applyStatusEffectToCharacter(characterId: string, statusEffectTypeId: STATUS_EFFECT_TYPE_ID): void {
+	private applySpellEffectsToChracterById(spell: Spell, characterId: string, spellEffect?: SpellEffect): void {
+		const character = this._characters[characterId];
+
+		if (!character) {
+			return;
+		}
+
+		if (!spellEffect) {
+			return;
+		}
+
+		character.adjustHealth(spellEffect.resources?.health ?? 0);
+		character.adjustMana(spellEffect.resources?.mana ?? 0);
+		spellEffect.statusEffectTypeIdsToAdd?.forEach((statusEffectTypeId) => {
+			this.applyStatusEffectTypeIdToCharacterId(statusEffectTypeId, character.characterId, spell.spellId);
+		});
+		spellEffect.statusEffectTypeIdsToRemove?.forEach((statusEffectTypeId) => {
+			this.removeStatusEffectTypeIdFromCharacterId(statusEffectTypeId, character.characterId);
+		});
+	}
+
+	private applyStatusEffectTypeIdToCharacterId(
+		statusEffectTypeId: STATUS_EFFECT_TYPE_ID,
+		characterId: string,
+		causedBySpellId: string
+	): void {
 		const character = this._characters[characterId];
 		if (!character) {
 			return;
@@ -133,6 +153,7 @@ export class Battle {
 
 		const newEffect = new StatusEffect(
 			statusEffectTypeId,
+			causedBySpellId,
 			this.handleStatusEffectInterval.bind(this),
 			this.handleStatusEffectTimeout.bind(this)
 		);
@@ -161,7 +182,10 @@ export class Battle {
 
 	private handleStatusEffectInterval(statusEffectId: string) {
 		const whatToCast = this._statusEffects[statusEffectId].intervalSpellTypeIds;
-		// TODO: handle timeout spellIds
+
+		// TODO: handle timeout spellIds?
+		// this.castSpell()?
+
 		console.log(whatToCast);
 		this.notify();
 	}
@@ -175,6 +199,31 @@ export class Battle {
 		}
 
 		this.notify();
+	}
+
+	public removeStatusEffectTypeIdFromCharacterId(
+		statusEffectTypeId: STATUS_EFFECT_TYPE_ID,
+		characterId: string
+	): void {
+		const character = this._characters[characterId];
+		if (!character) {
+			return;
+		}
+
+		const statusEffectIdsToRemove = character.statusEffectIds.filter((statusEffectId) => {
+			const eff = this._statusEffects[statusEffectId];
+			return eff?.statusEffectTypeId === statusEffectTypeId;
+		});
+
+		statusEffectIdsToRemove.forEach((statusEffectId) => {
+			const statusEffect = this._statusEffects[statusEffectId];
+			if (statusEffect) {
+				statusEffect.stopAllTimers();
+				delete this._statusEffects[statusEffectId];
+			}
+
+			character.removeStatusEffectId(statusEffectId);
+		});
 	}
 
 	private _subscribe(callback: (state: BattleState) => void): () => void {
