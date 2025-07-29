@@ -46,7 +46,7 @@ export const Spell = ({ spell }: SpellProps) => {
 	return (
 		<div className={classes.spell}>
 			{spell.isOnCooldown && <div className={classes.cooldown} />}
-			{spell.title}
+			<span className="small">{spell.title}</span>
 		</div>
 	);
 };

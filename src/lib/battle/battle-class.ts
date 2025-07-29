@@ -118,14 +118,14 @@ export class Battle {
 		// this might just need to be a getState(), but for now make a new instance.
 		const spellToCast = new Spell(spellOnActionBar.spellTypeId, this.notify.bind(this));
 
-		this.applySpellEffectsToChracterById(spellToCast, casterId, spellToCast.casterEffects);
-		this.applySpellEffectsToChracterById(spellToCast, targetId, spellToCast.targetEffects);
+		this.applySpellEffectsToChracterById(casterId, spellToCast.casterEffects);
+		this.applySpellEffectsToChracterById(targetId, spellToCast.targetEffects);
 
 		spellOnActionBar.startCooldown();
 		this.notify();
 	}
 
-	private applySpellEffectsToChracterById(spell: Spell, characterId: string, spellEffect?: SpellEffect): void {
+	private applySpellEffectsToChracterById(characterId: string, spellEffect?: SpellEffect): void {
 		const character = this._characters[characterId];
 
 		if (!character) {
@@ -139,18 +139,14 @@ export class Battle {
 		character.adjustHealth(spellEffect.resources?.health ?? 0);
 		character.adjustMana(spellEffect.resources?.mana ?? 0);
 		spellEffect.statusEffectTypeIdsToAdd?.forEach((statusEffectTypeId) => {
-			this.applyStatusEffectTypeIdToCharacterId(statusEffectTypeId, character.characterId, spell.spellId);
+			this.applyStatusEffectTypeIdToCharacterId(statusEffectTypeId, character.characterId);
 		});
 		spellEffect.statusEffectTypeIdsToRemove?.forEach((statusEffectTypeId) => {
 			this.removeStatusEffectTypeIdFromCharacterId(statusEffectTypeId, character.characterId);
 		});
 	}
 
-	private applyStatusEffectTypeIdToCharacterId(
-		statusEffectTypeId: STATUS_EFFECT_TYPE_ID,
-		characterId: string,
-		causedBySpellId: string
-	): void {
+	private applyStatusEffectTypeIdToCharacterId(statusEffectTypeId: STATUS_EFFECT_TYPE_ID, characterId: string): void {
 		const character = this._characters[characterId];
 		if (!character) {
 			return;
@@ -158,7 +154,6 @@ export class Battle {
 
 		const newEffect = new StatusEffect(
 			statusEffectTypeId,
-			causedBySpellId,
 			this.handleStatusEffectInterval.bind(this),
 			this.handleStatusEffectTimeout.bind(this)
 		);
@@ -186,19 +181,43 @@ export class Battle {
 	}
 
 	private handleStatusEffectInterval(statusEffectId: string) {
-		const whatToCast = this._statusEffects[statusEffectId].intervalSpellTypeIds;
+		const statusEffect = this._statusEffects[statusEffectId];
+		if (!statusEffect) {
+			return;
+		}
 
-		// TODO: handle timeout spellIds?
-		// this.castSpell()?
+		const affectedCharacterIds = Object.entries(this._characters)
+			.filter(([, char]) => char.statusEffectIds.includes(statusEffectId))
+			.map(([id]) => id);
 
-		console.log(whatToCast);
+		for (const characterId of affectedCharacterIds) {
+			for (const spellTypeId of statusEffect.intervalSpellTypeIds) {
+				const spellInstance = new Spell(spellTypeId, this.notify.bind(this));
+				this.applySpellEffectsToChracterById(characterId, spellInstance.targetEffects);
+			}
+		}
+
 		this.notify();
 	}
 
 	private handleStatusEffectTimeout(statusEffectId: string) {
-		// TODO: handle timeout spellIds
-		delete this._statusEffects[statusEffectId];
+		const statusEffect = this._statusEffects[statusEffectId];
+		if (!statusEffect) {
+			return;
+		}
 
+		const affectedCharacterIds = Object.entries(this._characters)
+			.filter(([, char]) => char.statusEffectIds.includes(statusEffectId))
+			.map(([id]) => id);
+
+		for (const characterId of affectedCharacterIds) {
+			for (const spellTypeId of statusEffect.timeoutSpellTypeIds) {
+				const spellInstance = new Spell(spellTypeId, this.notify.bind(this));
+				this.applySpellEffectsToChracterById(characterId, spellInstance.targetEffects);
+			}
+		}
+
+		delete this._statusEffects[statusEffectId];
 		for (const character of Object.values(this._characters)) {
 			character.removeStatusEffectId(statusEffectId);
 		}

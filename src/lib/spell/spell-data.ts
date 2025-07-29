@@ -101,4 +101,30 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			},
 		},
 	},
+	[SPELL_TYPE_ID.BOMB]: {
+		spellTypeId: SPELL_TYPE_ID.BOMB,
+		title: 'Bomb',
+		description: 'Attachs a bomb to the target. Applies Living Bomb ',
+		cooldownDurationInMs: 5000,
+		casterEffects: {
+			resources: {
+				mana: -50,
+			},
+		},
+		targetEffects: {
+			statusEffectTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.LIVING_BOMB],
+		},
+	},
+	[SPELL_TYPE_ID.EXPLOSION]: {
+		spellTypeId: SPELL_TYPE_ID.EXPLOSION,
+		title: 'Explosion',
+		description: 'An explosion',
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		targetEffects: {
+			resources: {
+				health: -50,
+			},
+		},
+	},
 };

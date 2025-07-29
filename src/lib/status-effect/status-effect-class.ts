@@ -31,7 +31,6 @@ export class StatusEffect {
 	public readonly timeoutSpellTypeIds: SPELL_TYPE_ID[];
 	public readonly clearedSpellTypeIds: SPELL_TYPE_ID[];
 	public readonly canStack: boolean;
-	public readonly causedBySpellId: string;
 
 	private _stacks: number = 0;
 	private _interval?: NodeJS.Timeout;
@@ -39,7 +38,6 @@ export class StatusEffect {
 
 	constructor(
 		statusEffectTypeId: STATUS_EFFECT_TYPE_ID,
-		causedBySpellId: string,
 		private readonly intervalCallback: (statusEffectId: string) => void,
 		private readonly timeoutCallback: (statusEffectId: string) => void
 	) {
@@ -57,7 +55,6 @@ export class StatusEffect {
 		this.timeoutSpellTypeIds = config.timeoutSpellTypeIds;
 		this.clearedSpellTypeIds = config.clearedSpellTypeIds;
 		this.canStack = config.canStack;
-		this.causedBySpellId = causedBySpellId;
 
 		if (this.intervalInMs > 0) {
 			this.startInterval();

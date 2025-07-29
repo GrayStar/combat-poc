@@ -19,6 +19,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 			SPELL_TYPE_ID.FIREBALL,
 			SPELL_TYPE_ID.HEAL,
 			SPELL_TYPE_ID.REMOVE_BURN,
+			SPELL_TYPE_ID.BOMB,
 		],
 	},
 	[CHARACTER_TYPE_ID.SKELETON]: {

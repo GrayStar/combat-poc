@@ -28,4 +28,17 @@ export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> 
 		clearedSpellTypeIds: [],
 		canStack: true,
 	},
+	[STATUS_EFFECT_TYPE_ID.LIVING_BOMB]: {
+		statusEffectTypeId: STATUS_EFFECT_TYPE_ID.LIVING_BOMB,
+		title: 'Living Bomb',
+		description: 'A bomb that explodes when timeout expires.',
+		durationInMs: 6000,
+		intervalInMs: 0,
+		outgoingSpellModifiers: [],
+		incomingSpellModifiers: [],
+		intervalSpellTypeIds: [],
+		timeoutSpellTypeIds: [SPELL_TYPE_ID.EXPLOSION],
+		clearedSpellTypeIds: [],
+		canStack: false,
+	},
 };
