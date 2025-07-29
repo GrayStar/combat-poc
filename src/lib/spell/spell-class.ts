@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { spellData, SpellEffect } from '@/lib/spell';
-import { SPELL_TYPE_ID } from '../status-effect';
+import { SPELL_TYPE_ID } from '@/lib/status-effect';
 
 export type SpellState = {
 	spellId: string;

@@ -1,5 +1,5 @@
 import { keyframes } from 'tss-react';
-import { SpellInstance } from '@/lib/spell';
+import { SpellState } from '@/lib/spell';
 import { tss } from '@/styles';
 
 const cooldownAnimation = keyframes`
@@ -38,7 +38,7 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ cooldownDurationInMs
 }));
 
 interface SpellProps {
-	spell: SpellInstance;
+	spell: SpellState;
 }
 
 export const Spell = ({ spell }: SpellProps) => {

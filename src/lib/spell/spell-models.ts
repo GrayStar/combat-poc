@@ -1,5 +1,4 @@
-import { STATUS_EFFECT_TYPE_ID } from '@/lib/status-effect';
-import { SPELL_TYPE_ID } from '@/lib/spell';
+import { SPELL_TYPE_ID, STATUS_EFFECT_TYPE_ID } from '@/lib/status-effect';
 
 export interface SpellModel {
 	spellTypeId: SPELL_TYPE_ID;
