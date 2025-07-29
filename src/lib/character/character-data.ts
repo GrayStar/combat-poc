@@ -13,7 +13,13 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		title: 'Player',
 		maxHealth: 100,
 		maxMana: 100,
-		spellTypeIds: [SPELL_TYPE_ID.SCAR, SPELL_TYPE_ID.PUNCH, SPELL_TYPE_ID.FIREBALL, SPELL_TYPE_ID.HEAL],
+		spellTypeIds: [
+			SPELL_TYPE_ID.SCAR,
+			SPELL_TYPE_ID.PUNCH,
+			SPELL_TYPE_ID.FIREBALL,
+			SPELL_TYPE_ID.HEAL,
+			SPELL_TYPE_ID.REMOVE_BURN,
+		],
 	},
 	[CHARACTER_TYPE_ID.SKELETON]: {
 		characterTypeId: CHARACTER_TYPE_ID.SKELETON,

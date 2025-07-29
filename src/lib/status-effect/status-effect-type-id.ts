@@ -5,6 +5,7 @@ export enum SPELL_TYPE_ID {
 	SCAR = 'SCAR',
 	HEAL = 'HEAL',
 	LIFE_TAP = 'LIFE_TAP',
+	REMOVE_BURN = 'REMOVE_BURN',
 }
 
 export enum STATUS_EFFECT_TYPE_ID {

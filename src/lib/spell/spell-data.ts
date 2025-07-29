@@ -42,6 +42,20 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			},
 		},
 	},
+	[SPELL_TYPE_ID.REMOVE_BURN]: {
+		spellTypeId: SPELL_TYPE_ID.REMOVE_BURN,
+		title: 'Remove Burn',
+		description: 'Remove the burn status effect',
+		cooldownDurationInMs: 1500,
+		casterEffects: {
+			resources: {
+				mana: -20,
+			},
+		},
+		targetEffects: {
+			statusEffectTypeIdsToRemove: [STATUS_EFFECT_TYPE_ID.BURN],
+		},
+	},
 	[SPELL_TYPE_ID.SCAR]: {
 		spellTypeId: SPELL_TYPE_ID.SCAR,
 		title: 'Scar',
