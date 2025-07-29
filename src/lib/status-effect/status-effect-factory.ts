@@ -1,48 +1,120 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep, get, set } from 'lodash';
-import { STATUS_EFFECT_TYPE_ID, statusEffectData } from '@/lib/status-effect';
-import { SpellInstance } from '@/lib/spell';
+import { STATUS_EFFECT_TYPE_ID, statusEffectData, StatusEffectModifier } from '@/lib/status-effect';
+import { Spell } from '@/lib/spell';
 
-export type StatusEffectInstance = ReturnType<typeof StatusEffect>;
-
-export const StatusEffect = (statusEffectTypeId: STATUS_EFFECT_TYPE_ID) => {
-	const statusEffectConfig = cloneDeep(statusEffectData[statusEffectTypeId]);
-
-	return {
-		...statusEffectConfig,
-		statusEffectId: uuidv4(),
-		stacks: 0,
-	};
+export type StatusEffectState = {
+	statusEffectId: string;
+	statusEffectTypeId: STATUS_EFFECT_TYPE_ID;
+	title: string;
+	description: string;
+	stacks: number;
 };
 
-export const applyStatusEffectToIncomingSpell = (statusEffect: StatusEffectInstance, spell: SpellInstance) => {
-	const stackCount = statusEffect.stacks ?? 0;
+export class StatusEffect {
+	public readonly statusEffectId: string;
+	public readonly statusEffectTypeId: STATUS_EFFECT_TYPE_ID;
+	public readonly title: string;
+	public readonly description: string;
+	public readonly durationInMs: number;
+	public readonly intervalInMs: number;
+	public readonly incomingSpellModifiers: StatusEffectModifier[];
 
-	for (let i = 0; i < stackCount; i++) {
-		statusEffect.incomingSpellModifiers.forEach((modifier) => {
-			const spellProperty = get(spell, modifier.path);
+	private _stacks = 0;
+	private _interval?: NodeJS.Timeout;
+	private _timeout?: NodeJS.Timeout;
+	private readonly _notify: () => void;
 
-			if (!spellProperty || typeof spellProperty !== 'number') {
-				return;
-			}
+	constructor(statusEffectTypeId: STATUS_EFFECT_TYPE_ID, notify: () => void) {
+		const config = cloneDeep(statusEffectData[statusEffectTypeId]);
 
-			const modiferOperationMap: Record<typeof modifier.operation, (value: number) => number> = {
-				add: (value) => {
-					return value + modifier.amount;
-				},
-				subtract: (value) => {
-					return value - modifier.amount;
-				},
-				multiply: (value) => {
-					return value * modifier.amount;
-				},
-				divide: (value) => {
-					return value / modifier.amount;
-				},
-			};
+		this.statusEffectId = uuidv4();
+		this.statusEffectTypeId = statusEffectTypeId;
+		this.title = config.title;
+		this.description = config.description;
+		this.durationInMs = config.duration;
+		this.intervalInMs = config.interval;
+		this.incomingSpellModifiers = config.incomingSpellModifiers;
 
-			const result = modiferOperationMap[modifier.operation](spellProperty);
-			set(spell, modifier.path, result);
-		});
+		this._notify = notify;
+
+		if (this.intervalInMs > 0) {
+			this.startInterval();
+		}
+		this.startTimeout();
 	}
-};
+
+	public get stacks(): number {
+		return this._stacks;
+	}
+
+	public set stacks(value: number) {
+		this._stacks = value;
+	}
+
+	public applyToIncomingSpell(spell: Spell): void {
+		for (let i = 0; i < this._stacks; i++) {
+			this.incomingSpellModifiers.forEach((modifier) => {
+				const spellProperty = get(spell, modifier.path);
+				if (typeof spellProperty !== 'number') {
+					return;
+				}
+
+				const result = this.modifyValue(spellProperty, modifier);
+				set(spell, modifier.path, result);
+			});
+		}
+	}
+
+	public getStatus(): StatusEffectState {
+		return {
+			statusEffectId: this.statusEffectId,
+			statusEffectTypeId: this.statusEffectTypeId,
+			title: this.title,
+			description: this.description,
+			stacks: this._stacks,
+		};
+	}
+
+	private modifyValue(value: number, modifier: StatusEffectModifier): number {
+		switch (modifier.operation) {
+			case 'add':
+				return value + modifier.amount;
+			case 'subtract':
+				return value - modifier.amount;
+			case 'multiply':
+				return value * modifier.amount;
+			case 'divide':
+				return value / modifier.amount;
+		}
+	}
+
+	private startInterval(): void {
+		this._interval = setInterval(() => {
+			console.log('status effect tick.');
+			this._notify();
+		}, this.intervalInMs);
+	}
+
+	public stopInterval(): void {
+		if (this._interval) {
+			clearInterval(this._interval);
+			this._interval = undefined;
+		}
+	}
+
+	private startTimeout(): void {
+		this._timeout = setTimeout(() => {
+			this.stopInterval();
+			console.log('status effect expired.');
+			this._notify();
+		}, this.durationInMs);
+	}
+
+	public stopTimeout(): void {
+		if (this._timeout) {
+			clearTimeout(this._timeout);
+			this._timeout = undefined;
+		}
+	}
+}
