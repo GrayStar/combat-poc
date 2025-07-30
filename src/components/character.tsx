@@ -62,12 +62,14 @@ export const Character = ({ character }: CharacterProps) => {
 					color={theme.colors.warning}
 				/>
 			)}
-			<div className="d-flex">
-				{character.statusEffectIds.map((statusEffectId) => {
-					const statusEffect = battle.statusEffects[statusEffectId];
-					return <StatusEffect key={statusEffect.statusEffectId} statusEffect={statusEffect} />;
-				})}
-			</div>
+			{character.statusEffectIds.length > 0 && (
+				<div className="mt-2 d-flex">
+					{character.statusEffectIds.map((statusEffectId) => {
+						const statusEffect = battle.statusEffects[statusEffectId];
+						return <StatusEffect key={statusEffect.statusEffectId} statusEffect={statusEffect} />;
+					})}
+				</div>
+			)}
 		</div>
 	);
 };

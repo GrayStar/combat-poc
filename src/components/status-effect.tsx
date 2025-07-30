@@ -20,7 +20,7 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }
 		zIndex: 0,
 		width: 32,
 		height: 32,
-		borderRadius: 6,
+		borderRadius: 4,
 		overflow: 'hidden',
 		position: 'relative',
 		backgroundColor: theme.colors.gray400,
