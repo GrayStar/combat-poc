@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { BATTLE_TYPE_ID, BattleModel, battleService } from '@/lib/battle';
 import { BattleProvider } from '@/contexts';
 import { useBattle } from '@/hooks';
 import { Battle } from '@/components';
 
-const POC = () => {
+const POC: FC = () => {
 	const { battle, startBattle } = useBattle();
 	const [battleOptions, setBattlesOptions] = useState<BattleModel[]>([]);
 
@@ -16,6 +16,16 @@ const POC = () => {
 	const handleBattleOptionButtonClick = (battleTypeId: BATTLE_TYPE_ID) => {
 		startBattle(battleTypeId);
 	};
+
+	useEffect(() => {
+		return () => {
+			if (!battle?.battleId) {
+				return;
+			}
+
+			battleService.deleteBattleByBattleId(battle.battleId);
+		};
+	}, [battle?.battleId]);
 
 	return (
 		<div>
@@ -35,7 +45,7 @@ const POC = () => {
 	);
 };
 
-export const Root = () => {
+export const Root: FC = () => {
 	return (
 		<BattleProvider>
 			<POC />
