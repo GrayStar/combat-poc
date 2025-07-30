@@ -14,7 +14,6 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		maxHealth: 100,
 		maxMana: 100,
 		spellTypeIds: [
-			SPELL_TYPE_ID.SCAR,
 			SPELL_TYPE_ID.PUNCH,
 			SPELL_TYPE_ID.FIREBALL,
 			SPELL_TYPE_ID.HEAL,

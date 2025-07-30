@@ -239,6 +239,32 @@ export class Battle {
 		this.notify();
 	}
 
+	private handleStatusEffectCleared(statusEffectId: string) {
+		const statusEffect = this._statusEffects[statusEffectId];
+		if (!statusEffect) {
+			return;
+		}
+
+		const affectedCharacterIds = Object.entries(this._characters)
+			.filter(([, char]) => char.statusEffectIds.includes(statusEffectId))
+			.map(([id]) => id);
+
+		for (const characterId of affectedCharacterIds) {
+			for (const spellTypeId of statusEffect.clearedSpellTypeIds) {
+				const spellInstance = new Spell(spellTypeId, this.notify.bind(this));
+				this.applySpellEffectsToChracterById(characterId, spellInstance.targetEffects);
+			}
+		}
+
+		statusEffect.stopAllTimers();
+		delete this._statusEffects[statusEffectId];
+		for (const character of Object.values(this._characters)) {
+			character.removeStatusEffectId(statusEffectId);
+		}
+
+		this.notify();
+	}
+
 	public removeStatusEffectTypeIdFromCharacterId(
 		statusEffectTypeId: STATUS_EFFECT_TYPE_ID,
 		characterId: string
@@ -253,15 +279,7 @@ export class Battle {
 			return eff?.statusEffectTypeId === statusEffectTypeId;
 		});
 
-		statusEffectIdsToRemove.forEach((statusEffectId) => {
-			const statusEffect = this._statusEffects[statusEffectId];
-			if (statusEffect) {
-				statusEffect.stopAllTimers();
-				delete this._statusEffects[statusEffectId];
-			}
-
-			character.removeStatusEffectId(statusEffectId);
-		});
+		statusEffectIdsToRemove.forEach(this.handleStatusEffectCleared.bind(this));
 	}
 
 	private _subscribe(callback: (state: BattleState) => void): () => void {

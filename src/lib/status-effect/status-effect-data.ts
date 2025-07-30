@@ -12,7 +12,7 @@ export const statusEffectData: Record<STATUS_EFFECT_TYPE_ID, StatusEffectModel> 
 		incomingSpellModifiers: [],
 		intervalSpellTypeIds: [SPELL_TYPE_ID.BURN_TICK],
 		timeoutSpellTypeIds: [],
-		clearedSpellTypeIds: [],
+		clearedSpellTypeIds: [SPELL_TYPE_ID.SCAR],
 		canStack: false,
 	},
 	[STATUS_EFFECT_TYPE_ID.SCARRED]: {
