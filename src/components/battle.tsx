@@ -90,7 +90,7 @@ export const Battle = () => {
 											key={spell.spellId}
 											draggableId={spell.spellId}
 											index={spellIndex}
-											isDragDisabled={spell.isOnCooldown || playerCharacter.isCasting}
+											isDragDisabled={spell.isOnCooldown || !!playerCharacter.isCastingSpell}
 										>
 											{(draggableProvided, draggableSnapshot) => (
 												<>

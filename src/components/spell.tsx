@@ -52,7 +52,7 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ cooldownDurationInMs
 		backgroundColor: theme.colors.white,
 	},
 	flashEnter: {
-		opacity: 0.5,
+		opacity: 0.75,
 	},
 	flashEnterActive: {
 		opacity: 0,

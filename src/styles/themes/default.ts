@@ -6,7 +6,7 @@ export const defaultTheme = {
 		secondary: '#7D756C',
 		success: '#27a417',
 		info: '#437cdfff',
-		warning: '#fbe924ff',
+		warning: '#e2c11bff',
 		danger: '#e34555ff',
 
 		// Grays

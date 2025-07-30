@@ -42,14 +42,14 @@ export const Character = ({ character }: CharacterProps) => {
 			</div>
 			<Meter
 				showValue
-				className="mb-2"
+				className="mt-2"
 				value={character.health}
 				maxValue={character.maxHealth}
 				color={theme.colors.success}
 			/>
 			<Meter
 				showValue
-				className="mb-2"
+				className="mt-2"
 				value={character.mana}
 				maxValue={character.maxMana}
 				color={theme.colors.info}
@@ -57,7 +57,7 @@ export const Character = ({ character }: CharacterProps) => {
 			{character.isCastingSpell && (
 				<MeterAnimated
 					title={character.isCastingSpell.title}
-					className="mb-2"
+					className="mt-2"
 					durationInMs={character.isCastingSpell.castTimeDurationInMs ?? 0}
 					color={theme.colors.warning}
 				/>
