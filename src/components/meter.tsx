@@ -16,22 +16,30 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ percent, color, ...t
 		position: 'relative',
 		backgroundColor: theme.colors.gray800,
 	},
-	meter: {
+	underMeter: {
 		top: 0,
 		left: 0,
 		bottom: 0,
 		zIndex: 1,
 		width: `${percent}%`,
 		position: 'absolute',
-		borderRadius: 'inherit',
-		transition: `width 200ms`,
+		backgroundColor: theme.colors.warning,
+		transition: `width 200ms linear 400ms`,
+	},
+	meter: {
+		top: 0,
+		left: 0,
+		bottom: 0,
+		zIndex: 2,
+		width: `${percent}%`,
+		position: 'absolute',
 		backgroundColor: color ?? theme.colors.primary,
 	},
 	values: {
 		top: 0,
 		left: 0,
 		right: 0,
-		zIndex: 2,
+		zIndex: 3,
 		bottom: 0,
 		display: 'flex',
 		position: 'absolute',
@@ -62,6 +70,7 @@ export const Meter = ({ value, maxValue, color, showValue, className }: MeterPro
 				</div>
 			)}
 			<div className={classes.meter} />
+			<div className={classes.underMeter} />
 		</div>
 	);
 };

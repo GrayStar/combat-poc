@@ -5,7 +5,7 @@ import { SpellState } from '@/lib/spell';
 import { tss } from '@/styles';
 import { useRef } from 'react';
 
-const flashAnimationDurationInMs = 500;
+const flashAnimationDurationInMs = 1000;
 const cooldownAnimation = keyframes`
 	from {
 		height: 100%;
