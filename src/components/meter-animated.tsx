@@ -1,12 +1,22 @@
+import { keyframes } from 'tss-react';
 import classNames from 'classnames';
 import { tss } from '@/styles';
 
+const fillAnimation = keyframes`
+    from {
+        width: 10%;
+    }
+    to {
+        width: 100%;
+    }
+`;
+
 interface UseStyleProps extends Record<string, unknown> {
-	percent: number;
+	durationInMs: number;
 	color?: string;
 }
 
-const useStyles = tss.withParams<UseStyleProps>().create(({ percent, color, ...theme }) => ({
+const useStyles = tss.withParams<UseStyleProps>().create(({ durationInMs, color, ...theme }) => ({
 	meterOuter: {
 		height: 8,
 		width: '100%',
@@ -20,23 +30,22 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ percent, color, ...t
 		left: 0,
 		bottom: 0,
 		borderRadius: 500,
-		width: `${percent}%`,
+		width: '0%',
 		position: 'absolute',
 		transition: `width 200ms`,
 		backgroundColor: color ?? theme.colors.primary,
+		animation: `${fillAnimation} ${durationInMs}ms linear forwards`,
 	},
 }));
 
-interface MeterProps {
-	value: number;
-	maxValue: number;
+interface MeterAnimatedProps {
+	durationInMs: number;
 	color?: string;
 	className?: string;
 }
 
-export const Meter = ({ value, maxValue, color, className }: MeterProps) => {
-	const percent = (value / maxValue) * 100;
-	const { classes } = useStyles({ percent, color });
+export const MeterAnimated = ({ durationInMs, color, className }: MeterAnimatedProps) => {
+	const { classes } = useStyles({ durationInMs, color });
 
 	return (
 		<div className={classNames(classes.meterOuter, className)}>

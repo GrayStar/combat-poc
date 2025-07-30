@@ -7,6 +7,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		title: 'Punch',
 		description: 'punch em.',
 		cooldownDurationInMs: 1500,
+		castTimeDurationInMs: 0,
 		targetEffects: {
 			resources: {
 				health: -5,
@@ -17,8 +18,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellTypeId: SPELL_TYPE_ID.FIREBALL,
 		title: 'Fireball',
 		description: 'Throw a ball of fire, dealing damage. Applies Burn',
-		castTimeDurationInMs: 0,
-		cooldownDurationInMs: 0,
+		castTimeDurationInMs: 2000,
+		cooldownDurationInMs: 1500,
 		casterEffects: {
 			resources: {
 				mana: -5,
@@ -36,6 +37,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		title: 'Burn Tick',
 		description: 'Burns the target.',
 		cooldownDurationInMs: 0,
+		castTimeDurationInMs: 0,
 		targetEffects: {
 			resources: {
 				health: -1,
@@ -47,6 +49,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		title: 'Remove Burn',
 		description: 'Remove the burn status effect',
 		cooldownDurationInMs: 1500,
+		castTimeDurationInMs: 0,
 		casterEffects: {
 			resources: {
 				mana: -20,
@@ -61,6 +64,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		title: 'Scar',
 		description: 'Scar the target. Applies Scarred.',
 		cooldownDurationInMs: 0,
+		castTimeDurationInMs: 0,
 		targetEffects: {
 			statusEffectTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.SCARRED],
 		},
@@ -106,6 +110,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		title: 'Bomb',
 		description: 'Attachs a bomb to the target. Applies Living Bomb ',
 		cooldownDurationInMs: 5000,
+		castTimeDurationInMs: 0,
 		casterEffects: {
 			resources: {
 				mana: -50,

@@ -5,7 +5,7 @@ export interface SpellModel {
 	title: string;
 	description: string;
 	cooldownDurationInMs: number;
-	castTimeDurationInMs?: number;
+	castTimeDurationInMs: number;
 	casterEffects?: SpellEffect;
 	targetEffects?: SpellEffect;
 }

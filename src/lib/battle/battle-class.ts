@@ -112,11 +112,25 @@ export class Battle {
 	public handleCastSpell(data: { casterId: string; targetId: string; spellId: string }): void {
 		const { casterId, targetId, spellId } = data;
 		// spell on action bar is just for cooldowns
+		const caster = this._characters[casterId];
 		const spellOnActionBar = this._spells[spellId];
 		// todo check if caster can even has the required resources to cast.
 		// spell to cast needs to run through caster buffs before applying
 		// this might just need to be a getState(), but for now make a new instance.
 		const spellToCast = new Spell(spellOnActionBar.spellTypeId, this.notify.bind(this));
+
+		if (spellToCast.castTimeDurationInMs > 0) {
+			caster.startCastingSpellBySpellId(spellToCast.spellId, spellToCast.castTimeDurationInMs, () => {
+				this.applySpellEffectsToChracterById(casterId, spellToCast.casterEffects);
+				this.applySpellEffectsToChracterById(targetId, spellToCast.targetEffects);
+
+				spellOnActionBar.startCooldown();
+				this.notify();
+			});
+
+			this.notify();
+			return;
+		}
 
 		this.applySpellEffectsToChracterById(casterId, spellToCast.casterEffects);
 		this.applySpellEffectsToChracterById(targetId, spellToCast.targetEffects);

@@ -37,11 +37,7 @@ export const Battle = () => {
 								return (
 									<Droppable key={character.characterId} droppableId={character.characterId}>
 										{(provided) => (
-											<div
-												{...provided.droppableProps}
-												ref={provided.innerRef}
-												className="border rounded bg-white"
-											>
+											<div {...provided.droppableProps} ref={provided.innerRef}>
 												<Character character={character} />
 											</div>
 										)}
@@ -59,11 +55,7 @@ export const Battle = () => {
 								return (
 									<Droppable key={character.characterId} droppableId={character.characterId}>
 										{(provided) => (
-											<div
-												{...provided.droppableProps}
-												ref={provided.innerRef}
-												className="border rounded bg-white"
-											>
+											<div {...provided.droppableProps} ref={provided.innerRef}>
 												<Character character={character} />
 											</div>
 										)}
@@ -76,11 +68,7 @@ export const Battle = () => {
 					<div className="d-flex mb-5">
 						<Droppable droppableId={playerCharacter.characterId}>
 							{(provided) => (
-								<div
-									{...provided.droppableProps}
-									ref={provided.innerRef}
-									className="border rounded bg-white"
-								>
+								<div {...provided.droppableProps} ref={provided.innerRef}>
 									<Character character={playerCharacter} />
 								</div>
 							)}
@@ -102,7 +90,7 @@ export const Battle = () => {
 											key={spell.spellId}
 											draggableId={spell.spellId}
 											index={spellIndex}
-											isDragDisabled={spell.isOnCooldown}
+											isDragDisabled={spell.isOnCooldown || playerCharacter.isCasting}
 										>
 											{(draggableProvided, draggableSnapshot) => (
 												<>

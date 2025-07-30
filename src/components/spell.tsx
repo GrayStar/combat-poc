@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
 import { SpellState } from '@/lib/spell';
 import { tss } from '@/styles';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 const flashAnimationDurationInMs = 500;
 const cooldownAnimation = keyframes`
@@ -68,10 +68,6 @@ interface SpellProps {
 export const Spell = ({ spell, className }: SpellProps) => {
 	const { classes } = useStyles({ cooldownDurationInMs: spell.cooldownDurationInMs });
 	const overlayRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		console.log('1');
-	}, [spell.isOnCooldown]);
 
 	return (
 		<div className={classNames(classes.spell, className)}>

@@ -1,7 +1,20 @@
 import { CharacterState } from '@/lib/character';
-import { Meter, StatusEffect } from '@/components';
-import { useTheme } from '@/styles/hooks';
+import { Meter, MeterAnimated, StatusEffect } from '@/components';
 import { useBattle } from '@/hooks';
+import { tss } from '@/styles';
+import { useTheme } from '@/styles/hooks';
+
+const useStyles = tss.create((theme) => ({
+	character: {
+		width: 128,
+		padding: 8,
+		borderRadius: 8,
+		overflow: 'hidden',
+		textAlign: 'center',
+		position: 'relative',
+		backgroundColor: theme.colors.gray200,
+	},
+}));
 
 interface CharacterProps {
 	character: CharacterState;
@@ -10,22 +23,29 @@ interface CharacterProps {
 export const Character = ({ character }: CharacterProps) => {
 	const { theme } = useTheme();
 	const { battle } = useBattle();
+	const { classes } = useStyles();
 
 	if (!battle) {
 		return null;
 	}
 
 	return (
-		<div>
-			<h5 className="m-0">{character.title}</h5>
-			<p className="m-0">
-				HP: {character.health}/{character.maxHealth}
-			</p>
-			<Meter value={character.health} maxValue={character.maxHealth} color={theme.colors.success} />
-			<p className="m-0">
-				MP: {character.mana}/{character.maxMana}
-			</p>
-			<Meter value={character.mana} maxValue={character.maxMana} color={theme.colors.info} />
+		<div className={classes.character}>
+			<h6 className="mb-2 small">{character.title}</h6>
+			<Meter
+				className="mb-2"
+				value={character.health}
+				maxValue={character.maxHealth}
+				color={theme.colors.success}
+			/>
+			<Meter className="mb-2" value={character.mana} maxValue={character.maxMana} color={theme.colors.info} />
+			{character.isCasting && (
+				<MeterAnimated
+					className="mb-2"
+					durationInMs={character.castTimeDurationInMs ?? 0}
+					color={theme.colors.warning}
+				/>
+			)}
 			<div className="d-flex">
 				{character.statusEffectIds.map((statusEffectId) => {
 					const statusEffect = battle.statusEffects[statusEffectId];

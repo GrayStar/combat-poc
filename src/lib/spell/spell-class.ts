@@ -9,7 +9,7 @@ export type SpellState = {
 	title: string;
 	description: string;
 	cooldownDurationInMs: number;
-	castTimeDurationInMs?: number;
+	castTimeDurationInMs: number;
 	casterEffects?: SpellEffect;
 	targetEffects?: SpellEffect;
 	isOnCooldown: boolean;
@@ -21,7 +21,7 @@ export class Spell {
 	public readonly title: string;
 	public readonly description: string;
 	public readonly cooldownDurationInMs: number;
-	public readonly castTimeDurationInMs?: number;
+	public readonly castTimeDurationInMs: number;
 	public readonly casterEffects?: SpellEffect;
 	public readonly targetEffects?: SpellEffect;
 
@@ -57,7 +57,6 @@ export class Spell {
 		this._cooldownTimeout = undefined;
 		this._isOnCooldown = false;
 
-		console.log('stopCooldown');
 		this._notify();
 	}
 
@@ -65,12 +64,11 @@ export class Spell {
 		this.stopCooldown();
 		this._isOnCooldown = true;
 
-		console.log('startCooldown');
 		this._notify();
 
 		this._cooldownTimeout = setTimeout(() => {
 			this._isOnCooldown = false;
-			console.log('cooldownComplete');
+
 			this._notify();
 		}, this.cooldownDurationInMs);
 	}
