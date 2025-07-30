@@ -54,10 +54,11 @@ export const Character = ({ character }: CharacterProps) => {
 				maxValue={character.maxMana}
 				color={theme.colors.info}
 			/>
-			{character.isCasting && (
+			{character.isCastingSpell && (
 				<MeterAnimated
+					title={character.isCastingSpell.title}
 					className="mb-2"
-					durationInMs={character.castTimeDurationInMs ?? 0}
+					durationInMs={character.isCastingSpell.castTimeDurationInMs ?? 0}
 					color={theme.colors.warning}
 				/>
 			)}

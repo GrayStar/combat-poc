@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character';
 import { SPELL_TYPE_ID } from '../status-effect';
+import { Spell, SpellState } from '../spell';
 
 export type CharacterState = {
 	characterId: string;
@@ -9,8 +10,7 @@ export type CharacterState = {
 	title: string;
 	spellIds: string[];
 	statusEffectIds: string[];
-	isCasting: boolean;
-	castTimeDurationInMs: number | undefined;
+	isCastingSpell: SpellState | undefined;
 	health: number;
 	maxHealth: number;
 	mana: number;
@@ -25,13 +25,12 @@ export class Character {
 
 	private _spellIds: string[];
 	private _statusEffectIds: string[];
-	private _isCasting: boolean;
 	private _health: number;
 	private _maxHealth: number;
 	private _mana: number;
 	private _maxMana: number;
 	private _castingTimeout?: NodeJS.Timeout;
-	private _castTimeDurationInMs?: number;
+	private _isCastingSpell?: SpellState;
 
 	constructor(characterTypeId: CHARACTER_TYPE_ID) {
 		const config = cloneDeep(characterData[characterTypeId]);
@@ -43,7 +42,6 @@ export class Character {
 
 		this._spellIds = [];
 		this._statusEffectIds = [];
-		this._isCasting = false;
 		this._health = config.maxHealth;
 		this._maxHealth = config.maxHealth;
 		this._mana = config.maxMana;
@@ -99,20 +97,8 @@ export class Character {
 		return [...this._spellIds];
 	}
 
-	public get isCasting() {
-		return this._isCasting;
-	}
-
-	public get castTimeDurationInMs(): number | undefined {
-		return this._castTimeDurationInMs;
-	}
-
 	public setSpellIds(spellIds: string[]) {
 		this._spellIds = [...spellIds];
-	}
-
-	public setIsCasting(isCasting: boolean) {
-		this._isCasting = isCasting;
 	}
 
 	// --- Status Effects ---
@@ -130,21 +116,19 @@ export class Character {
 		this._statusEffectIds = this._statusEffectIds.filter((existing) => existing !== id);
 	}
 
-	public startCastingSpellBySpellId(spellId: string, duration: number, onComplete: (spellId: string) => void): void {
+	public startCastingSpellBySpellId(spell: Spell, onComplete: (spellId: string) => void): void {
 		if (this._castingTimeout) {
 			clearTimeout(this._castingTimeout);
 		}
 
-		this._isCasting = true;
-		this._castTimeDurationInMs = duration;
+		this._isCastingSpell = spell.getState();
 
 		this._castingTimeout = setTimeout(() => {
-			this._isCasting = false;
+			this._isCastingSpell = undefined;
 			this._castingTimeout = undefined;
-			this._castTimeDurationInMs = undefined;
 
-			onComplete(spellId);
-		}, duration);
+			onComplete(spell.spellId);
+		}, spell.castTimeDurationInMs);
 	}
 
 	public interuptCasting(): void {
@@ -153,8 +137,7 @@ export class Character {
 			this._castingTimeout = undefined;
 		}
 
-		this._isCasting = false;
-		this._castTimeDurationInMs = undefined;
+		this._isCastingSpell = undefined;
 	}
 
 	// --- State Snapshot ---
@@ -165,8 +148,7 @@ export class Character {
 			title: this.title,
 			spellIds: this.spellIds,
 			statusEffectIds: this.statusEffectIds,
-			isCasting: this._isCasting,
-			castTimeDurationInMs: this._castTimeDurationInMs,
+			isCastingSpell: this._isCastingSpell,
 			health: this._health,
 			maxHealth: this._maxHealth,
 			mana: this._mana,

@@ -120,7 +120,7 @@ export class Battle {
 		const spellToCast = new Spell(spellOnActionBar.spellTypeId, this.notify.bind(this));
 
 		if (spellToCast.castTimeDurationInMs > 0) {
-			caster.startCastingSpellBySpellId(spellToCast.spellId, spellToCast.castTimeDurationInMs, () => {
+			caster.startCastingSpellBySpellId(spellToCast, () => {
 				this.applySpellEffectsToChracterById(casterId, spellToCast.casterEffects);
 				this.applySpellEffectsToChracterById(targetId, spellToCast.targetEffects);
 
