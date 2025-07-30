@@ -88,13 +88,6 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 	// 		return;
 	// 	}
 
-	// 	const spellCastDurationInMs = spellWithCasterStatusEffects.castTimeDurationInMs ?? 0;
-	// 	if (spellCastDurationInMs > 0) {
-	// 		// Todo: animate casting?
-	// 	} else {
-	// 		castSpellWithStatusEffects();
-	// 	}
-
 	const value = {
 		battle,
 		startBattle,

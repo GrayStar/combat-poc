@@ -4,10 +4,10 @@ export const defaultTheme = {
 	colors: {
 		primary: '#77206E',
 		secondary: '#7D756C',
-		success: '#0D6678',
-		info: '#123F78',
-		warning: '#FB8B24',
-		danger: '#DC3545',
+		success: '#27a417',
+		info: '#437cdfff',
+		warning: '#fbe924ff',
+		danger: '#e34555ff',
 
 		// Grays
 		gray100: '#FAF9F8',
@@ -38,7 +38,9 @@ export const defaultTheme = {
 		body: '1.6rem',
 		lead: '2.1rem',
 		small: '1.4rem',
-		extraSmall: '1.2rem',
+		xs: '1.2rem',
+		xxs: '1.0rem',
+		xxxs: '0.8rem',
 	},
 	fontWeights: {
 		normal: 400,

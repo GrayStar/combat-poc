@@ -45,7 +45,7 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }
 		position: 'absolute',
 		textAlign: 'center',
 		color: theme.colors.white,
-		fontSize: theme.fonts.extraSmall,
+		fontSize: theme.fonts.xs,
 		lineHeight: '1.6rem',
 		backgroundColor: theme.colors.black,
 	},

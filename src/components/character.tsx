@@ -14,6 +14,12 @@ const useStyles = tss.create((theme) => ({
 		position: 'relative',
 		backgroundColor: theme.colors.gray200,
 	},
+	namePlate: {
+		padding: 4,
+		borderRadius: 4,
+		color: theme.colors.white,
+		backgroundColor: theme.colors.gray800,
+	},
 }));
 
 interface CharacterProps {
@@ -23,7 +29,7 @@ interface CharacterProps {
 export const Character = ({ character }: CharacterProps) => {
 	const { theme } = useTheme();
 	const { battle } = useBattle();
-	const { classes } = useStyles();
+	const { classes, cx } = useStyles();
 
 	if (!battle) {
 		return null;
@@ -31,14 +37,23 @@ export const Character = ({ character }: CharacterProps) => {
 
 	return (
 		<div className={classes.character}>
-			<h6 className="mb-2 small">{character.title}</h6>
+			<div className={cx('mb-2', classes.namePlate)}>
+				<h6 className="mb-0 small">{character.title}</h6>
+			</div>
 			<Meter
+				showValue
 				className="mb-2"
 				value={character.health}
 				maxValue={character.maxHealth}
 				color={theme.colors.success}
 			/>
-			<Meter className="mb-2" value={character.mana} maxValue={character.maxMana} color={theme.colors.info} />
+			<Meter
+				showValue
+				className="mb-2"
+				value={character.mana}
+				maxValue={character.maxMana}
+				color={theme.colors.info}
+			/>
 			{character.isCasting && (
 				<MeterAnimated
 					className="mb-2"

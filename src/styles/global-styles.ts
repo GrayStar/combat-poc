@@ -85,7 +85,7 @@ export const getGlobalStyles = (theme: ThemeConfig) => {
 			fontSize: theme.fonts.small,
 		},
 		'.extra-small': {
-			fontSize: theme.fonts.extraSmall,
+			fontSize: theme.fonts.xs,
 		},
 
 		'.fw-normal': {
