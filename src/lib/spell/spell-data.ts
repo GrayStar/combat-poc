@@ -1,135 +1,70 @@
-import { SpellModel } from '@/lib/spell';
-import { SPELL_TYPE_ID, STATUS_EFFECT_TYPE_ID } from '../status-effect';
+import {
+	AURA_CATEGORY_TYPE_ID,
+	AURA_TYPE_ID,
+	DISPEL_TYPE_ID,
+	RESOURCE_TYPE_ID,
+	SCHOOL_TYPE_ID,
+	SPELL_EFFECT_TYPE_ID,
+	SpellModel,
+} from '@/lib/spell/spell-models';
+
+export enum SPELL_TYPE_ID {
+	FIREBALL = 'FIREBALL',
+	BIG_FIREBALL = 'BIG_FIREBALL',
+}
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
-	[SPELL_TYPE_ID.PUNCH]: {
-		spellTypeId: SPELL_TYPE_ID.PUNCH,
-		title: 'Punch',
-		description: 'punch em.',
-		cooldownDurationInMs: 1500,
-		castTimeDurationInMs: 0,
-		targetEffects: {
-			resources: {
-				health: -5,
-			},
-		},
-	},
 	[SPELL_TYPE_ID.FIREBALL]: {
 		spellTypeId: SPELL_TYPE_ID.FIREBALL,
 		title: 'Fireball',
-		description: 'Throw a ball of fire, dealing damage. Applies Burn',
-		castTimeDurationInMs: 2000,
-		cooldownDurationInMs: 1500,
-		casterEffects: {
-			resources: {
-				mana: -5,
+		description: 'Hurls a fiery ball that causes %{} %{} damage and an additional ${} ${} damage over ${} sec.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 30,
+				amountPercent: 0,
 			},
-		},
-		targetEffects: {
-			resources: {
-				health: -10,
-			},
-			statusEffectTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.BURN],
-		},
-	},
-	[SPELL_TYPE_ID.BURN_TICK]: {
-		spellTypeId: SPELL_TYPE_ID.BURN_TICK,
-		title: 'Burn Tick',
-		description: 'Burns the target.',
+		],
+		castTimeDurationInMs: 1500,
 		cooldownDurationInMs: 0,
-		castTimeDurationInMs: 0,
-		targetEffects: {
-			resources: {
-				health: -1,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 4000,
+		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
+		dispelTypeId: DISPEL_TYPE_ID.NONE,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE,
+				schoolTypeId: SCHOOL_TYPE_ID.FIRE,
+				value: 14,
+				valueModifiers: [],
 			},
-		},
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.PERIODIC_DAMAGE,
+				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HARMFUL,
+				value: 1,
+				valueModifiers: [],
+				intervalInMs: 2000,
+			},
+		],
 	},
-	[SPELL_TYPE_ID.REMOVE_BURN]: {
-		spellTypeId: SPELL_TYPE_ID.REMOVE_BURN,
-		title: 'Remove Burn',
-		description: 'Remove the burn status effect',
-		cooldownDurationInMs: 1500,
-		castTimeDurationInMs: 0,
-		casterEffects: {
-			resources: {
-				mana: -20,
+	[SPELL_TYPE_ID.BIG_FIREBALL]: {
+		spellTypeId: SPELL_TYPE_ID.FIREBALL,
+		title: 'Fireball',
+		description: 'Hurls a fiery ball that causes %{} %{} damage and an additional ${} ${} damage over ${} sec.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 30,
+				amountPercent: 0,
 			},
-		},
-		targetEffects: {
-			statusEffectTypeIdsToRemove: [STATUS_EFFECT_TYPE_ID.BURN],
-		},
-	},
-	[SPELL_TYPE_ID.SCAR]: {
-		spellTypeId: SPELL_TYPE_ID.SCAR,
-		title: 'Scar',
-		description: 'Scar the target. Applies Scarred.',
-		cooldownDurationInMs: 0,
-		castTimeDurationInMs: 0,
-		targetEffects: {
-			statusEffectTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.SCARRED],
-		},
-	},
-	[SPELL_TYPE_ID.HEAL]: {
-		spellTypeId: SPELL_TYPE_ID.HEAL,
-		title: 'Heal',
-		description: 'Heal the target.',
-		cooldownDurationInMs: 0,
-		castTimeDurationInMs: 0,
-		casterEffects: {
-			resources: {
-				mana: -1,
-			},
-		},
-		targetEffects: {
-			resources: {
-				health: 5,
-			},
-		},
-	},
-	[SPELL_TYPE_ID.LIFE_TAP]: {
-		spellTypeId: SPELL_TYPE_ID.LIFE_TAP,
-		title: 'Life Tap',
-		description: 'Convert targets health into mana.',
-		castTimeDurationInMs: 0,
-		cooldownDurationInMs: 0,
-		casterEffects: {
-			resources: {
-				health: -1,
-				mana: 0,
-			},
-		},
-		targetEffects: {
-			resources: {
-				health: 0,
-				mana: 2,
-			},
-		},
-	},
-	[SPELL_TYPE_ID.BOMB]: {
-		spellTypeId: SPELL_TYPE_ID.BOMB,
-		title: 'Bomb',
-		description: 'Attachs a bomb to the target. Applies Living Bomb ',
-		cooldownDurationInMs: 5000,
-		castTimeDurationInMs: 0,
-		casterEffects: {
-			resources: {
-				mana: -50,
-			},
-		},
-		targetEffects: {
-			statusEffectTypeIdsToAdd: [STATUS_EFFECT_TYPE_ID.LIVING_BOMB],
-		},
-	},
-	[SPELL_TYPE_ID.EXPLOSION]: {
-		spellTypeId: SPELL_TYPE_ID.EXPLOSION,
-		title: 'Explosion',
-		description: 'An explosion',
-		castTimeDurationInMs: 0,
-		cooldownDurationInMs: 0,
-		targetEffects: {
-			resources: {
-				health: -50,
-			},
-		},
+		],
+		castTimeDurationInMs: 1500,
+		cooldownDurationInMs: 8000,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 4000,
+		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
+		dispelTypeId: DISPEL_TYPE_ID.NONE,
+		spellEffects: [],
 	},
 };

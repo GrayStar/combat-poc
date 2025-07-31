@@ -1,8 +1,10 @@
 import { FC, useEffect, useState } from 'react';
-import { BATTLE_TYPE_ID, BattleModel, battleService } from '@/lib/battle';
 import { BattleProvider } from '@/contexts';
 import { useBattle } from '@/hooks';
 import { Battle } from '@/components';
+import { BattleModel } from '@/lib/battle/battle-models';
+import { battleService } from '@/lib/battle/battle-service';
+import { BATTLE_TYPE_ID } from '@/lib/battle/battle-data';
 
 const POC: FC = () => {
 	const { battle, startBattle } = useBattle();

@@ -3,7 +3,7 @@ import { useBattle } from '@/hooks';
 import { Character, Spell } from '@/components';
 
 export const Battle = () => {
-	const { battle, handleCastSpell } = useBattle();
+	const { battle, handleCastSpell, handleAbortCastSpell } = useBattle();
 
 	if (!battle) {
 		return null;
@@ -75,6 +75,15 @@ export const Battle = () => {
 						</Droppable>
 					</div>
 
+					{playerCharacter.isCastingSpell && (
+						<button
+							onClick={() => {
+								handleAbortCastSpell({ casterId: playerCharacter.characterId });
+							}}
+						>
+							abort cast
+						</button>
+					)}
 					<Droppable droppableId="SPELLS" isDropDisabled direction="horizontal">
 						{(droppableProvided) => (
 							<div
@@ -82,37 +91,33 @@ export const Battle = () => {
 								ref={droppableProvided.innerRef}
 								className="d-flex"
 							>
-								{playerCharacter.spellIds.map((spellId, spellIndex) => {
-									const spell = battle.spells[spellId];
-
-									return (
-										<Draggable
-											key={spell.spellId}
-											draggableId={spell.spellId}
-											index={spellIndex}
-											isDragDisabled={spell.isOnCooldown || !!playerCharacter.isCastingSpell}
-										>
-											{(draggableProvided, draggableSnapshot) => (
-												<>
-													<div
-														{...draggableProvided.draggableProps}
-														{...draggableProvided.dragHandleProps}
-														ref={draggableProvided.innerRef}
-													>
-														<div className="mx-1">
-															<Spell spell={spell} />
-														</div>
+								{playerCharacter.spells.map((spell, spellIndex) => (
+									<Draggable
+										key={spell.spellId}
+										draggableId={spell.spellId}
+										index={spellIndex}
+										isDragDisabled={spell.isOnCooldown || !!playerCharacter.isCastingSpell}
+									>
+										{(draggableProvided, draggableSnapshot) => (
+											<>
+												<div
+													{...draggableProvided.draggableProps}
+													{...draggableProvided.dragHandleProps}
+													ref={draggableProvided.innerRef}
+												>
+													<div className="mx-1">
+														<Spell spell={spell} />
 													</div>
-													{draggableSnapshot.isDragging && (
-														<div className="mx-1" style={{ transform: 'none !important' }}>
-															<Spell spell={spell} />
-														</div>
-													)}
-												</>
-											)}
-										</Draggable>
-									);
-								})}
+												</div>
+												{draggableSnapshot.isDragging && (
+													<div className="mx-1" style={{ transform: 'none !important' }}>
+														<Spell spell={spell} />
+													</div>
+												)}
+											</>
+										)}
+									</Draggable>
+								))}
 							</div>
 						)}
 					</Droppable>

@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
-import { BATTLE_TYPE_ID, battleData } from '@/lib/battle';
-import { Character, CHARACTER_TYPE_ID, CharacterState } from '@/lib/character';
-import { Spell, SpellEffect, SpellState } from '@/lib/spell';
-import { STATUS_EFFECT_TYPE_ID, StatusEffect, StatusEffectState } from '@/lib/status-effect';
+import { BATTLE_TYPE_ID, battleData } from '@/lib/battle/battle-data';
+import { Character, CharacterState } from '@/lib/character/character-class';
+import { CHARACTER_TYPE_ID } from '@/lib/character/character-data';
 
 export type BattleState = {
 	battleId: string;
@@ -13,8 +12,7 @@ export type BattleState = {
 	friendlyNonPlayerCharacterIds: string[];
 	hostileNonPlayerCharacterIds: string[];
 	characters: Record<string, CharacterState>;
-	spells: Record<string, SpellState>;
-	statusEffects: Record<string, StatusEffectState>;
+	// statusEffects: Record<string, StatusEffectState>;
 };
 
 export class Battle {
@@ -26,8 +24,7 @@ export class Battle {
 	private _friendlyNonPlayerCharacterIds: string[] = [];
 	private _hostileNonPlayerCharacterIds: string[] = [];
 	private _characters: Record<string, Character> = {};
-	private _spells: Record<string, Spell> = {};
-	private _statusEffects: Record<string, StatusEffect> = {};
+	// private _statusEffects: Record<string, StatusEffect> = {};
 	private _notificationSubscribers = new Set<(state: BattleState) => void>();
 
 	constructor(battleTypeId: BATTLE_TYPE_ID) {
@@ -37,7 +34,6 @@ export class Battle {
 		this.title = config.title;
 
 		this.initializeCharacters(config);
-		this.initializeSpells();
 	}
 
 	public get playerCharacterId() {
@@ -56,13 +52,9 @@ export class Battle {
 		return this._characters;
 	}
 
-	public get spells() {
-		return this._spells;
-	}
-
-	public get statusEffects() {
-		return this._statusEffects;
-	}
+	// public get statusEffects() {
+	// 	return this._statusEffects;
+	// }
 
 	public get subscribe() {
 		return this._subscribe.bind(this);
@@ -70,20 +62,15 @@ export class Battle {
 
 	public getState(): BattleState {
 		const characterStates: Record<string, CharacterState> = {};
-		const spellStates: Record<string, SpellState> = {};
-		const statusEffectStates: Record<string, StatusEffectState> = {};
+		//const statusEffectStates: Record<string, StatusEffectState> = {};
 
 		for (const [id, instance] of Object.entries(this._characters)) {
 			characterStates[id] = instance.getState();
 		}
 
-		for (const [id, instance] of Object.entries(this._spells)) {
-			spellStates[id] = instance.getState();
-		}
-
-		for (const [id, instance] of Object.entries(this._statusEffects)) {
-			statusEffectStates[id] = instance.getState();
-		}
+		// for (const [id, instance] of Object.entries(this._statusEffects)) {
+		// 	statusEffectStates[id] = instance.getState();
+		// }
 
 		return {
 			battleId: this.battleId,
@@ -93,8 +80,7 @@ export class Battle {
 			friendlyNonPlayerCharacterIds: this.friendlyNonPlayerCharacterIds,
 			hostileNonPlayerCharacterIds: this.hostileNonPlayerCharacterIds,
 			characters: characterStates,
-			spells: spellStates,
-			statusEffects: statusEffectStates,
+			//statusEffects: statusEffectStates,
 		};
 	}
 
@@ -109,178 +95,186 @@ export class Battle {
 		}
 	}
 
-	public handleCastSpell(data: { casterId: string; targetId: string; spellId: string }): void {
+	public async handleCastSpell(data: { casterId: string; targetId: string; spellId: string }) {
 		const { casterId, targetId, spellId } = data;
-		// spell on action bar is just for cooldowns
 		const caster = this._characters[casterId];
-		const spellOnActionBar = this._spells[spellId];
-		// todo check if caster can even has the required resources to cast.
-		// spell to cast needs to run through caster buffs before applying
-		// this might just need to be a getState(), but for now make a new instance.
-		const spellToCast = new Spell(spellOnActionBar.spellTypeId, this.notify.bind(this));
 
-		if (spellToCast.castTimeDurationInMs > 0) {
-			caster.startCastingSpellBySpellId(spellToCast, () => {
-				this.applySpellEffectsToChracterById(casterId, spellToCast.casterEffects);
-				this.applySpellEffectsToChracterById(targetId, spellToCast.targetEffects);
-
-				spellOnActionBar.startCooldown();
-				this.notify();
-			});
-
-			this.notify();
-			return;
-		}
-
-		this.applySpellEffectsToChracterById(casterId, spellToCast.casterEffects);
-		this.applySpellEffectsToChracterById(targetId, spellToCast.targetEffects);
-
-		spellOnActionBar.startCooldown();
-		this.notify();
-	}
-
-	private applySpellEffectsToChracterById(characterId: string, spellEffect?: SpellEffect): void {
-		const character = this._characters[characterId];
-
-		if (!character) {
-			return;
-		}
-
-		if (!spellEffect) {
-			return;
-		}
-
-		character.adjustHealth(spellEffect.resources?.health ?? 0);
-		character.adjustMana(spellEffect.resources?.mana ?? 0);
-		spellEffect.statusEffectTypeIdsToAdd?.forEach((statusEffectTypeId) => {
-			this.applyStatusEffectTypeIdToCharacterId(statusEffectTypeId, character.characterId);
-		});
-		spellEffect.statusEffectTypeIdsToRemove?.forEach((statusEffectTypeId) => {
-			this.removeStatusEffectTypeIdFromCharacterId(statusEffectTypeId, character.characterId);
-		});
-	}
-
-	private applyStatusEffectTypeIdToCharacterId(statusEffectTypeId: STATUS_EFFECT_TYPE_ID, characterId: string): void {
-		const character = this._characters[characterId];
-		if (!character) {
-			return;
-		}
-
-		const newEffect = new StatusEffect(
-			statusEffectTypeId,
-			this.handleStatusEffectInterval.bind(this),
-			this.handleStatusEffectTimeout.bind(this)
-		);
-		if (newEffect.canStack) {
-			newEffect.stacks = 1;
-		}
-
-		const matchingId = character.statusEffectIds.find(
-			(id) => this._statusEffects[id]?.statusEffectTypeId === statusEffectTypeId
-		);
-
-		if (matchingId) {
-			const existing = this._statusEffects[matchingId];
-			if (newEffect.canStack) {
-				newEffect.stacks = existing.stacks + 1;
-			}
-			existing.stopAllTimers();
-			delete this._statusEffects[matchingId];
-
-			character.removeStatusEffectId(matchingId);
-		}
-
-		this._statusEffects[newEffect.statusEffectId] = newEffect;
-		character.addStatusEffectId(newEffect.statusEffectId);
-	}
-
-	private handleStatusEffectInterval(statusEffectId: string) {
-		const statusEffect = this._statusEffects[statusEffectId];
-		if (!statusEffect) {
-			return;
-		}
-
-		const affectedCharacterIds = Object.entries(this._characters)
-			.filter(([, char]) => char.statusEffectIds.includes(statusEffectId))
-			.map(([id]) => id);
-
-		for (const characterId of affectedCharacterIds) {
-			for (const spellTypeId of statusEffect.intervalSpellTypeIds) {
-				const spellInstance = new Spell(spellTypeId, this.notify.bind(this));
-				this.applySpellEffectsToChracterById(characterId, spellInstance.targetEffects);
+		try {
+			const spellPayload = await caster.castSpell(spellId);
+			console.log(`${caster.title} cast spell:`, spellPayload);
+		} catch (error) {
+			if (error instanceof Error) {
+				console.log('error:', error.message);
 			}
 		}
-
-		this.notify();
 	}
 
-	private handleStatusEffectTimeout(statusEffectId: string) {
-		const statusEffect = this._statusEffects[statusEffectId];
-		if (!statusEffect) {
-			return;
-		}
-
-		const affectedCharacterIds = Object.entries(this._characters)
-			.filter(([, char]) => char.statusEffectIds.includes(statusEffectId))
-			.map(([id]) => id);
-
-		for (const characterId of affectedCharacterIds) {
-			for (const spellTypeId of statusEffect.timeoutSpellTypeIds) {
-				const spellInstance = new Spell(spellTypeId, this.notify.bind(this));
-				this.applySpellEffectsToChracterById(characterId, spellInstance.targetEffects);
-			}
-		}
-
-		delete this._statusEffects[statusEffectId];
-		for (const character of Object.values(this._characters)) {
-			character.removeStatusEffectId(statusEffectId);
-		}
-
-		this.notify();
+	public handleAbortCastSpell(data: { casterId: string }) {
+		const { casterId } = data;
+		const character = this._characters[casterId];
+		character.interuptCasting();
 	}
 
-	private handleStatusEffectCleared(statusEffectId: string) {
-		const statusEffect = this._statusEffects[statusEffectId];
-		if (!statusEffect) {
-			return;
-		}
+	// private applySpellEffectsToTargetByIdFromCasterById(
+	// 	spellEffects: SpellEffect[],
+	// 	targetId: string,
+	// 	casterId: string
+	// ): void {
+	// 	const caster = this._characters[casterId];
+	// 	const target = this._characters[targetId];
 
-		const affectedCharacterIds = Object.entries(this._characters)
-			.filter(([, char]) => char.statusEffectIds.includes(statusEffectId))
-			.map(([id]) => id);
+	// 	if (!target) {
+	// 		return;
+	// 	}
 
-		for (const characterId of affectedCharacterIds) {
-			for (const spellTypeId of statusEffect.clearedSpellTypeIds) {
-				const spellInstance = new Spell(spellTypeId, this.notify.bind(this));
-				this.applySpellEffectsToChracterById(characterId, spellInstance.targetEffects);
-			}
-		}
+	// 	if (spellEffects.length <= 0) {
+	// 		return;
+	// 	}
 
-		statusEffect.stopAllTimers();
-		delete this._statusEffects[statusEffectId];
-		for (const character of Object.values(this._characters)) {
-			character.removeStatusEffectId(statusEffectId);
-		}
+	// 	spellEffects.forEach((spellEffect) => {
+	// 		switch (spellEffect.spellEffectTypeId) {
+	// 			case SPELL_EFFECT_TYPE_ID.APPLY_AURA:
+	// 				break;
+	// 			case SPELL_EFFECT_TYPE_ID.DISPEL:
+	// 				break;
+	// 			case SPELL_EFFECT_TYPE_ID.HEAL:
+	// 				break;
+	// 			case SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE:
+	// 				break;
+	// 		}
+	// 	});
 
-		this.notify();
-	}
+	// 	// character.adjustHealth(spellEffect.resources?.health ?? 0);
+	// 	// character.adjustMana(spellEffect.resources?.mana ?? 0);
+	// 	// spellEffect.statusEffectTypeIdsToAdd?.forEach((statusEffectTypeId) => {
+	// 	// 	this.applyStatusEffectTypeIdToCharacterId(statusEffectTypeId, character.characterId);
+	// 	// });
+	// 	// spellEffect.statusEffectTypeIdsToRemove?.forEach((statusEffectTypeId) => {
+	// 	// 	this.removeStatusEffectTypeIdFromCharacterId(statusEffectTypeId, character.characterId);
+	// 	// });
+	// }
 
-	public removeStatusEffectTypeIdFromCharacterId(
-		statusEffectTypeId: STATUS_EFFECT_TYPE_ID,
-		characterId: string
-	): void {
-		const character = this._characters[characterId];
-		if (!character) {
-			return;
-		}
+	// private applyStatusEffectTypeIdToCharacterId(statusEffectTypeId: STATUS_EFFECT_TYPE_ID, characterId: string): void {
+	// 	const character = this._characters[characterId];
+	// 	if (!character) {
+	// 		return;
+	// 	}
 
-		const statusEffectIdsToRemove = character.statusEffectIds.filter((statusEffectId) => {
-			const eff = this._statusEffects[statusEffectId];
-			return eff?.statusEffectTypeId === statusEffectTypeId;
-		});
+	// 	const newEffect = new StatusEffect(
+	// 		statusEffectTypeId,
+	// 		this.handleStatusEffectInterval.bind(this),
+	// 		this.handleStatusEffectTimeout.bind(this)
+	// 	);
+	// 	if (newEffect.canStack) {
+	// 		newEffect.stacks = 1;
+	// 	}
 
-		statusEffectIdsToRemove.forEach(this.handleStatusEffectCleared.bind(this));
-	}
+	// 	const matchingId = character.statusEffectIds.find(
+	// 		(id) => this._statusEffects[id]?.statusEffectTypeId === statusEffectTypeId
+	// 	);
+
+	// 	if (matchingId) {
+	// 		const existing = this._statusEffects[matchingId];
+	// 		if (newEffect.canStack) {
+	// 			newEffect.stacks = existing.stacks + 1;
+	// 		}
+	// 		existing.stopAllTimers();
+	// 		delete this._statusEffects[matchingId];
+
+	// 		character.removeStatusEffectId(matchingId);
+	// 	}
+
+	// 	this._statusEffects[newEffect.statusEffectId] = newEffect;
+	// 	character.addStatusEffectId(newEffect.statusEffectId);
+	// }
+
+	// private handleStatusEffectInterval(statusEffectId: string) {
+	// 	const statusEffect = this._statusEffects[statusEffectId];
+	// 	if (!statusEffect) {
+	// 		return;
+	// 	}
+
+	// 	const affectedCharacterIds = Object.entries(this._characters)
+	// 		.filter(([, char]) => char.statusEffectIds.includes(statusEffectId))
+	// 		.map(([id]) => id);
+
+	// 	for (const characterId of affectedCharacterIds) {
+	// 		for (const spellTypeId of statusEffect.intervalSpellTypeIds) {
+	// 			const spellInstance = new Spell(spellTypeId, this.notify.bind(this));
+	// 			this.applySpellEffectsToChracterById(characterId, spellInstance.targetEffects);
+	// 		}
+	// 	}
+
+	// 	this.notify();
+	// }
+
+	// private handleStatusEffectTimeout(statusEffectId: string) {
+	// 	const statusEffect = this._statusEffects[statusEffectId];
+	// 	if (!statusEffect) {
+	// 		return;
+	// 	}
+
+	// 	const affectedCharacterIds = Object.entries(this._characters)
+	// 		.filter(([, char]) => char.statusEffectIds.includes(statusEffectId))
+	// 		.map(([id]) => id);
+
+	// 	for (const characterId of affectedCharacterIds) {
+	// 		for (const spellTypeId of statusEffect.timeoutSpellTypeIds) {
+	// 			const spellInstance = new Spell(spellTypeId, this.notify.bind(this));
+	// 			this.applySpellEffectsToChracterById(characterId, spellInstance.targetEffects);
+	// 		}
+	// 	}
+
+	// 	delete this._statusEffects[statusEffectId];
+	// 	for (const character of Object.values(this._characters)) {
+	// 		character.removeStatusEffectId(statusEffectId);
+	// 	}
+
+	// 	this.notify();
+	// }
+
+	// private handleStatusEffectCleared(statusEffectId: string) {
+	// 	const statusEffect = this._statusEffects[statusEffectId];
+	// 	if (!statusEffect) {
+	// 		return;
+	// 	}
+
+	// 	const affectedCharacterIds = Object.entries(this._characters)
+	// 		.filter(([, char]) => char.statusEffectIds.includes(statusEffectId))
+	// 		.map(([id]) => id);
+
+	// 	for (const characterId of affectedCharacterIds) {
+	// 		for (const spellTypeId of statusEffect.clearedSpellTypeIds) {
+	// 			const spellInstance = new Spell(spellTypeId, this.notify.bind(this));
+	// 			this.applySpellEffectsToChracterById(characterId, spellInstance.targetEffects);
+	// 		}
+	// 	}
+
+	// 	statusEffect.stopAllTimers();
+	// 	delete this._statusEffects[statusEffectId];
+	// 	for (const character of Object.values(this._characters)) {
+	// 		character.removeStatusEffectId(statusEffectId);
+	// 	}
+
+	// 	this.notify();
+	// }
+
+	// public removeStatusEffectTypeIdFromCharacterId(
+	// 	statusEffectTypeId: STATUS_EFFECT_TYPE_ID,
+	// 	characterId: string
+	// ): void {
+	// 	const character = this._characters[characterId];
+	// 	if (!character) {
+	// 		return;
+	// 	}
+
+	// 	const statusEffectIdsToRemove = character.statusEffectIds.filter((statusEffectId) => {
+	// 		const eff = this._statusEffects[statusEffectId];
+	// 		return eff?.statusEffectTypeId === statusEffectTypeId;
+	// 	});
+
+	// 	statusEffectIdsToRemove.forEach(this.handleStatusEffectCleared.bind(this));
+	// }
 
 	private _subscribe(callback: (state: BattleState) => void): () => void {
 		this._notificationSubscribers.add(callback);
@@ -291,7 +285,7 @@ export class Battle {
 	}
 
 	private initializeCharacters(config: (typeof battleData)[BATTLE_TYPE_ID]): void {
-		const player = new Character(config.playerCharacterTypeId);
+		const player = new Character(config.playerCharacterTypeId, this.notify.bind(this));
 		const friendly = this.createCharacterRecord(config.friendlyNonPlayerCharacterTypeIds);
 		const hostile = this.createCharacterRecord(config.hostileNonPlayerCharacterTypeIds);
 
@@ -306,43 +300,11 @@ export class Battle {
 		};
 	}
 
-	private initializeSpells(): void {
-		const playerCharacter = this._characters[this._playerCharacterId];
-		const playerSpells = this.createSpellsForCharacter(playerCharacter);
-		playerCharacter.setSpellIds(Object.keys(playerSpells));
-
-		const friendlySpells = this.createSpellsForMultipleCharacters(this._friendlyNonPlayerCharacterIds);
-		const hostileSpells = this.createSpellsForMultipleCharacters(this._hostileNonPlayerCharacterIds);
-
-		this._spells = {
-			...playerSpells,
-			...friendlySpells,
-			...hostileSpells,
-		};
-	}
-
 	private createCharacterRecord(ids: CHARACTER_TYPE_ID[]): Record<string, Character> {
 		return ids.reduce((acc, id) => {
-			const character = new Character(id);
+			const character = new Character(id, this.notify.bind(this));
 			acc[character.characterId] = character;
 			return acc;
 		}, {} as Record<string, Character>);
-	}
-
-	private createSpellsForCharacter(character: Character): Record<string, Spell> {
-		return character.spellTypeIds.reduce((acc, spellTypeId) => {
-			const spell = new Spell(spellTypeId, this.notify.bind(this));
-			acc[spell.spellId] = spell;
-			return acc;
-		}, {} as Record<string, Spell>);
-	}
-
-	private createSpellsForMultipleCharacters(ids: string[]): Record<string, Spell> {
-		return ids.reduce((acc, id) => {
-			const character = this._characters[id];
-			const spells = this.createSpellsForCharacter(character);
-			character.setSpellIds(Object.keys(spells));
-			return { ...acc, ...spells };
-		}, {} as Record<string, Spell>);
 	}
 }

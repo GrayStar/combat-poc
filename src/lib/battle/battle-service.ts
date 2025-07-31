@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash';
-import { Battle, BATTLE_TYPE_ID, battleData } from '@/lib/battle';
+import { Battle } from '@/lib/battle/battle-class';
+import { BATTLE_TYPE_ID, battleData } from '@/lib/battle/battle-data';
 
 const battleStore: Record<string, Battle> = {};
 
@@ -26,5 +27,9 @@ export const battleService = {
 	castSpell(battleId: string, data: { casterId: string; targetId: string; spellId: string }) {
 		const battle = battleStore[battleId];
 		battle.handleCastSpell(data);
+	},
+	abortCastSpell(battleId: string, data: { casterId: string }) {
+		const battle = battleStore[battleId];
+		battle.handleAbortCastSpell(data);
 	},
 };

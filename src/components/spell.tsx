@@ -1,9 +1,9 @@
 import { keyframes } from 'tss-react';
 import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
-import { SpellState } from '@/lib/spell';
 import { tss } from '@/styles';
 import { useRef } from 'react';
+import { SpellState } from '@/lib/spell/spell-class';
 
 const flashAnimationDurationInMs = 1000;
 const cooldownAnimation = keyframes`

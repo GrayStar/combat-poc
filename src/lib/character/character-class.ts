@@ -1,14 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
-import { CHARACTER_TYPE_ID, characterData } from '@/lib/character';
-import { SPELL_TYPE_ID } from '../status-effect';
-import { Spell, SpellState } from '../spell';
+import { CHARACTER_TYPE_ID, characterData } from '@/lib/character/character-data';
+import { Spell, SpellState } from '@/lib/spell/spell-class';
+import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
+import { SpellPayload } from '@/lib/spell/spell-models';
 
 export type CharacterState = {
 	characterId: string;
 	characterTypeId: CHARACTER_TYPE_ID;
 	title: string;
-	spellIds: string[];
+	spells: SpellState[];
 	statusEffectIds: string[];
 	isCastingSpell: SpellState | undefined;
 	health: number;
@@ -21,31 +22,36 @@ export class Character {
 	public readonly characterId: string;
 	public readonly characterTypeId: CHARACTER_TYPE_ID;
 	public readonly title: string;
-	public readonly spellTypeIds: SPELL_TYPE_ID[];
 
-	private _spellIds: string[];
-	private _statusEffectIds: string[];
 	private _health: number;
 	private _maxHealth: number;
 	private _mana: number;
 	private _maxMana: number;
-	private _castingTimeout?: NodeJS.Timeout;
-	private _isCastingSpell?: SpellState;
+	private _spells: Spell[];
+	private _statusEffectIds: string[];
+	private _currentCast?: {
+		spell: SpellState;
+		abortController: AbortController;
+		timeout?: NodeJS.Timeout;
+	};
 
-	constructor(characterTypeId: CHARACTER_TYPE_ID) {
+	private _notify: () => void;
+
+	constructor(characterTypeId: CHARACTER_TYPE_ID, notify: () => void) {
 		const config = cloneDeep(characterData[characterTypeId]);
 
 		this.characterId = uuidv4();
 		this.characterTypeId = characterTypeId;
 		this.title = config.title;
-		this.spellTypeIds = config.spellTypeIds;
 
-		this._spellIds = [];
-		this._statusEffectIds = [];
 		this._health = config.maxHealth;
 		this._maxHealth = config.maxHealth;
 		this._mana = config.maxMana;
 		this._maxMana = config.maxMana;
+		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, notify));
+		this._statusEffectIds = [];
+
+		this._notify = notify;
 	}
 
 	// --- Health ---
@@ -88,18 +94,40 @@ export class Character {
 	}
 
 	public adjustMana(amount: number) {
-		const next = this._mana + amount;
-		this._mana = next <= 0 ? 0 : Math.min(this._maxMana, next);
+		const nextManaValue = this._mana + amount;
+
+		if (nextManaValue < 0) {
+			this._mana = 0;
+			return;
+		}
+
+		if (nextManaValue > this._maxMana) {
+			this._mana = this._maxMana;
+			return;
+		}
+
+		this._mana = nextManaValue;
 	}
 
-	// --- Spell Casting ---
-	public get spellIds() {
-		return [...this._spellIds];
+	// --- Spells ---
+	public get spells() {
+		return this._spells;
 	}
 
-	public setSpellIds(spellIds: string[]) {
-		this._spellIds = [...spellIds];
+	public setSpells(spellTypeIds: SPELL_TYPE_ID[]) {
+		// [TODO]:
+		// If this is called, that means all the current spells will get deleted
+		// so we have to clean them up, stop their timers, etc
+		this._spells = spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this._notify.bind(this)));
 	}
+
+	public addSpell(spellTypeId: SPELL_TYPE_ID) {
+		this._spells.push(new Spell(spellTypeId, this._notify.bind(this)));
+	}
+
+	// [TODO]:
+	// public removeSpell()
+	// not sure if they should be removed by spellId, or spellTypeId
 
 	// --- Status Effects ---
 	public get statusEffectIds(): string[] {
@@ -116,28 +144,82 @@ export class Character {
 		this._statusEffectIds = this._statusEffectIds.filter((existing) => existing !== id);
 	}
 
-	public startCastingSpellBySpellId(spell: Spell, onComplete: (spellId: string) => void): void {
-		if (this._castingTimeout) {
-			clearTimeout(this._castingTimeout);
+	public castSpell(spellId: string): Promise<SpellPayload> {
+		if (this._currentCast) {
+			return Promise.reject(new Error(`${this.title} is already casting ${this._currentCast.spell.title}.`));
 		}
 
-		this._isCastingSpell = spell.getState();
+		const spell = this._spells.find((s) => s.spellId === spellId);
+		const otherSpells = this._spells.filter((s) => s.spellId !== spellId);
+		if (!spell) {
+			return Promise.reject(new Error('spell is undefined.'));
+		}
 
-		this._castingTimeout = setTimeout(() => {
-			this._isCastingSpell = undefined;
-			this._castingTimeout = undefined;
+		const spellPayload: SpellPayload = {
+			damage: 10,
+			healing: 0,
+			aura: undefined,
+		};
 
-			onComplete(spell.spellId);
-		}, spell.castTimeDurationInMs);
+		if (spell.castTimeDurationInMs <= 0) {
+			spell.startCooldown();
+			otherSpells.forEach((s) => {
+				s.startGlobalCooldown();
+			});
+
+			this._notify();
+			return Promise.resolve(spellPayload);
+		}
+
+		return new Promise((resolve: (value: SpellPayload) => void, reject) => {
+			const abortController = new AbortController();
+			const { signal } = abortController;
+			this._currentCast = { spell: spell.getState(), abortController };
+
+			this._notify();
+
+			const timeout = setTimeout(() => {
+				this._clearCurrentCast();
+
+				spell.startCooldown();
+				otherSpells.forEach((s) => {
+					s.startGlobalCooldown();
+				});
+
+				this._notify();
+				return resolve(spellPayload);
+			}, spell.castTimeDurationInMs);
+
+			this._currentCast.timeout = timeout;
+
+			signal.addEventListener(
+				'abort',
+				() => {
+					this._clearCurrentCast();
+					this._notify();
+
+					return reject(new Error(`${this.title} was interrupted.`));
+				},
+				{ once: true }
+			);
+		});
+	}
+
+	private _clearCurrentCast(): void {
+		if (!this._currentCast) {
+			return;
+		}
+
+		clearTimeout(this._currentCast.timeout);
+		this._currentCast = undefined;
 	}
 
 	public interuptCasting(): void {
-		if (this._castingTimeout) {
-			clearTimeout(this._castingTimeout);
-			this._castingTimeout = undefined;
+		if (!this._currentCast) {
+			return;
 		}
 
-		this._isCastingSpell = undefined;
+		this._currentCast.abortController.abort();
 	}
 
 	// --- State Snapshot ---
@@ -146,9 +228,9 @@ export class Character {
 			characterId: this.characterId,
 			characterTypeId: this.characterTypeId,
 			title: this.title,
-			spellIds: this.spellIds,
+			spells: this._spells.map((spell) => spell.getState()),
 			statusEffectIds: this.statusEffectIds,
-			isCastingSpell: this._isCastingSpell,
+			isCastingSpell: this._currentCast?.spell,
 			health: this._health,
 			maxHealth: this._maxHealth,
 			mana: this._mana,

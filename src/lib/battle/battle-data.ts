@@ -1,5 +1,5 @@
-import { BattleModel } from '@/lib/battle';
-import { CHARACTER_TYPE_ID } from '@/lib/character';
+import { BattleModel } from '@/lib/battle/battle-models';
+import { CHARACTER_TYPE_ID } from '@/lib/character/character-data';
 
 export enum BATTLE_TYPE_ID {
 	TUTORIAL = 'TUTORIAL',
@@ -19,6 +19,6 @@ export const battleData: Record<BATTLE_TYPE_ID, BattleModel> = {
 		title: 'First Battle',
 		playerCharacterTypeId: CHARACTER_TYPE_ID.PLAYER,
 		friendlyNonPlayerCharacterTypeIds: [],
-		hostileNonPlayerCharacterTypeIds: [CHARACTER_TYPE_ID.SPIDER, CHARACTER_TYPE_ID.SPIDER],
+		hostileNonPlayerCharacterTypeIds: [CHARACTER_TYPE_ID.SKELETON, CHARACTER_TYPE_ID.SKELETON],
 	},
 };

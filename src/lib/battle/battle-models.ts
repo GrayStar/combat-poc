@@ -1,5 +1,5 @@
-import { BATTLE_TYPE_ID } from '@/lib/battle';
-import { CHARACTER_TYPE_ID } from '@/lib/character';
+import { BATTLE_TYPE_ID } from '@/lib/battle/battle-data';
+import { CHARACTER_TYPE_ID } from '@/lib/character/character-data';
 
 export interface BattleModel {
 	battleTypeId: BATTLE_TYPE_ID;

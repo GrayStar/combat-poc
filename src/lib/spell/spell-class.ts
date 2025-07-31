@@ -1,17 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
-import { spellData, SpellEffect } from '@/lib/spell';
-import { SPELL_TYPE_ID } from '@/lib/status-effect';
+import { SPELL_TYPE_ID, spellData } from './spell-data';
+import { DISPEL_TYPE_ID, SCHOOL_TYPE_ID, SpellEffect } from './spell-models';
 
 export type SpellState = {
 	spellId: string;
 	spellTypeId: SPELL_TYPE_ID;
 	title: string;
 	description: string;
-	cooldownDurationInMs: number;
 	castTimeDurationInMs: number;
-	casterEffects?: SpellEffect;
-	targetEffects?: SpellEffect;
+	cooldownDurationInMs: number;
 	isOnCooldown: boolean;
 };
 
@@ -20,12 +18,15 @@ export class Spell {
 	public readonly spellTypeId: SPELL_TYPE_ID;
 	public readonly title: string;
 	public readonly description: string;
-	public readonly cooldownDurationInMs: number;
 	public readonly castTimeDurationInMs: number;
-	public readonly casterEffects?: SpellEffect;
-	public readonly targetEffects?: SpellEffect;
+	public readonly cooldownDurationInMs: number;
+	public readonly globalCooldownDurationInMs: number;
+	public readonly auraDurationInMs: number;
+	public readonly schoolTypeId: SCHOOL_TYPE_ID;
+	public readonly dispelTypeId: DISPEL_TYPE_ID;
+	public readonly spellEffects: SpellEffect[];
 
-	private _isOnCooldown = false;
+	private _cooldownAnimationDurationInMs: number;
 	private _cooldownTimeout?: NodeJS.Timeout;
 	private _notify: () => void;
 
@@ -36,16 +37,20 @@ export class Spell {
 		this.spellTypeId = spellTypeId;
 		this.title = config.title;
 		this.description = config.description;
-		this.cooldownDurationInMs = config.cooldownDurationInMs;
 		this.castTimeDurationInMs = config.castTimeDurationInMs;
-		this.casterEffects = config.casterEffects;
-		this.targetEffects = config.targetEffects;
+		this.cooldownDurationInMs =
+			config.cooldownDurationInMs > config.globalCooldownDurationInMs
+				? config.cooldownDurationInMs
+				: config.globalCooldownDurationInMs;
+		this.globalCooldownDurationInMs = config.globalCooldownDurationInMs;
+		this.auraDurationInMs = config.auraDurationInMs;
+		this.schoolTypeId = config.schoolTypeId;
+		this.dispelTypeId = config.dispelTypeId;
+		this.spellEffects = config.spellEffects;
+
+		this._cooldownAnimationDurationInMs = this.cooldownDurationInMs;
 
 		this._notify = notify;
-	}
-
-	public get isOnCooldown() {
-		return this._isOnCooldown;
 	}
 
 	public stopCooldown(): void {
@@ -55,22 +60,38 @@ export class Spell {
 
 		clearTimeout(this._cooldownTimeout);
 		this._cooldownTimeout = undefined;
-		this._isOnCooldown = false;
 
 		this._notify();
 	}
 
 	public startCooldown(): void {
-		this.stopCooldown();
-		this._isOnCooldown = true;
+		if (this._cooldownTimeout) {
+			return;
+		}
 
-		this._notify();
+		this._cooldownAnimationDurationInMs = this.cooldownDurationInMs;
 
 		this._cooldownTimeout = setTimeout(() => {
-			this._isOnCooldown = false;
-
+			this._cooldownTimeout = undefined;
 			this._notify();
 		}, this.cooldownDurationInMs);
+
+		this._notify();
+	}
+
+	public startGlobalCooldown(): void {
+		if (this._cooldownTimeout) {
+			return;
+		}
+
+		this._cooldownAnimationDurationInMs = this.globalCooldownDurationInMs;
+
+		this._cooldownTimeout = setTimeout(() => {
+			this._cooldownTimeout = undefined;
+			this._notify();
+		}, this.globalCooldownDurationInMs);
+
+		this._notify();
 	}
 
 	public getState(): SpellState {
@@ -79,11 +100,9 @@ export class Spell {
 			spellTypeId: this.spellTypeId,
 			title: this.title,
 			description: this.description,
-			cooldownDurationInMs: this.cooldownDurationInMs,
 			castTimeDurationInMs: this.castTimeDurationInMs,
-			casterEffects: this.casterEffects,
-			targetEffects: this.targetEffects,
-			isOnCooldown: this._isOnCooldown,
+			cooldownDurationInMs: this._cooldownAnimationDurationInMs,
+			isOnCooldown: !!this._cooldownTimeout,
 		};
 	}
 }
