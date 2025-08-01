@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { SpellEffectApplyAura } from '@/lib/spell/spell-models';
+import { AuraEffectConfig } from '@/lib/spell/spell-models';
 
 type Timer = ReturnType<typeof setInterval> | ReturnType<typeof setTimeout>;
 
@@ -13,7 +13,7 @@ export type AuraState = {
 export class Aura {
 	public readonly auraId: string;
 	public readonly title: string;
-	public readonly spellEffects: SpellEffectApplyAura[];
+	public readonly auraEffectConfigs: AuraEffectConfig[];
 	public readonly durationInMs: number;
 
 	private _intervalTimers: Timer[] = [];
@@ -21,20 +21,20 @@ export class Aura {
 
 	constructor(
 		config: {
-			auraTitle: string;
-			spellEffects: SpellEffectApplyAura[];
+			title: string;
+			auraEffectConfigs: AuraEffectConfig[];
 			durationInMs: number;
 		},
-		private readonly intervalCallback: (auraId: string, effects: SpellEffectApplyAura[]) => void,
+		private readonly intervalCallback: (auraId: string, effects: AuraEffectConfig[]) => void,
 		private readonly timeoutCallback: (auraId: string) => void
 	) {
 		this.auraId = uuidv4();
-		this.title = config.auraTitle;
-		this.spellEffects = config.spellEffects;
+		this.title = config.title;
+		this.auraEffectConfigs = config.auraEffectConfigs;
 		this.durationInMs = config.durationInMs;
 
-		const intervalToSpellsEffectsMap = new Map<number, SpellEffectApplyAura[]>();
-		for (const spellEffect of this.spellEffects) {
+		const intervalToSpellsEffectsMap = new Map<number, AuraEffectConfig[]>();
+		for (const spellEffect of this.auraEffectConfigs) {
 			const currentSpellEffectIntervalInMs = spellEffect.intervalInMs;
 
 			if (currentSpellEffectIntervalInMs <= 0) {
@@ -82,7 +82,7 @@ export class Aura {
 		return {
 			auraId: this.auraId,
 			title: this.title,
-			description: `${this.spellEffects.length} effect(s) active`,
+			description: `${this.auraEffectConfigs.length} effect(s) active`,
 			durationInMs: this.durationInMs,
 		};
 	}

@@ -3,8 +3,9 @@ import { cloneDeep } from 'lodash';
 import { STAT_TYPE_ID } from '@/lib/character/character-models';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character/character-data';
 import {
+	AURA_TYPE_ID,
+	AuraEffectConfig,
 	SPELL_EFFECT_TYPE_ID,
-	SpellEffectApplyAura,
 	SpellPayload,
 	SpellPayloadSpellEffect,
 } from '@/lib/spell/spell-models';
@@ -135,7 +136,7 @@ export class Character {
 	}
 
 	// [TODO]:
-	// public removeSpell()
+	// add public removeSpell()
 	// not sure if they should be removed by spellId, or spellTypeId
 
 	// --- Spell casting ---
@@ -213,13 +214,13 @@ export class Character {
 		this._currentCast.abortController.abort();
 	}
 
-	public createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
+	private createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
 		const statProcessedSpellEffects = spell.spellEffects.map(({ valueModifiers, value, ...rest }) => {
 			const calculatedValue = Math.ceil(
 				valueModifiers.reduce((sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient, value)
 			);
 
-			// [TODO]: Apply buffs to payload before returning it
+			// [TODO]: Apply aura buffs/debuffs to payload before returning it
 
 			return {
 				...rest,
@@ -227,9 +228,7 @@ export class Character {
 			};
 		});
 
-		// [TODO]: Remove filter and add support for all over effect types
-		// .filter((i) => i.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE);
-
+		// Will probably have to add more spell properties here, but this is enough for now
 		return {
 			casterId: this.characterId,
 			title: spell.title,
@@ -239,9 +238,15 @@ export class Character {
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, callback: (message: string) => void) {
-		const auraEffects = spellPayload.spellEffects.filter(
-			(spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA
-		);
+		const auraEffectConfigs: AuraEffectConfig[] = spellPayload.spellEffects
+			.filter((spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA)
+			.map(({ auraTypeId, auraCategoryTypeId, value, intervalInMs }) => ({
+				auraTypeId,
+				auraCategoryTypeId,
+				value,
+				intervalInMs,
+			}));
+
 		const otherEffects = spellPayload.spellEffects.filter(
 			(spellEffect) => spellEffect.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
 		);
@@ -268,15 +273,13 @@ export class Character {
 			otherEffectMap[otherEffect.spellEffectTypeId](otherEffect);
 		});
 
-		// @ts-ignore
-		// SpellPayloadSpellEffect doesn't match SpellEffectApplyAura but im too lazy to retype it
-		this.applyAuraFromSpellEffects(spellPayload.title, spellPayload.auraDurationInMs, auraEffects);
+		this.applyAura(spellPayload.title, spellPayload.auraDurationInMs, auraEffectConfigs);
 	}
 
 	// --- Auras ---
-	public applyAuraFromSpellEffects(title: string, auraDurationInMs: number, spellEffects: SpellEffectApplyAura[]) {
+	public applyAura(title: string, durationInMs: number, auraEffectConfigs: AuraEffectConfig[]) {
 		const aura = new Aura(
-			{ auraTitle: title, durationInMs: auraDurationInMs, spellEffects },
+			{ title, durationInMs, auraEffectConfigs },
 			this.handleAuraInterval.bind(this),
 			this.handleAuraTimeout.bind(this)
 		);
@@ -285,8 +288,27 @@ export class Character {
 		this._notify();
 	}
 
-	private handleAuraInterval(auraId: string) {
-		console.log('auraId tick', this._auras[auraId]);
+	private handleAuraInterval(auraId: string, auraEffectConfigs: AuraEffectConfig[]) {
+		console.log('auraId tick', auraId);
+
+		const auraTypeIdMap: Record<AURA_TYPE_ID, (auraEffectConfig: AuraEffectConfig) => void> = {
+			[AURA_TYPE_ID.MOD_DAMAGE_DONE_PERCENT]: (auraEffectConfig) => {
+				console.log('[TODO]: throw error, as effect should not be in this array.', auraEffectConfig);
+			},
+			[AURA_TYPE_ID.PERIODIC_DAMAGE]: (auraEffectConfig) => {
+				this.adjustHealth(-auraEffectConfig.value);
+				console.log('PERIODIC_DAMAGE triggered', auraEffectConfig);
+			},
+			[AURA_TYPE_ID.PERIODIC_HEAL]: (auraEffectConfig) => {
+				this.adjustHealth(auraEffectConfig.value);
+				console.log('PERIODIC_HEAL triggered', auraEffectConfig);
+			},
+		};
+
+		auraEffectConfigs.forEach((auraEffectConfig) => {
+			auraTypeIdMap[auraEffectConfig.auraTypeId](auraEffectConfig);
+		});
+
 		this._notify();
 	}
 

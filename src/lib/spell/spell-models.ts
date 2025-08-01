@@ -115,4 +115,11 @@ export type SpellPayload = {
 	spellEffects: SpellPayloadSpellEffect[];
 };
 
+export type AuraEffectConfig = {
+	auraTypeId: AURA_TYPE_ID;
+	auraCategoryTypeId: AURA_CATEGORY_TYPE_ID;
+	value: number;
+	intervalInMs: number;
+};
+
 export type SpellPayloadSpellEffect = Omit<SpellEffect, 'valueModifiers'>;
