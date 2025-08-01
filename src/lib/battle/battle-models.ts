@@ -10,6 +10,7 @@ export interface BattleModel {
 }
 
 export interface CombatLogEntry {
+	combatLogEntryId: string;
 	time: string;
 	timeDescription: string;
 	message: string;

@@ -87,6 +87,7 @@ export class Battle {
 		this._combatLog = [
 			...this._combatLog,
 			{
+				combatLogEntryId: uuidv4(),
 				time: date.getTime().toString(),
 				timeDescription: format(date, 'hh:mm:ss aaa'),
 				message,
@@ -114,7 +115,9 @@ export class Battle {
 
 		try {
 			const spellPayload = await caster.castSpell(spellId);
-			this.handleCombatLogMessage(`${caster.title} cast ${spellPayload.title} on ${target.title}`);
+			target.recieveSpellPayload(spellPayload, (message: string) => {
+				this.handleCombatLogMessage(message);
+			});
 		} catch (error) {
 			if (error instanceof Error) {
 				this.handleCombatLogMessage(error.message);

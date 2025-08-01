@@ -3,7 +3,8 @@ import { cloneDeep } from 'lodash';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character/character-data';
 import { Spell, SpellState } from '@/lib/spell/spell-class';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
-import { SpellPayload } from '@/lib/spell/spell-models';
+import { SPELL_EFFECT_TYPE_ID, SpellPayload } from '@/lib/spell/spell-models';
+import { STAT_TYPE_ID } from './character-models';
 
 export type CharacterState = {
 	characterId: string;
@@ -34,6 +35,7 @@ export class Character {
 		abortController: AbortController;
 		timeout?: NodeJS.Timeout;
 	};
+	private _stats: Record<STAT_TYPE_ID, number>;
 
 	private _notify: () => void;
 
@@ -50,6 +52,7 @@ export class Character {
 		this._maxMana = config.maxMana;
 		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, notify));
 		this._statusEffectIds = [];
+		this._stats = config.stats;
 
 		this._notify = notify;
 	}
@@ -155,12 +158,7 @@ export class Character {
 			return Promise.reject(new Error('spell is undefined.'));
 		}
 
-		const spellPayload: SpellPayload = {
-			title: spell.title,
-			damage: 10,
-			healing: 0,
-			aura: undefined,
-		};
+		const spellPayload = this.createSpellPayloadForCastSpell(spell);
 
 		if (spell.castTimeDurationInMs <= 0) {
 			spell.startCooldown();
@@ -221,6 +219,41 @@ export class Character {
 		}
 
 		this._currentCast.abortController.abort();
+	}
+
+	public createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
+		const statProcessedSpellEffects = spell.spellEffects
+			.map(({ valueModifiers, value, ...rest }) => {
+				const calculatedValue = Math.ceil(
+					valueModifiers.reduce((sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient, value)
+				);
+
+				// [TODO]: Apply buffs to payload before returning it
+
+				return {
+					...rest,
+					value: calculatedValue,
+				};
+			})
+
+			// [TODO]: Remove filter and add support for all over effect types
+			.filter((i) => i.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE);
+
+		return { casterId: this.characterId, title: spell.title, spellEffects: statProcessedSpellEffects };
+	}
+
+	public recieveSpellPayload(spellPayload: SpellPayload, callback: (message: string) => void) {
+		spellPayload.spellEffects.forEach((spellEffect) => {
+			switch (spellEffect.spellEffectTypeId) {
+				case SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE:
+					//[TODO]: Apply relevant auras to spellEffectTypeId
+					this.adjustHealth(-spellEffect.value);
+					callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
+					break;
+				default:
+					console.log('No case found for spellEffectTypid');
+			}
+		});
 	}
 
 	// --- State Snapshot ---

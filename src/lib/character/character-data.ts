@@ -12,10 +12,10 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		title: 'Player',
 		maxHealth: 100,
 		maxMana: 100,
-		spellTypeIds: [SPELL_TYPE_ID.FIREBALL, SPELL_TYPE_ID.BIG_FIREBALL],
+		spellTypeIds: [SPELL_TYPE_ID.FIREBALL, SPELL_TYPE_ID.PUNCH],
 		stats: {
-			[STAT_TYPE_ID.ATTACK_POWER]: 0,
-			[STAT_TYPE_ID.SPELL_POWER]: 0,
+			[STAT_TYPE_ID.ATTACK_POWER]: 100,
+			[STAT_TYPE_ID.SPELL_POWER]: 100,
 		},
 	},
 	[CHARACTER_TYPE_ID.SKELETON]: {

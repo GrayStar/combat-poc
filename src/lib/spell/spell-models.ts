@@ -33,6 +33,7 @@ export type SpellEffectDispel = {
 	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.DISPEL;
 	dispelTypeId: DISPEL_TYPE_ID;
 	value: number;
+	valueModifiers: SpellEffectValueModifier[];
 };
 export type SpellEffectSchoolDamage = {
 	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
@@ -98,8 +99,11 @@ export enum DISPEL_TYPE_ID {
 }
 
 export interface SpellPayload {
+	casterId: string;
 	title: string;
-	damage: number;
-	healing: number;
-	aura: undefined;
+	spellEffects: {
+		value: number;
+		spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
+		schoolTypeId: SCHOOL_TYPE_ID;
+	}[];
 }

@@ -15,7 +15,6 @@ export const BattleProvider = ({ children }: PropsWithChildren) => {
 		setBattle(newBattle);
 
 		unsubscribeRef.current = subscribe((updatedBattleState) => {
-			console.log('notified:', updatedBattleState);
 			setBattle(updatedBattleState);
 		});
 	}, []);

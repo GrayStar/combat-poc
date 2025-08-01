@@ -7,10 +7,11 @@ import {
 	SPELL_EFFECT_TYPE_ID,
 	SpellModel,
 } from '@/lib/spell/spell-models';
+import { STAT_TYPE_ID } from '../character/character-models';
 
 export enum SPELL_TYPE_ID {
 	FIREBALL = 'FIREBALL',
-	BIG_FIREBALL = 'BIG_FIREBALL',
+	PUNCH = 'PUNCH',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -36,7 +37,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE,
 				schoolTypeId: SCHOOL_TYPE_ID.FIRE,
 				value: 14,
-				valueModifiers: [],
+				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.12 }],
 			},
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
@@ -48,14 +49,14 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			},
 		],
 	},
-	[SPELL_TYPE_ID.BIG_FIREBALL]: {
-		spellTypeId: SPELL_TYPE_ID.FIREBALL,
-		title: 'Big Fireball',
-		description: 'Hurls a fiery ball that causes %{} %{} damage and an additional ${} ${} damage over ${} sec.',
+	[SPELL_TYPE_ID.PUNCH]: {
+		spellTypeId: SPELL_TYPE_ID.PUNCH,
+		title: 'Punch',
+		description: 'Punch the target.',
 		cost: [
 			{
 				resourceTypeId: RESOURCE_TYPE_ID.MANA,
-				amountFlat: 30,
+				amountFlat: 10,
 				amountPercent: 0,
 			},
 		],
@@ -63,8 +64,15 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 8000,
 		globalCooldownDurationInMs: 1500,
 		auraDurationInMs: 4000,
-		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
+		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
 		dispelTypeId: DISPEL_TYPE_ID.NONE,
-		spellEffects: [],
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE,
+				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+				value: 5,
+				valueModifiers: [{ stat: STAT_TYPE_ID.ATTACK_POWER, coefficient: 0.1 }],
+			},
+		],
 	},
 };

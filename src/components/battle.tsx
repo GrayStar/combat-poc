@@ -126,7 +126,7 @@ export const Battle = () => {
 
 			<div>
 				{battle.combatLog.map((entry) => (
-					<p className="mb-0 small">
+					<p className="mb-0 small" key={entry.combatLogEntryId}>
 						[{entry.timeDescription}]:{entry.message}
 					</p>
 				))}
