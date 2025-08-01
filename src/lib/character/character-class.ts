@@ -1,22 +1,28 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
+import { STAT_TYPE_ID } from '@/lib/character/character-models';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character/character-data';
-import { Spell, SpellState } from '@/lib/spell/spell-class';
+import {
+	SPELL_EFFECT_TYPE_ID,
+	SpellEffectApplyAura,
+	SpellPayload,
+	SpellPayloadSpellEffect,
+} from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
-import { SPELL_EFFECT_TYPE_ID, SpellPayload } from '@/lib/spell/spell-models';
-import { STAT_TYPE_ID } from './character-models';
+import { Spell, SpellState } from '@/lib/spell/spell-class';
+import { Aura, AuraState } from '@/lib/spell/aura-class';
 
 export type CharacterState = {
 	characterId: string;
 	characterTypeId: CHARACTER_TYPE_ID;
 	title: string;
 	spells: SpellState[];
-	statusEffectIds: string[];
 	isCastingSpell: SpellState | undefined;
 	health: number;
 	maxHealth: number;
 	mana: number;
 	maxMana: number;
+	auras: AuraState[];
 };
 
 export class Character {
@@ -29,13 +35,13 @@ export class Character {
 	private _mana: number;
 	private _maxMana: number;
 	private _spells: Spell[];
-	private _statusEffectIds: string[];
 	private _currentCast?: {
 		spell: SpellState;
 		abortController: AbortController;
 		timeout?: NodeJS.Timeout;
 	};
 	private _stats: Record<STAT_TYPE_ID, number>;
+	private _auras: Aura[];
 
 	private _notify: () => void;
 
@@ -51,8 +57,8 @@ export class Character {
 		this._mana = config.maxMana;
 		this._maxMana = config.maxMana;
 		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, notify));
-		this._statusEffectIds = [];
 		this._stats = config.stats;
+		this._auras = [];
 
 		this._notify = notify;
 	}
@@ -132,21 +138,7 @@ export class Character {
 	// public removeSpell()
 	// not sure if they should be removed by spellId, or spellTypeId
 
-	// --- Status Effects ---
-	public get statusEffectIds(): string[] {
-		return [...this._statusEffectIds];
-	}
-
-	public addStatusEffectId(id: string): void {
-		if (!this._statusEffectIds.includes(id)) {
-			this._statusEffectIds.push(id);
-		}
-	}
-
-	public removeStatusEffectId(id: string): void {
-		this._statusEffectIds = this._statusEffectIds.filter((existing) => existing !== id);
-	}
-
+	// --- Spell casting ---
 	public castSpell(spellId: string): Promise<SpellPayload> {
 		if (this._currentCast) {
 			return Promise.reject(new Error(`${this.title} is already casting ${this._currentCast.spell.title}.`));
@@ -222,38 +214,71 @@ export class Character {
 	}
 
 	public createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
-		const statProcessedSpellEffects = spell.spellEffects
-			.map(({ valueModifiers, value, ...rest }) => {
-				const calculatedValue = Math.ceil(
-					valueModifiers.reduce((sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient, value)
-				);
+		const statProcessedSpellEffects = spell.spellEffects.map(({ valueModifiers, value, ...rest }) => {
+			const calculatedValue = Math.ceil(
+				valueModifiers.reduce((sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient, value)
+			);
 
-				// [TODO]: Apply buffs to payload before returning it
+			// [TODO]: Apply buffs to payload before returning it
 
-				return {
-					...rest,
-					value: calculatedValue,
-				};
-			})
+			return {
+				...rest,
+				value: calculatedValue,
+			};
+		});
 
-			// [TODO]: Remove filter and add support for all over effect types
-			.filter((i) => i.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE);
+		// [TODO]: Remove filter and add support for all over effect types
+		// .filter((i) => i.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE);
 
 		return { casterId: this.characterId, title: spell.title, spellEffects: statProcessedSpellEffects };
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, callback: (message: string) => void) {
-		spellPayload.spellEffects.forEach((spellEffect) => {
-			switch (spellEffect.spellEffectTypeId) {
-				case SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE:
-					//[TODO]: Apply relevant auras to spellEffectTypeId
-					this.adjustHealth(-spellEffect.value);
-					callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
-					break;
-				default:
-					console.log('No case found for spellEffectTypid');
-			}
+		const auraEffects = spellPayload.spellEffects.filter(
+			(spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA
+		);
+		const otherEffects = spellPayload.spellEffects.filter(
+			(spellEffect) => spellEffect.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
+		);
+
+		const otherEffectMap: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellPayloadSpellEffect) => void> = {
+			[SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE]: (spellEffect) => {
+				this.adjustHealth(-spellEffect.value);
+				// @ts-ignore
+				// SpellPayloadSpellEffect doesn't match SpellEffectSchoolDamage but im too lazy to retype it
+				callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
+			},
+			[SPELL_EFFECT_TYPE_ID.DISPEL]: (spellEffect) => {
+				console.log('[TODO]: handle dispel', spellEffect);
+			},
+			[SPELL_EFFECT_TYPE_ID.HEAL]: (spellEffect) => {
+				console.log('[TODO]: handle heal', spellEffect);
+			},
+			[SPELL_EFFECT_TYPE_ID.APPLY_AURA]: (spellEffect) => {
+				console.log('[TODO]: throw error, as auras should not be in this array.', spellEffect);
+			},
+		};
+
+		otherEffects.forEach((otherEffect) => {
+			otherEffectMap[otherEffect.spellEffectTypeId](otherEffect);
 		});
+
+		// @ts-ignore
+		// SpellPayloadSpellEffect doesn't match SpellEffectApplyAura but im too lazy to retype it
+		this.applyAuraFromSpellEffects(spellPayload.title, auraEffects);
+	}
+
+	// --- Auras ---
+	public applyAuraFromSpellEffects(title: string, spellEffects: SpellEffectApplyAura[]) {
+		this._auras.push(
+			new Aura(
+				{ auraTitle: title, spellEffects },
+				() => {},
+				() => {}
+			)
+		);
+
+		this._notify();
 	}
 
 	// --- State Snapshot ---
@@ -263,12 +288,12 @@ export class Character {
 			characterTypeId: this.characterTypeId,
 			title: this.title,
 			spells: this._spells.map((spell) => spell.getState()),
-			statusEffectIds: this.statusEffectIds,
 			isCastingSpell: this._currentCast?.spell,
 			health: this._health,
 			maxHealth: this._maxHealth,
 			mana: this._mana,
 			maxMana: this._maxMana,
+			auras: this._auras.map((aura) => aura.getState()),
 		};
 	}
 }

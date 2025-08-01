@@ -46,7 +46,16 @@ export type SpellEffectHeal = {
 	value: number;
 	valueModifiers: SpellEffectValueModifier[];
 };
-export type SpellEffect = SpellEffectApplyAura | SpellEffectDispel | SpellEffectHeal | SpellEffectSchoolDamage;
+export type SpellEffect = SpellEffectApplyAura | SpellEffectDispel | SpellEffectSchoolDamage | SpellEffectHeal;
+
+export const spellEffectIsApplyAura = (spellEffect: SpellEffect): spellEffect is SpellEffectApplyAura =>
+	Object.prototype.hasOwnProperty.call(spellEffect, SPELL_EFFECT_TYPE_ID.APPLY_AURA);
+export const spellEffectIsSchoolDamage = (spellEffect: SpellEffect): spellEffect is SpellEffectSchoolDamage =>
+	Object.prototype.hasOwnProperty.call(spellEffect, SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE);
+export const spellEffectIsDispell = (spellEffect: SpellEffect): spellEffect is SpellEffectDispel =>
+	Object.prototype.hasOwnProperty.call(spellEffect, SPELL_EFFECT_TYPE_ID.DISPEL);
+export const spellEffectIsHeal = (spellEffect: SpellEffect): spellEffect is SpellEffectHeal =>
+	Object.prototype.hasOwnProperty.call(spellEffect, SPELL_EFFECT_TYPE_ID.HEAL);
 
 export interface SpellEffectValueModifier {
 	stat: STAT_TYPE_ID;
@@ -68,6 +77,7 @@ export enum SPELL_EFFECT_TYPE_ID {
 export enum AURA_TYPE_ID {
 	PERIODIC_HEAL = 'PERIODIC_HEAL',
 	PERIODIC_DAMAGE = 'PERIODIC_DAMAGE',
+	MOD_DAMAGE_DONE_PERCENT = 'MOD_DAMAGE_DONE_PERCENT',
 }
 
 export enum AURA_CATEGORY_TYPE_ID {
@@ -98,12 +108,10 @@ export enum DISPEL_TYPE_ID {
 	STEALTH = 'STEALTH',
 }
 
-export interface SpellPayload {
+export type SpellPayload = {
 	casterId: string;
 	title: string;
-	spellEffects: {
-		value: number;
-		spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
-		schoolTypeId: SCHOOL_TYPE_ID;
-	}[];
-}
+	spellEffects: SpellPayloadSpellEffect[];
+};
+
+export type SpellPayloadSpellEffect = Omit<SpellEffect, 'valueModifiers'>;

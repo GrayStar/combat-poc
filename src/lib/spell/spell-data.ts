@@ -12,6 +12,7 @@ import { STAT_TYPE_ID } from '../character/character-models';
 export enum SPELL_TYPE_ID {
 	FIREBALL = 'FIREBALL',
 	PUNCH = 'PUNCH',
+	DMG_BOOST = 'DMG_BOOST',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -44,7 +45,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				auraTypeId: AURA_TYPE_ID.PERIODIC_DAMAGE,
 				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HARMFUL,
 				value: 1,
-				valueModifiers: [],
+				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.12 }],
 				intervalInMs: 2000,
 			},
 		],
@@ -72,6 +73,34 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
 				value: 5,
 				valueModifiers: [{ stat: STAT_TYPE_ID.ATTACK_POWER, coefficient: 0.1 }],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.DMG_BOOST]: {
+		spellTypeId: SPELL_TYPE_ID.DMG_BOOST,
+		title: 'Dmg Boost',
+		description: 'Boost your damage.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 8000,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 8000,
+		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MOD_DAMAGE_DONE_PERCENT,
+				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				intervalInMs: 0,
+				value: 2,
+				valueModifiers: [],
 			},
 		],
 	},

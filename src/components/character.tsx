@@ -1,6 +1,6 @@
-import { Meter, MeterAnimated } from '@/components';
-import { useBattle } from '@/hooks';
 import { CharacterState } from '@/lib/character/character-class';
+import { useBattle } from '@/hooks';
+import { Meter, MeterAnimated, StatusEffect } from '@/components';
 import { tss } from '@/styles';
 import { useTheme } from '@/styles/hooks';
 
@@ -62,14 +62,13 @@ export const Character = ({ character }: CharacterProps) => {
 					color={theme.colors.warning}
 				/>
 			)}
-			{/* {character.statusEffectIds.length > 0 && (
+			{character.auras.length > 0 && (
 				<div className="mt-2 d-flex">
-					{character.statusEffectIds.map((statusEffectId) => {
-						const statusEffect = battle.statusEffects[statusEffectId];
-						return <StatusEffect key={statusEffect.statusEffectId} statusEffect={statusEffect} />;
+					{character.auras.map((aura) => {
+						return <StatusEffect key={aura.auraId} statusEffect={aura} />;
 					})}
 				</div>
-			)} */}
+			)}
 		</div>
 	);
 };

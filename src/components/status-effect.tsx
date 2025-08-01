@@ -1,5 +1,6 @@
 import { keyframes } from 'tss-react';
 import { tss } from '@/styles';
+import { AuraState } from '@/lib/spell/aura-class';
 
 const cooldownAnimation = keyframes`
 	from {
@@ -51,17 +52,17 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }
 }));
 
 interface StatusEffectProps {
-	statusEffect: StatusEffectState;
+	statusEffect: AuraState;
 }
 
 export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
-	const { classes } = useStyles({ duration: statusEffect.durationInMs });
+	const { classes } = useStyles({ duration: 0 });
 
 	return (
 		<div className={classes.statusEffect}>
 			<div className={classes.cooldown} />
 			<p className="m-0">{statusEffect.title}</p>
-			{(statusEffect.stacks ?? 0) > 0 && <div className={classes.stackCount}>{statusEffect.stacks}</div>}
+			{/* {(statusEffect.stacks ?? 0) > 0 && <div className={classes.stackCount}>{statusEffect.stacks}</div>} */}
 		</div>
 	);
 };

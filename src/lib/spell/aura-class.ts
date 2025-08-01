@@ -1,19 +1,35 @@
 import { v4 as uuidv4 } from 'uuid';
 import { SpellEffectApplyAura } from '@/lib/spell/spell-models';
 
+export type AuraState = {
+	auraId: string;
+	title: string;
+	description: string;
+};
+
 export class Aura {
 	public readonly auraId: string;
 	public readonly title: string;
-	public readonly auraConfigs: SpellEffectApplyAura[];
+	public readonly spellEffects: SpellEffectApplyAura[];
 
 	constructor(
-		auraTitle: string,
-		auraConfigs: SpellEffectApplyAura[],
-		private readonly intervalCallback: (statusEffectId: string) => void,
-		private readonly timeoutCallback: (statusEffectId: string) => void
+		config: {
+			auraTitle: string;
+			spellEffects: SpellEffectApplyAura[];
+		},
+		readonly intervalCallback: (statusEffectId: string) => void,
+		readonly timeoutCallback: (statusEffectId: string) => void
 	) {
 		this.auraId = uuidv4();
-		this.title = auraTitle;
-		this.auraConfigs = auraConfigs;
+		this.title = config.auraTitle;
+		this.spellEffects = config.spellEffects;
+	}
+
+	public getState(): AuraState {
+		return {
+			auraId: this.auraId,
+			title: this.title,
+			description: '[ToDo]: aura description',
+		};
 	}
 }
