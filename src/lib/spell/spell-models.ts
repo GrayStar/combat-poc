@@ -111,6 +111,7 @@ export enum DISPEL_TYPE_ID {
 export type SpellPayload = {
 	casterId: string;
 	title: string;
+	auraDurationInMs: number;
 	spellEffects: SpellPayloadSpellEffect[];
 };
 

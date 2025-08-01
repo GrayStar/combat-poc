@@ -230,7 +230,12 @@ export class Character {
 		// [TODO]: Remove filter and add support for all over effect types
 		// .filter((i) => i.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE);
 
-		return { casterId: this.characterId, title: spell.title, spellEffects: statProcessedSpellEffects };
+		return {
+			casterId: this.characterId,
+			title: spell.title,
+			auraDurationInMs: spell.auraDurationInMs,
+			spellEffects: statProcessedSpellEffects,
+		};
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, callback: (message: string) => void) {
@@ -265,18 +270,35 @@ export class Character {
 
 		// @ts-ignore
 		// SpellPayloadSpellEffect doesn't match SpellEffectApplyAura but im too lazy to retype it
-		this.applyAuraFromSpellEffects(spellPayload.title, auraEffects);
+		this.applyAuraFromSpellEffects(spellPayload.title, spellPayload.auraDurationInMs, auraEffects);
+		this._notify();
 	}
 
 	// --- Auras ---
-	public applyAuraFromSpellEffects(title: string, spellEffects: SpellEffectApplyAura[]) {
+	public applyAuraFromSpellEffects(title: string, auraDurationInMs: number, spellEffects: SpellEffectApplyAura[]) {
 		this._auras.push(
 			new Aura(
-				{ auraTitle: title, spellEffects },
-				() => {},
-				() => {}
+				{ auraTitle: title, durationInMs: auraDurationInMs, spellEffects },
+				this.handleAuraInterval.bind(this),
+				this.handleAuraTimeout.bind(this)
 			)
 		);
+	}
+
+	private handleAuraInterval(auraId: string) {
+		console.log('auraId tick', auraId);
+		this._notify();
+	}
+
+	private handleAuraTimeout(auraId: string) {
+		const auraIndex = this._auras.findIndex((a) => a.auraId === auraId);
+
+		if (auraIndex < 0) {
+			return;
+		}
+
+		this._auras[auraIndex].stopTimers();
+		this._auras.splice(auraIndex, 1);
 
 		this._notify();
 	}

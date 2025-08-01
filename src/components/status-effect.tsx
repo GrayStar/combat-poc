@@ -56,7 +56,7 @@ interface StatusEffectProps {
 }
 
 export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
-	const { classes } = useStyles({ duration: 0 });
+	const { classes } = useStyles({ duration: statusEffect.durationInMs });
 
 	return (
 		<div className={classes.statusEffect}>
