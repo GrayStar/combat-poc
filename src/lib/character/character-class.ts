@@ -41,7 +41,7 @@ export class Character {
 		timeout?: NodeJS.Timeout;
 	};
 	private _stats: Record<STAT_TYPE_ID, number>;
-	private _auras: Aura[];
+	private _auras: Record<string, Aura>;
 
 	private _notify: () => void;
 
@@ -58,7 +58,7 @@ export class Character {
 		this._maxMana = config.maxMana;
 		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, notify));
 		this._stats = config.stats;
-		this._auras = [];
+		this._auras = {};
 
 		this._notify = notify;
 	}
@@ -271,34 +271,34 @@ export class Character {
 		// @ts-ignore
 		// SpellPayloadSpellEffect doesn't match SpellEffectApplyAura but im too lazy to retype it
 		this.applyAuraFromSpellEffects(spellPayload.title, spellPayload.auraDurationInMs, auraEffects);
-		this._notify();
 	}
 
 	// --- Auras ---
 	public applyAuraFromSpellEffects(title: string, auraDurationInMs: number, spellEffects: SpellEffectApplyAura[]) {
-		this._auras.push(
-			new Aura(
-				{ auraTitle: title, durationInMs: auraDurationInMs, spellEffects },
-				this.handleAuraInterval.bind(this),
-				this.handleAuraTimeout.bind(this)
-			)
+		const aura = new Aura(
+			{ auraTitle: title, durationInMs: auraDurationInMs, spellEffects },
+			this.handleAuraInterval.bind(this),
+			this.handleAuraTimeout.bind(this)
 		);
+
+		this._auras[aura.auraId] = aura;
+		this._notify();
 	}
 
 	private handleAuraInterval(auraId: string) {
-		console.log('auraId tick', auraId);
+		console.log('auraId tick', this._auras[auraId]);
 		this._notify();
 	}
 
 	private handleAuraTimeout(auraId: string) {
-		const auraIndex = this._auras.findIndex((a) => a.auraId === auraId);
+		const aura = this._auras[auraId];
 
-		if (auraIndex < 0) {
+		if (!aura) {
 			return;
 		}
 
-		this._auras[auraIndex].stopTimers();
-		this._auras.splice(auraIndex, 1);
+		aura.stopTimers();
+		delete this._auras[auraId];
 
 		this._notify();
 	}
@@ -315,7 +315,7 @@ export class Character {
 			maxHealth: this._maxHealth,
 			mana: this._mana,
 			maxMana: this._maxMana,
-			auras: this._auras.map((aura) => aura.getState()),
+			auras: Object.values(this._auras).map((aura) => aura.getState()),
 		};
 	}
 }
