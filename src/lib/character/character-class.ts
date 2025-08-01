@@ -156,6 +156,7 @@ export class Character {
 		}
 
 		const spellPayload: SpellPayload = {
+			title: spell.title,
 			damage: 10,
 			healing: 0,
 			aura: undefined,

@@ -1,8 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
+import { format } from 'date-fns';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle/battle-data';
 import { Character, CharacterState } from '@/lib/character/character-class';
 import { CHARACTER_TYPE_ID } from '@/lib/character/character-data';
+import { CombatLogEntry } from '@/lib/battle/battle-models';
 
 export type BattleState = {
 	battleId: string;
@@ -12,7 +14,7 @@ export type BattleState = {
 	friendlyNonPlayerCharacterIds: string[];
 	hostileNonPlayerCharacterIds: string[];
 	characters: Record<string, CharacterState>;
-	// statusEffects: Record<string, StatusEffectState>;
+	combatLog: CombatLogEntry[];
 };
 
 export class Battle {
@@ -24,8 +26,8 @@ export class Battle {
 	private _friendlyNonPlayerCharacterIds: string[] = [];
 	private _hostileNonPlayerCharacterIds: string[] = [];
 	private _characters: Record<string, Character> = {};
-	// private _statusEffects: Record<string, StatusEffect> = {};
 	private _notificationSubscribers = new Set<(state: BattleState) => void>();
+	private _combatLog: CombatLogEntry[] = [];
 
 	constructor(battleTypeId: BATTLE_TYPE_ID) {
 		const config = cloneDeep(battleData[battleTypeId]);
@@ -62,15 +64,10 @@ export class Battle {
 
 	public getState(): BattleState {
 		const characterStates: Record<string, CharacterState> = {};
-		//const statusEffectStates: Record<string, StatusEffectState> = {};
 
 		for (const [id, instance] of Object.entries(this._characters)) {
 			characterStates[id] = instance.getState();
 		}
-
-		// for (const [id, instance] of Object.entries(this._statusEffects)) {
-		// 	statusEffectStates[id] = instance.getState();
-		// }
 
 		return {
 			battleId: this.battleId,
@@ -80,8 +77,23 @@ export class Battle {
 			friendlyNonPlayerCharacterIds: this.friendlyNonPlayerCharacterIds,
 			hostileNonPlayerCharacterIds: this.hostileNonPlayerCharacterIds,
 			characters: characterStates,
-			//statusEffects: statusEffectStates,
+			combatLog: [...this._combatLog],
 		};
+	}
+
+	private handleCombatLogMessage(message: string) {
+		const date = new Date();
+
+		this._combatLog = [
+			...this._combatLog,
+			{
+				time: date.getTime().toString(),
+				timeDescription: format(date, 'hh:mm:ss aaa'),
+				message,
+			},
+		];
+
+		this.notify();
 	}
 
 	public notify(): void {
@@ -98,13 +110,14 @@ export class Battle {
 	public async handleCastSpell(data: { casterId: string; targetId: string; spellId: string }) {
 		const { casterId, targetId, spellId } = data;
 		const caster = this._characters[casterId];
+		const target = this._characters[targetId];
 
 		try {
 			const spellPayload = await caster.castSpell(spellId);
-			console.log(`${caster.title} cast spell:`, spellPayload);
+			this.handleCombatLogMessage(`${caster.title} cast ${spellPayload.title} on ${target.title}`);
 		} catch (error) {
 			if (error instanceof Error) {
-				console.log('error:', error.message);
+				this.handleCombatLogMessage(error.message);
 			}
 		}
 	}

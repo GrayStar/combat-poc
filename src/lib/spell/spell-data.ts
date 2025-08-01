@@ -50,7 +50,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.BIG_FIREBALL]: {
 		spellTypeId: SPELL_TYPE_ID.FIREBALL,
-		title: 'Fireball',
+		title: 'Big Fireball',
 		description: 'Hurls a fiery ball that causes %{} %{} damage and an additional ${} ${} damage over ${} sec.',
 		cost: [
 			{

@@ -123,6 +123,14 @@ export const Battle = () => {
 					</Droppable>
 				</>
 			</DragDropContext>
+
+			<div>
+				{battle.combatLog.map((entry) => (
+					<p className="mb-0 small">
+						[{entry.timeDescription}]:{entry.message}
+					</p>
+				))}
+			</div>
 		</div>
 	);
 };

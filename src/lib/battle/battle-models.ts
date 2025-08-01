@@ -8,3 +8,9 @@ export interface BattleModel {
 	friendlyNonPlayerCharacterTypeIds: CHARACTER_TYPE_ID[];
 	hostileNonPlayerCharacterTypeIds: CHARACTER_TYPE_ID[];
 }
+
+export interface CombatLogEntry {
+	time: string;
+	timeDescription: string;
+	message: string;
+}

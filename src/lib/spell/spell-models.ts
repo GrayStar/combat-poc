@@ -98,6 +98,7 @@ export enum DISPEL_TYPE_ID {
 }
 
 export interface SpellPayload {
+	title: string;
 	damage: number;
 	healing: number;
 	aura: undefined;
