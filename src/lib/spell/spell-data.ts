@@ -1,7 +1,6 @@
 import {
 	AURA_CATEGORY_TYPE_ID,
 	AURA_TYPE_ID,
-	AuraEffectConfig,
 	DISPEL_TYPE_ID,
 	RESOURCE_TYPE_ID,
 	SCHOOL_TYPE_ID,
@@ -17,6 +16,7 @@ export enum SPELL_TYPE_ID {
 	FIREBALL = 'FIREBALL',
 	PUNCH = 'PUNCH',
 	DMG_BOOST = 'DMG_BOOST',
+	DMG_REDUCTION = 'DMG_REDUCTION',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -108,6 +108,34 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			},
 		],
 	},
+	[SPELL_TYPE_ID.DMG_REDUCTION]: {
+		spellTypeId: SPELL_TYPE_ID.DMG_REDUCTION,
+		title: 'Dmg -10',
+		description: 'Reduce targets damage.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.DECREASE_OUTGOING_DAMAGE_FLAT,
+				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HARMFUL,
+				intervalInMs: 0,
+				value: 10,
+				valueModifiers: [],
+			},
+		],
+	},
 };
 
 export const aruaTypeIdToSpellEffectTypeId: Record<
@@ -127,7 +155,7 @@ export const aruaTypeIdToSpellEffectTypeId: Record<
 	[AURA_TYPE_ID.DECREASE_OUTGOING_DAMAGE_FLAT]: {
 		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
 		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
-		applyToValue: (baseValue, modValue) => baseValue - modValue,
+		applyToValue: (baseValue, modValue) => Math.max(0, baseValue - modValue),
 	},
 
 	// periodic
