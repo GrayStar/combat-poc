@@ -1,10 +1,14 @@
 import {
 	AURA_CATEGORY_TYPE_ID,
 	AURA_TYPE_ID,
+	AuraEffectConfig,
 	DISPEL_TYPE_ID,
 	RESOURCE_TYPE_ID,
 	SCHOOL_TYPE_ID,
 	SPELL_EFFECT_TYPE_ID,
+	SpellEffect,
+	SpellEffectApplyAura,
+	SpellEffectSchoolDamage,
 	SpellModel,
 } from '@/lib/spell/spell-models';
 import { STAT_TYPE_ID } from '../character/character-models';
@@ -37,7 +41,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE,
 				schoolTypeId: SCHOOL_TYPE_ID.FIRE,
-				value: 14,
+				value: 10,
 				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0 }],
 			},
 			{
@@ -64,7 +68,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		castTimeDurationInMs: 1500,
 		cooldownDurationInMs: 8000,
 		globalCooldownDurationInMs: 1500,
-		auraDurationInMs: 4000,
+		auraDurationInMs: 0,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
 		dispelTypeId: DISPEL_TYPE_ID.NONE,
 		spellEffects: [
@@ -78,7 +82,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.DMG_BOOST]: {
 		spellTypeId: SPELL_TYPE_ID.DMG_BOOST,
-		title: 'Dmg Boost',
+		title: 'Dmg +10',
 		description: 'Boost your damage.',
 		cost: [
 			{
@@ -96,12 +100,44 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.MOD_DAMAGE_DONE_PERCENT,
+				auraTypeId: AURA_TYPE_ID.INCREASE_OUTGOING_DAMAGE_FLAT,
 				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
 				intervalInMs: 0,
-				value: 2,
+				value: 10,
 				valueModifiers: [],
 			},
 		],
 	},
 };
+
+export const aruaTypeIdToSpellEffectTypeId: Record<
+	AURA_TYPE_ID,
+	{
+		effectedSpellEffectTypeIds?: SPELL_EFFECT_TYPE_ID[];
+		effectedAuraTypeIds?: AURA_TYPE_ID[];
+		applyToValue?(baseValue: number, modValue: number): number;
+	}
+> = {
+	// buffs/debuffs
+	[AURA_TYPE_ID.INCREASE_OUTGOING_DAMAGE_FLAT]: {
+		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
+		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
+		applyToValue: (baseValue, modValue) => baseValue + modValue,
+	},
+	[AURA_TYPE_ID.DECREASE_OUTGOING_DAMAGE_FLAT]: {
+		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
+		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
+		applyToValue: (baseValue, modValue) => baseValue - modValue,
+	},
+
+	// periodic
+	[AURA_TYPE_ID.PERIODIC_DAMAGE]: {},
+};
+
+export function spellEffectIsApplyAura(spellEffect: SpellEffect): spellEffect is SpellEffectApplyAura {
+	return spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA;
+}
+
+export function spellEffectIsSchoolDamage(spellEffect: SpellEffect): spellEffect is SpellEffectSchoolDamage {
+	return spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
+}

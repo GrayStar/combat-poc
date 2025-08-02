@@ -6,10 +6,15 @@ import {
 	AURA_TYPE_ID,
 	AuraEffectConfig,
 	SPELL_EFFECT_TYPE_ID,
+	SpellEffect,
 	SpellPayload,
-	SpellPayloadSpellEffect,
 } from '@/lib/spell/spell-models';
-import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
+import {
+	aruaTypeIdToSpellEffectTypeId,
+	SPELL_TYPE_ID,
+	spellEffectIsApplyAura,
+	spellEffectIsSchoolDamage,
+} from '@/lib/spell/spell-data';
 import { Spell, SpellState } from '@/lib/spell/spell-class';
 import { Aura, AuraState } from '@/lib/spell/aura-class';
 
@@ -215,16 +220,56 @@ export class Character {
 	}
 
 	private createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
-		const statProcessedSpellEffects = spell.spellEffects.map(({ valueModifiers, value, ...rest }) => {
-			const calculatedValue = Math.ceil(
-				valueModifiers.reduce((sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient, value)
+		// 1) Build your aura‐config list and indexes once per cast:
+		const auraConfigs = Object.values(this._auras).flatMap((aura) => aura.auraEffectConfigs || []);
+
+		const spellTargetIndex = new Map<SPELL_EFFECT_TYPE_ID, AuraEffectConfig[]>();
+		const auraTargetIndex = new Map<AURA_TYPE_ID, AuraEffectConfig[]>();
+
+		for (const cfg of auraConfigs) {
+			const mapping = aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId];
+			// map to spellEffectTypeIds
+			for (const spellId of mapping.effectedSpellEffectTypeIds ?? []) {
+				if (!spellTargetIndex.has(spellId)) {
+					spellTargetIndex.set(spellId, []);
+				}
+				spellTargetIndex.get(spellId)!.push(cfg);
+			}
+			// map to auraTypeIds
+			for (const auraId of mapping.effectedAuraTypeIds ?? []) {
+				if (!auraTargetIndex.has(auraId)) {
+					auraTargetIndex.set(auraId, []);
+				}
+				auraTargetIndex.get(auraId)!.push(cfg);
+			}
+		}
+
+		// 2) Now your optimized per‐effect pipeline:
+		const statProcessedSpellEffects = spell.spellEffects.map((spellEffect) => {
+			// a) apply stat modifiers
+			let baseWithStats = spellEffect.valueModifiers.reduce(
+				(sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient,
+				spellEffect.value
 			);
 
-			// [TODO]: Apply aura buffs/debuffs to payload before returning it
+			// b) only if there are any auras
+			if (auraConfigs.length > 0) {
+				// O(1) lookups from our indexes
+				const bySpell = spellTargetIndex.get(spellEffect.spellEffectTypeId) || [];
+				const byAura = spellEffectIsApplyAura(spellEffect)
+					? auraTargetIndex.get(spellEffect.auraTypeId) || []
+					: [];
 
+				// c) apply each matching config
+				baseWithStats = [...bySpell, ...byAura].reduce((curr, cfg) => {
+					return aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId].applyToValue?.(curr, cfg.value) ?? 0;
+				}, baseWithStats);
+			}
+
+			// d) return the updated effect
 			return {
-				...rest,
-				value: calculatedValue,
+				...spellEffect,
+				value: baseWithStats,
 			};
 		});
 
@@ -238,7 +283,7 @@ export class Character {
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, callback: (message: string) => void) {
-		const auraEffectConfigs: AuraEffectConfig[] = spellPayload.spellEffects
+		const auraEffectConfigs = spellPayload.spellEffects
 			.filter((spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA)
 			.map(({ auraTypeId, auraCategoryTypeId, value, intervalInMs }) => ({
 				auraTypeId,
@@ -246,17 +291,16 @@ export class Character {
 				value,
 				intervalInMs,
 			}));
-
 		const otherEffects = spellPayload.spellEffects.filter(
 			(spellEffect) => spellEffect.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
 		);
 
-		const otherEffectMap: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellPayloadSpellEffect) => void> = {
+		const otherEffectMap: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellEffect) => void> = {
 			[SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE]: (spellEffect) => {
 				this.adjustHealth(-spellEffect.value);
-				// @ts-ignore
-				// SpellPayloadSpellEffect doesn't match SpellEffectSchoolDamage but im too lazy to retype it
-				callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
+				if (spellEffectIsSchoolDamage(spellEffect)) {
+					callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
+				}
 			},
 			[SPELL_EFFECT_TYPE_ID.DISPEL]: (spellEffect) => {
 				console.log('[TODO]: handle dispel', spellEffect);
@@ -273,7 +317,9 @@ export class Character {
 			otherEffectMap[otherEffect.spellEffectTypeId](otherEffect);
 		});
 
-		this.applyAura(spellPayload.title, spellPayload.auraDurationInMs, auraEffectConfigs);
+		if (auraEffectConfigs.length > 0) {
+			this.applyAura(spellPayload.title, spellPayload.auraDurationInMs, auraEffectConfigs);
+		}
 	}
 
 	// --- Auras ---
@@ -288,20 +334,16 @@ export class Character {
 		this._notify();
 	}
 
-	private handleAuraInterval(auraId: string, auraEffectConfigs: AuraEffectConfig[]) {
-		console.log('auraId tick', auraId);
-
+	private handleAuraInterval(_auraId: string, auraEffectConfigs: AuraEffectConfig[]) {
 		const auraTypeIdMap: Record<AURA_TYPE_ID, (auraEffectConfig: AuraEffectConfig) => void> = {
-			[AURA_TYPE_ID.MOD_DAMAGE_DONE_PERCENT]: (auraEffectConfig) => {
-				console.log('[TODO]: throw error, as effect should not be in this array.', auraEffectConfig);
+			[AURA_TYPE_ID.INCREASE_OUTGOING_DAMAGE_FLAT]: () => {
+				return;
+			},
+			[AURA_TYPE_ID.DECREASE_OUTGOING_DAMAGE_FLAT]: () => {
+				return;
 			},
 			[AURA_TYPE_ID.PERIODIC_DAMAGE]: (auraEffectConfig) => {
 				this.adjustHealth(-auraEffectConfig.value);
-				console.log('PERIODIC_DAMAGE triggered', auraEffectConfig);
-			},
-			[AURA_TYPE_ID.PERIODIC_HEAL]: (auraEffectConfig) => {
-				this.adjustHealth(auraEffectConfig.value);
-				console.log('PERIODIC_HEAL triggered', auraEffectConfig);
 			},
 		};
 
