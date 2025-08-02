@@ -10,7 +10,7 @@ import {
 	SpellEffectSchoolDamage,
 	SpellModel,
 } from '@/lib/spell/spell-models';
-import { STAT_TYPE_ID } from '../character/character-models';
+import { STAT_TYPE_ID } from '@/lib/character/character-models';
 
 export enum SPELL_TYPE_ID {
 	FIREBALL = 'FIREBALL',
