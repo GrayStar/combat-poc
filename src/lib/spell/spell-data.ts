@@ -5,9 +5,6 @@ import {
 	RESOURCE_TYPE_ID,
 	SCHOOL_TYPE_ID,
 	SPELL_EFFECT_TYPE_ID,
-	SpellEffect,
-	SpellEffectApplyAura,
-	SpellEffectSchoolDamage,
 	SpellModel,
 } from '@/lib/spell/spell-models';
 import { STAT_TYPE_ID } from '@/lib/character/character-models';
@@ -17,6 +14,10 @@ export enum SPELL_TYPE_ID {
 	PUNCH = 'PUNCH',
 	DMG_BOOST = 'DMG_BOOST',
 	DMG_REDUCTION = 'DMG_REDUCTION',
+	DMG_PERCENT_UP = 'DMG_PERCENT_UP',
+	DMG_PERCENT_DOWN = 'DMG_PERCENT_DOWN',
+	DMG_MULTIPLIED_UP = 'DMG_MULTIPLIED_UP',
+	DMG_MULTIPLIED_DOWN = 'DMG_MULTIPLIED_DOWN',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -65,8 +66,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				amountPercent: 0,
 			},
 		],
-		castTimeDurationInMs: 1500,
-		cooldownDurationInMs: 8000,
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		auraDurationInMs: 0,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
@@ -75,15 +76,15 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE,
 				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
-				value: 5,
-				valueModifiers: [{ stat: STAT_TYPE_ID.ATTACK_POWER, coefficient: 0.1 }],
+				value: 10,
+				valueModifiers: [],
 			},
 		],
 	},
 	[SPELL_TYPE_ID.DMG_BOOST]: {
 		spellTypeId: SPELL_TYPE_ID.DMG_BOOST,
 		title: 'Dmg +10',
-		description: 'Boost your damage.',
+		description: 'Increase outgoing damage by 10.',
 		cost: [
 			{
 				resourceTypeId: RESOURCE_TYPE_ID.MANA,
@@ -100,7 +101,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.INCREASE_OUTGOING_DAMAGE_FLAT,
+				auraTypeId: AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT,
 				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
 				intervalInMs: 0,
 				value: 10,
@@ -111,7 +112,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.DMG_REDUCTION]: {
 		spellTypeId: SPELL_TYPE_ID.DMG_REDUCTION,
 		title: 'Dmg -10',
-		description: 'Reduce targets damage.',
+		description: 'Decrease outgoing damage by 10.',
 		cost: [
 			{
 				resourceTypeId: RESOURCE_TYPE_ID.MANA,
@@ -128,44 +129,124 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.DECREASE_OUTGOING_DAMAGE_FLAT,
+				auraTypeId: AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT,
 				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HARMFUL,
 				intervalInMs: 0,
-				value: 10,
+				value: -10,
+				valueModifiers: [],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.DMG_PERCENT_UP]: {
+		spellTypeId: SPELL_TYPE_ID.DMG_PERCENT_UP,
+		title: 'Dmg +10%',
+		description: 'Increase outgoing damage by 10%.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT,
+				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				intervalInMs: 0,
+				value: 0.1,
+				valueModifiers: [],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.DMG_PERCENT_DOWN]: {
+		spellTypeId: SPELL_TYPE_ID.DMG_PERCENT_DOWN,
+		title: 'Dmg -10%',
+		description: 'Decrease outgoing damage by 10%.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT,
+				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				intervalInMs: 0,
+				value: -0.1,
+				valueModifiers: [],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.DMG_MULTIPLIED_UP]: {
+		spellTypeId: SPELL_TYPE_ID.DMG_MULTIPLIED_UP,
+		title: 'Dmg *2',
+		description: 'Double outgoing damage',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER,
+				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				intervalInMs: 0,
+				value: 2,
+				valueModifiers: [],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.DMG_MULTIPLIED_DOWN]: {
+		spellTypeId: SPELL_TYPE_ID.DMG_MULTIPLIED_DOWN,
+		title: 'Dmg *0.5',
+		description: 'Halve outgoing damage',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER,
+				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				intervalInMs: 0,
+				value: 0.5,
 				valueModifiers: [],
 			},
 		],
 	},
 };
-
-export const aruaTypeIdToSpellEffectTypeId: Record<
-	AURA_TYPE_ID,
-	{
-		effectedSpellEffectTypeIds?: SPELL_EFFECT_TYPE_ID[];
-		effectedAuraTypeIds?: AURA_TYPE_ID[];
-		applyToValue?(baseValue: number, modValue: number): number;
-	}
-> = {
-	// buffs/debuffs
-	[AURA_TYPE_ID.INCREASE_OUTGOING_DAMAGE_FLAT]: {
-		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
-		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
-		applyToValue: (baseValue, modValue) => baseValue + modValue,
-	},
-	[AURA_TYPE_ID.DECREASE_OUTGOING_DAMAGE_FLAT]: {
-		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
-		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
-		applyToValue: (baseValue, modValue) => Math.max(0, baseValue - modValue),
-	},
-
-	// periodic
-	[AURA_TYPE_ID.PERIODIC_DAMAGE]: {},
-};
-
-export function spellEffectIsApplyAura(spellEffect: SpellEffect): spellEffect is SpellEffectApplyAura {
-	return spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA;
-}
-
-export function spellEffectIsSchoolDamage(spellEffect: SpellEffect): spellEffect is SpellEffectSchoolDamage {
-	return spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
-}

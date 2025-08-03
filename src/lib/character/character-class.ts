@@ -9,14 +9,14 @@ import {
 	SpellEffect,
 	SpellPayload,
 } from '@/lib/spell/spell-models';
+import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
+import { Spell, SpellState } from '@/lib/spell/spell-class';
+import { Aura, AuraConfig, AuraState } from '@/lib/spell/aura-class';
 import {
 	aruaTypeIdToSpellEffectTypeId,
-	SPELL_TYPE_ID,
 	spellEffectIsApplyAura,
 	spellEffectIsSchoolDamage,
-} from '@/lib/spell/spell-data';
-import { Spell, SpellState } from '@/lib/spell/spell-class';
-import { Aura, AuraState } from '@/lib/spell/aura-class';
+} from '@/lib/spell/spell-utils';
 
 export type CharacterState = {
 	characterId: string;
@@ -223,24 +223,24 @@ export class Character {
 		// 1) Build your aura‐config list and indexes once per cast:
 		const auraConfigs = Object.values(this._auras).flatMap((aura) => aura.auraEffectConfigs || []);
 
-		const spellTargetIndex = new Map<SPELL_EFFECT_TYPE_ID, AuraEffectConfig[]>();
-		const auraTargetIndex = new Map<AURA_TYPE_ID, AuraEffectConfig[]>();
+		const effectedSpellTypeIds = new Map<SPELL_EFFECT_TYPE_ID, AuraEffectConfig[]>();
+		const effectedAuraTypeIds = new Map<AURA_TYPE_ID, AuraEffectConfig[]>();
 
 		for (const cfg of auraConfigs) {
 			const mapping = aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId];
 			// map to spellEffectTypeIds
 			for (const spellId of mapping.effectedSpellEffectTypeIds ?? []) {
-				if (!spellTargetIndex.has(spellId)) {
-					spellTargetIndex.set(spellId, []);
+				if (!effectedSpellTypeIds.has(spellId)) {
+					effectedSpellTypeIds.set(spellId, []);
 				}
-				spellTargetIndex.get(spellId)!.push(cfg);
+				effectedSpellTypeIds.get(spellId)!.push(cfg);
 			}
 			// map to auraTypeIds
 			for (const auraId of mapping.effectedAuraTypeIds ?? []) {
-				if (!auraTargetIndex.has(auraId)) {
-					auraTargetIndex.set(auraId, []);
+				if (!effectedAuraTypeIds.has(auraId)) {
+					effectedAuraTypeIds.set(auraId, []);
 				}
-				auraTargetIndex.get(auraId)!.push(cfg);
+				effectedAuraTypeIds.get(auraId)!.push(cfg);
 			}
 		}
 
@@ -255,15 +255,16 @@ export class Character {
 			// b) only if there are any auras
 			if (auraConfigs.length > 0) {
 				// O(1) lookups from our indexes
-				const bySpell = spellTargetIndex.get(spellEffect.spellEffectTypeId) || [];
+				const bySpell = effectedSpellTypeIds.get(spellEffect.spellEffectTypeId) || [];
 				const byAura = spellEffectIsApplyAura(spellEffect)
-					? auraTargetIndex.get(spellEffect.auraTypeId) || []
+					? effectedAuraTypeIds.get(spellEffect.auraTypeId) || []
 					: [];
 
 				// c) apply each matching config
-				baseWithStats = [...bySpell, ...byAura].reduce((curr, cfg) => {
-					return aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId].applyToValue?.(curr, cfg.value) ?? 0;
-				}, baseWithStats);
+				baseWithStats = [...bySpell, ...byAura].reduce(
+					(curr, cfg) => aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId].applyToValue?.(curr, cfg.value) ?? 0,
+					baseWithStats
+				);
 			}
 
 			// d) return the updated effect
@@ -273,10 +274,10 @@ export class Character {
 			};
 		});
 
-		// Will probably have to add more spell properties here, but this is enough for now
 		return {
 			casterId: this.characterId,
 			title: spell.title,
+			spellTypeId: spell.spellTypeId,
 			auraDurationInMs: spell.auraDurationInMs,
 			spellEffects: statProcessedSpellEffects,
 		};
@@ -318,17 +319,18 @@ export class Character {
 		});
 
 		if (auraEffectConfigs.length > 0) {
-			this.applyAura(spellPayload.title, spellPayload.auraDurationInMs, auraEffectConfigs);
+			this.applyAura({
+				title: spellPayload.title,
+				spellTypeId: spellPayload.spellTypeId,
+				durationInMs: spellPayload.auraDurationInMs,
+				auraEffectConfigs,
+			});
 		}
 	}
 
 	// --- Auras ---
-	public applyAura(title: string, durationInMs: number, auraEffectConfigs: AuraEffectConfig[]) {
-		const aura = new Aura(
-			{ title, durationInMs, auraEffectConfigs },
-			this.handleAuraInterval.bind(this),
-			this.handleAuraTimeout.bind(this)
-		);
+	public applyAura(auraConfig: AuraConfig) {
+		const aura = new Aura(auraConfig, this.handleAuraInterval.bind(this), this.handleAuraTimeout.bind(this));
 
 		this._auras[aura.auraId] = aura;
 		this._notify();
@@ -336,10 +338,13 @@ export class Character {
 
 	private handleAuraInterval(_auraId: string, auraEffectConfigs: AuraEffectConfig[]) {
 		const auraTypeIdMap: Record<AURA_TYPE_ID, (auraEffectConfig: AuraEffectConfig) => void> = {
-			[AURA_TYPE_ID.INCREASE_OUTGOING_DAMAGE_FLAT]: () => {
+			[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT]: () => {
 				return;
 			},
-			[AURA_TYPE_ID.DECREASE_OUTGOING_DAMAGE_FLAT]: () => {
+			[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER]: () => {
+				return;
+			},
+			[AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT]: () => {
 				return;
 			},
 			[AURA_TYPE_ID.PERIODIC_DAMAGE]: (auraEffectConfig) => {

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { AuraEffectConfig } from '@/lib/spell/spell-models';
+import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 
 type Timer = ReturnType<typeof setInterval> | ReturnType<typeof setTimeout>;
 
@@ -8,6 +9,13 @@ export type AuraState = {
 	title: string;
 	description: string;
 	durationInMs: number;
+};
+
+export type AuraConfig = {
+	title: string;
+	spellTypeId: SPELL_TYPE_ID;
+	durationInMs: number;
+	auraEffectConfigs: AuraEffectConfig[];
 };
 
 export class Aura {
@@ -22,6 +30,7 @@ export class Aura {
 	constructor(
 		config: {
 			title: string;
+			spellTypeId: SPELL_TYPE_ID;
 			auraEffectConfigs: AuraEffectConfig[];
 			durationInMs: number;
 		},
