@@ -330,6 +330,14 @@ export class Character {
 
 	// --- Auras ---
 	public applyAura(auraConfig: AuraConfig) {
+		const existingAura = Object.values(this._auras).find((a) => a.spellTypeId === auraConfig.spellTypeId);
+
+		if (existingAura) {
+			// [TODO]: instead of stopping and deleting, maybe just restart them?
+			existingAura.stopTimers();
+			delete this._auras[existingAura.auraId];
+		}
+
 		const aura = new Aura(auraConfig, this.handleAuraInterval.bind(this), this.handleAuraTimeout.bind(this));
 
 		this._auras[aura.auraId] = aura;

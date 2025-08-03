@@ -7,6 +7,7 @@ type Timer = ReturnType<typeof setInterval> | ReturnType<typeof setTimeout>;
 export type AuraState = {
 	auraId: string;
 	title: string;
+	spellTypeId: SPELL_TYPE_ID;
 	description: string;
 	durationInMs: number;
 };
@@ -21,6 +22,7 @@ export type AuraConfig = {
 export class Aura {
 	public readonly auraId: string;
 	public readonly title: string;
+	public readonly spellTypeId: SPELL_TYPE_ID;
 	public readonly auraEffectConfigs: AuraEffectConfig[];
 	public readonly durationInMs: number;
 
@@ -39,6 +41,7 @@ export class Aura {
 	) {
 		this.auraId = uuidv4();
 		this.title = config.title;
+		this.spellTypeId = config.spellTypeId;
 		this.auraEffectConfigs = config.auraEffectConfigs;
 		this.durationInMs = config.durationInMs;
 
@@ -91,6 +94,7 @@ export class Aura {
 		return {
 			auraId: this.auraId,
 			title: this.title,
+			spellTypeId: this.spellTypeId,
 			description: `${this.auraEffectConfigs.length} effect(s) active`,
 			durationInMs: this.durationInMs,
 		};
