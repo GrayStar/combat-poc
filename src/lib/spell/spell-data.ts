@@ -20,6 +20,8 @@ export enum SPELL_TYPE_ID {
 	DMG_MULTIPLIED_UP = 'DMG_MULTIPLIED_UP',
 	DMG_MULTIPLIED_DOWN = 'DMG_MULTIPLIED_DOWN',
 	SHIELD = 'SHIELD',
+	SHIELD_PERCENT = 'SHIELD_PERCENT',
+	SHIELD_MULTIPLIER = 'SHIELD_MULTIPLIER',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -184,7 +186,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT,
+				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_PERCENT,
 				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				intervalInMs: 0,
 				value: 0.1,
@@ -212,7 +214,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT,
+				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_PERCENT,
 				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				intervalInMs: 0,
 				value: -0.1,
@@ -278,7 +280,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.SHIELD]: {
 		spellTypeId: SPELL_TYPE_ID.SHIELD,
-		title: 'Shield',
+		title: 'Shield 5',
 		description: 'Reduce incoming damage by 5',
 		cost: [
 			{
@@ -300,6 +302,62 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.INCOMING,
 				intervalInMs: 0,
 				value: -5,
+				valueModifiers: [],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.SHIELD_PERCENT]: {
+		spellTypeId: SPELL_TYPE_ID.SHIELD_PERCENT,
+		title: 'Shield 10%',
+		description: 'Reduce incoming damage by 10%',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		dispelTypeId: DISPEL_TYPE_ID.NONE,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_PERCENT,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.INCOMING,
+				intervalInMs: 0,
+				value: -0.1,
+				valueModifiers: [],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.SHIELD_MULTIPLIER]: {
+		spellTypeId: SPELL_TYPE_ID.SHIELD_MULTIPLIER,
+		title: 'Shield half',
+		description: 'Reduce incoming damage by qart',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		dispelTypeId: DISPEL_TYPE_ID.NONE,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.INCOMING,
+				intervalInMs: 0,
+				value: 0.25,
 				valueModifiers: [],
 			},
 		],

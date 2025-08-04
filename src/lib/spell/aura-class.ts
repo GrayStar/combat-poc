@@ -113,7 +113,7 @@ function getAuraEffectDescription(
 		case AURA_TYPE_ID.MODIFY_DAMAGE_FLAT:
 			return value === 0 ? nothing : `${verb} ${action} by ${absValue} for ${seconds}s.`;
 
-		case AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT:
+		case AURA_TYPE_ID.MODIFY_DAMAGE_PERCENT:
 			return value === 0 ? nothing : `${verb} ${action} by ${absValue * 100}% for ${seconds}s.`;
 
 		case AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER:
