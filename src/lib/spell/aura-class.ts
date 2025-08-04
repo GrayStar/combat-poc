@@ -85,9 +85,7 @@ export class Aura {
 	}
 
 	private getDescription(): string {
-		return this.auraEffectConfigs
-			.map((cfg) => auraEffectDescriptionMap[cfg.auraTypeId](cfg, this.durationInMs))
-			.join(' ');
+		return this.auraEffectConfigs.map((cfg) => getAuraEffectDescription(cfg, this.durationInMs)).join(' ');
 	}
 
 	public getState(): AuraState {
@@ -101,30 +99,31 @@ export class Aura {
 	}
 }
 
-const auraEffectDescriptionMap: Record<AURA_TYPE_ID, (config: AuraEffectConfig, durationInMs: number) => string> = {
-	[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT]: ({ value }, durationInMs) => {
-		if (value > 0) {
-			return `Increases damage dealt by ${value} for ${durationInMs / 1000}s.`;
-		} else if (value < 0) {
-			return `Decreases damage dealt by ${Math.abs(value)} for ${durationInMs / 1000}s.`;
-		}
-		return `Does nothing for ${durationInMs / 1000}s.`;
-	},
-	[AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT]: ({ value }, durationInMs) => {
-		if (value > 0) {
-			return `Increases damage dealt by ${value * 100}% for ${durationInMs / 1000}s.`;
-		} else if (value < 0) {
-			return `Decreases damage dealt by ${Math.abs(value * 100)}% for ${durationInMs / 1000}s.`;
-		}
-		return `Does nothing.`;
-	},
-	[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER]: ({ value }, durationInMs) => {
-		if (value !== 0) {
-			return `${value * 100}% damage dealt for ${durationInMs / 1000}s.`;
-		}
-		return `Does nothing for ${durationInMs / 1000}s.`;
-	},
-	[AURA_TYPE_ID.PERIODIC_DAMAGE]: ({ value, schoolTypeId, intervalInMs }, durationInMs) => {
-		return `Deals ${value} ${schoolTypeId} damage every ${intervalInMs / 1000}s for ${durationInMs / 1000}s.`;
-	},
-};
+function getAuraEffectDescription(
+	{ auraTypeId, value, schoolTypeId, intervalInMs }: AuraEffectConfig,
+	durationMs: number
+): string {
+	const seconds = durationMs / 1000;
+	const nothing = `Does nothing for ${seconds}s.`;
+	const absValue = Math.abs(value);
+	const verb = value > 0 ? 'Increases' : value < 0 ? 'Decreases' : '';
+
+	switch (auraTypeId) {
+		case AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT:
+			return value === 0 ? nothing : `${verb} damage dealt by ${absValue} for ${seconds}s.`;
+
+		case AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT:
+			return value === 0 ? nothing : `${verb} damage dealt by ${absValue * 100}% for ${seconds}s.`;
+
+		case AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER:
+			return value === 0 ? nothing : `${value * 100}% damage dealt for ${seconds}s.`;
+
+		case AURA_TYPE_ID.PERIODIC_DAMAGE:
+			return value === 0
+				? nothing
+				: `Deals ${value} ${schoolTypeId} damage every ${intervalInMs / 1000}s for ${seconds}s.`;
+
+		default:
+			return nothing;
+	}
+}

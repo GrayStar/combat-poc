@@ -12,6 +12,7 @@ import { STAT_TYPE_ID } from '@/lib/character/character-models';
 export enum SPELL_TYPE_ID {
 	FIREBALL = 'FIREBALL',
 	PUNCH = 'PUNCH',
+	LESSER_HEAL = 'LESSER_HEAL',
 	DMG_BOOST = 'DMG_BOOST',
 	DMG_REDUCTION = 'DMG_REDUCTION',
 	DMG_PERCENT_UP = 'DMG_PERCENT_UP',
@@ -76,6 +77,31 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE,
 				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+				value: 10,
+				valueModifiers: [],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.LESSER_HEAL]: {
+		spellTypeId: SPELL_TYPE_ID.LESSER_HEAL,
+		title: 'Lesser Heal',
+		description: 'heal the target.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 0,
+		schoolTypeId: SCHOOL_TYPE_ID.HOLY,
+		dispelTypeId: DISPEL_TYPE_ID.NONE,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.HEAL,
 				value: 10,
 				valueModifiers: [],
 			},

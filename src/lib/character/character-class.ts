@@ -309,7 +309,8 @@ export class Character {
 				console.log('[TODO]: handle dispel', spellEffect);
 			},
 			[SPELL_EFFECT_TYPE_ID.HEAL]: (spellEffect) => {
-				console.log('[TODO]: handle heal', spellEffect);
+				this.adjustHealth(spellEffect.value);
+				callback(`${this.title} was healed for ${spellEffect.value}.`);
 			},
 			[SPELL_EFFECT_TYPE_ID.APPLY_AURA]: (spellEffect) => {
 				console.log('[TODO]: throw error, as auras should not be in this array.', spellEffect);

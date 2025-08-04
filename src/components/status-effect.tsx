@@ -60,7 +60,13 @@ export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
 	const { classes } = useStyles({ duration: statusEffect.durationInMs });
 
 	return (
-		<OverlayTrigger overlay={<Tooltip>{statusEffect.description}</Tooltip>}>
+		<OverlayTrigger
+			overlay={
+				<Tooltip>
+					<p className="m-0">{statusEffect.description}</p>
+				</Tooltip>
+			}
+		>
 			<div className={classes.statusEffect}>
 				<div className={classes.cooldown} key={statusEffect.renderKey} />
 				<p className="m-0">{statusEffect.title}</p>
