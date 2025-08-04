@@ -2,7 +2,7 @@ export type ThemeConfig = typeof defaultTheme;
 
 export const defaultTheme = {
 	colors: {
-		primary: '#77206E',
+		primary: '#1da7daff',
 		secondary: '#7D756C',
 		success: '#27a417',
 		info: '#437cdfff',

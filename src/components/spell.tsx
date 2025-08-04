@@ -1,44 +1,22 @@
-import { keyframes } from 'tss-react';
 import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
 import { tss } from '@/styles';
 import { useRef } from 'react';
 import { SpellState } from '@/lib/spell/spell-class';
+import { CooldownCircle } from '@/components/cooldown-circle';
 
+const size = 48;
 const flashAnimationDurationInMs = 1000;
-const cooldownAnimation = keyframes`
-	from {
-		height: 100%;
-	}
-	to {
-		height: 0%;
-	}
-`;
 
-interface UseStyleProps extends Record<string, unknown> {
-	cooldownDurationInMs: number;
-}
-
-const useStyles = tss.withParams<UseStyleProps>().create(({ cooldownDurationInMs, ...theme }) => ({
+const useStyles = tss.create((theme) => ({
 	spell: {
-		width: 48,
-		height: 48,
+		width: size,
+		height: size,
 		borderRadius: 8,
 		overflow: 'hidden',
 		textAlign: 'center',
 		position: 'relative',
 		backgroundColor: theme.colors.gray400,
-	},
-	cooldown: {
-		left: 0,
-		right: 0,
-		bottom: 0,
-		zIndex: 1,
-		height: '100%',
-		position: 'absolute',
-		pointerEvents: 'none',
-		backgroundColor: 'rgba(0, 0, 0, 0.5)',
-		animation: `${cooldownAnimation} ${cooldownDurationInMs}ms linear forwards`,
 	},
 	flash: {
 		top: 0,
@@ -66,7 +44,7 @@ interface SpellProps {
 }
 
 export const Spell = ({ spell, className }: SpellProps) => {
-	const { classes } = useStyles({ cooldownDurationInMs: spell.cooldownDurationInMs });
+	const { classes } = useStyles();
 	const overlayRef = useRef<HTMLDivElement>(null);
 
 	return (
@@ -84,7 +62,7 @@ export const Spell = ({ spell, className }: SpellProps) => {
 			>
 				<div ref={overlayRef} className={classes.flash} />
 			</CSSTransition>
-			{spell.isOnCooldown && <div className={classes.cooldown} />}
+			{spell.isOnCooldown && <CooldownCircle size={size} durationInMs={spell.cooldownDurationInMs} />}
 			<span className="small">{spell.title}</span>
 		</div>
 	);

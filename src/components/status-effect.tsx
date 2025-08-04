@@ -1,40 +1,19 @@
-import { keyframes } from 'tss-react';
 import { tss } from '@/styles';
 import { AuraState } from '@/lib/spell/aura-class';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { CooldownCircle } from '@/components/cooldown-circle';
 
-const cooldownAnimation = keyframes`
-	from {
-		height: 100%;
-	}
-	to {
-		height: 0%;
-	}
-`;
+const size = 32;
 
-interface UseStyleProps extends Record<string, unknown> {
-	duration: number;
-}
-
-const useStyles = tss.withParams<UseStyleProps>().create(({ duration, ...theme }) => ({
+const useStyles = tss.create((theme) => ({
 	statusEffect: {
 		zIndex: 0,
-		width: 32,
-		height: 32,
+		width: size,
+		height: size,
 		borderRadius: 4,
 		overflow: 'hidden',
 		position: 'relative',
 		backgroundColor: theme.colors.gray400,
-	},
-	cooldown: {
-		left: 0,
-		right: 0,
-		bottom: 0,
-		zIndex: 1,
-		height: '100%',
-		position: 'absolute',
-		backgroundColor: 'rgba(0, 0, 0, 0.5)',
-		animation: `${cooldownAnimation} ${duration}ms linear forwards`,
 	},
 	stackCount: {
 		right: 4,
@@ -57,7 +36,7 @@ interface StatusEffectProps {
 }
 
 export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
-	const { classes } = useStyles({ duration: statusEffect.durationInMs });
+	const { classes } = useStyles();
 
 	return (
 		<OverlayTrigger
@@ -72,7 +51,7 @@ export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
 			}
 		>
 			<div className={classes.statusEffect}>
-				<div className={classes.cooldown} key={statusEffect.renderKey} />
+				<CooldownCircle size={size} durationInMs={statusEffect.durationInMs} key={statusEffect.renderKey} />
 				<p className="m-0">{statusEffect.title}</p>
 				{/* {(statusEffect.stacks ?? 0) > 0 && <div className={classes.stackCount}>{statusEffect.stacks}</div>} */}
 			</div>

@@ -31,6 +31,9 @@ export type CharacterState = {
 	mana: number;
 	maxMana: number;
 	auras: AuraState[];
+	renderKeyDamage: string;
+	renderKeyHealing: string;
+	renderKeyCastSpell: string;
 };
 
 export class Character {
@@ -51,6 +54,9 @@ export class Character {
 	private _stats: Record<STAT_TYPE_ID, number>;
 	private _auras: Record<string, Aura>;
 
+	private _renderKeyDamage: string = '';
+	private _renderKeyHealing: string = '';
+	private _renderKeyCastSpell: string = '';
 	private _notify: () => void;
 
 	constructor(characterTypeId: CHARACTER_TYPE_ID, notify: () => void) {
@@ -91,6 +97,12 @@ export class Character {
 	public adjustHealth(amount: number) {
 		const next = this._health + amount;
 		this._health = next <= 0 ? 0 : Math.min(this._maxHealth, next);
+
+		if (amount < 0) {
+			this._renderKeyDamage = uuidv4();
+		} else if (amount > 0) {
+			this._renderKeyHealing = uuidv4();
+		}
 	}
 
 	// --- Mana ---
@@ -168,6 +180,7 @@ export class Character {
 				s.startGlobalCooldown();
 			});
 
+			this._renderKeyCastSpell = uuidv4();
 			this._notify();
 			return Promise.resolve(spellPayload);
 		}
@@ -187,6 +200,7 @@ export class Character {
 					s.startGlobalCooldown();
 				});
 
+				this._renderKeyCastSpell = uuidv4();
 				this._notify();
 				return resolve(spellPayload);
 			}, spell.castTimeDurationInMs);
@@ -478,6 +492,9 @@ export class Character {
 			mana: this._mana,
 			maxMana: this._maxMana,
 			auras: Object.values(this._auras).map((aura) => aura.getState()),
+			renderKeyDamage: this._renderKeyDamage,
+			renderKeyHealing: this._renderKeyHealing,
+			renderKeyCastSpell: this._renderKeyCastSpell,
 		};
 	}
 }
