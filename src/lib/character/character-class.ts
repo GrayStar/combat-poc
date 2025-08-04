@@ -132,9 +132,12 @@ export class Character {
 	}
 
 	public setSpells(spellTypeIds: SPELL_TYPE_ID[]) {
-		// [TODO]:
-		// If this is called, that means all the current spells will get deleted
-		// so we have to clean them up, stop their timers, etc
+		if (this.spells.length > 0) {
+			this.spells.forEach((spell) => {
+				spell.stopCooldown();
+			});
+		}
+
 		this._spells = spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this._notify.bind(this)));
 	}
 
@@ -142,8 +145,7 @@ export class Character {
 		this._spells.push(new Spell(spellTypeId, this._notify.bind(this)));
 	}
 
-	// [TODO]:
-	// add public removeSpell()
+	// [TODO]: public removeSpell()
 	// not sure if they should be removed by spellId, or spellTypeId
 
 	// --- Spell casting ---

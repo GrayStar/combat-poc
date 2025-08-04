@@ -26,6 +26,7 @@ export enum SPELL_TYPE_ID {
 	HEAL_BOOST = 'HEAL_BOOST',
 	HEAL_PERCENT_UP = 'HEAL_PERCENT_UP',
 	HEAL_MULTIPLIED_UP = 'HEAL_MULTIPLIED_UP',
+	I_HEAL_FLAT = 'I_HEAL_FLAT',
 	DISPEL_MAGIC = 'DISPEL_MAGIC',
 }
 
@@ -474,6 +475,34 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				auraTypeId: AURA_TYPE_ID.MODIFY_HEALING_MULTIPLIER,
 				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				value: 2,
+				valueModifiers: [],
+				intervalInMs: 0,
+			},
+		],
+	},
+	[SPELL_TYPE_ID.I_HEAL_FLAT]: {
+		spellTypeId: SPELL_TYPE_ID.I_HEAL_FLAT,
+		title: 'i.Heal +10',
+		description: 'Increases healing recieved by 10.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 30,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 1500,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.HOLY,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MODIFY_HEALING_FLAT,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.INCOMING,
+				value: 10,
 				valueModifiers: [],
 				intervalInMs: 0,
 			},

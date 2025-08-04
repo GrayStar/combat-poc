@@ -28,6 +28,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 			SPELL_TYPE_ID.HEAL_BOOST,
 			SPELL_TYPE_ID.HEAL_PERCENT_UP,
 			SPELL_TYPE_ID.HEAL_MULTIPLIED_UP,
+			SPELL_TYPE_ID.I_HEAL_FLAT,
 			SPELL_TYPE_ID.DISPEL_MAGIC,
 		],
 		stats: {
