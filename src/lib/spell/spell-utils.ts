@@ -15,17 +15,17 @@ export const aruaTypeIdToSpellEffectTypeId: Record<
 	}
 > = {
 	// modifiers
-	[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT]: {
+	[AURA_TYPE_ID.MODIFY_DAMAGE_FLAT]: {
 		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
 		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
 		applyToValue: (base, modifier) => base + modifier,
 	},
-	[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER]: {
+	[AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER]: {
 		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
 		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
 		applyToValue: (base, modifier) => Math.floor(base * modifier),
 	},
-	[AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT]: {
+	[AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT]: {
 		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
 		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
 		applyToValue: (base, modifier) => base + Math.floor(base * modifier),

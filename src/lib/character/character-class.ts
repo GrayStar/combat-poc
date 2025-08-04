@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash';
 import { STAT_TYPE_ID } from '@/lib/character/character-models';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character/character-data';
 import {
+	AURA_DIRECTION_TYPE_ID,
 	AURA_TYPE_ID,
 	AuraEffectConfig,
 	SPELL_EFFECT_TYPE_ID,
@@ -220,13 +221,13 @@ export class Character {
 	}
 
 	private createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
-		// 1) Build your aura‐config list and indexes once per cast:
-		const auraConfigs = Object.values(this._auras).flatMap((aura) => aura.auraEffectConfigs || []);
-
+		const auraEffectConfigs = Object.values(this._auras)
+			.flatMap((aura) => aura.auraEffectConfigs || [])
+			.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING);
 		const effectedSpellTypeIds = new Map<SPELL_EFFECT_TYPE_ID, AuraEffectConfig[]>();
 		const effectedAuraTypeIds = new Map<AURA_TYPE_ID, AuraEffectConfig[]>();
 
-		for (const cfg of auraConfigs) {
+		for (const cfg of auraEffectConfigs) {
 			const mapping = aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId];
 			// map to spellEffectTypeIds
 			for (const spellId of mapping.effectedSpellEffectTypeIds ?? []) {
@@ -244,16 +245,15 @@ export class Character {
 			}
 		}
 
-		// 2) Now your optimized per‐effect pipeline:
 		const statProcessedSpellEffects = spell.spellEffects.map((spellEffect) => {
-			// a) apply stat modifiers
-			let baseWithStats = spellEffect.valueModifiers.reduce(
+			const valueWithCharacterStatsApplied = spellEffect.valueModifiers.reduce(
 				(sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient,
 				spellEffect.value
 			);
 
-			// b) only if there are any auras
-			if (auraConfigs.length > 0) {
+			let valueWithAurasApplied = valueWithCharacterStatsApplied;
+
+			if (auraEffectConfigs.length > 0) {
 				// O(1) lookups from our indexes
 				const bySpell = effectedSpellTypeIds.get(spellEffect.spellEffectTypeId) || [];
 				const byAura = spellEffectIsApplyAura(spellEffect)
@@ -261,16 +261,17 @@ export class Character {
 					: [];
 
 				// c) apply each matching config
-				baseWithStats = [...bySpell, ...byAura].reduce(
-					(curr, cfg) => aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId].applyToValue?.(curr, cfg.value) ?? 0,
-					baseWithStats
+				valueWithAurasApplied = [...bySpell, ...byAura].reduce(
+					(currentValue, cfg) =>
+						aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId].applyToValue?.(currentValue, cfg.value) ?? 0,
+					valueWithAurasApplied
 				);
 			}
 
 			// d) return the updated effect
 			return {
 				...spellEffect,
-				value: baseWithStats,
+				value: valueWithAurasApplied,
 			};
 		});
 
@@ -285,15 +286,18 @@ export class Character {
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, callback: (message: string) => void) {
+		// Do not process incoming auras through buffs/debuffs
 		const auraEffectConfigs = spellPayload.spellEffects
 			.filter((spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA)
-			.map(({ auraTypeId, auraCategoryTypeId, value, intervalInMs }) => ({
+			.map(({ auraTypeId, auraDirectionTypeId, value, intervalInMs }) => ({
 				auraTypeId,
-				auraCategoryTypeId,
 				schoolTypeId: spellPayload.schoolTypeId,
+				auraDirectionTypeId,
 				value,
 				intervalInMs,
 			}));
+
+		// [TODO]: Process applicable immediate effects through buffs/debuffs
 		const otherEffects = spellPayload.spellEffects.filter(
 			(spellEffect) => spellEffect.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
 		);
@@ -347,13 +351,13 @@ export class Character {
 
 	private handleAuraInterval(_auraId: string, auraEffectConfigs: AuraEffectConfig[]) {
 		const auraTypeIdMap: Record<AURA_TYPE_ID, (auraEffectConfig: AuraEffectConfig) => void> = {
-			[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT]: () => {
+			[AURA_TYPE_ID.MODIFY_DAMAGE_FLAT]: () => {
 				return;
 			},
-			[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER]: () => {
+			[AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER]: () => {
 				return;
 			},
-			[AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT]: () => {
+			[AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT]: () => {
 				return;
 			},
 			[AURA_TYPE_ID.PERIODIC_DAMAGE]: (auraEffectConfig) => {

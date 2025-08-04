@@ -109,13 +109,13 @@ function getAuraEffectDescription(
 	const verb = value > 0 ? 'Increases' : value < 0 ? 'Decreases' : '';
 
 	switch (auraTypeId) {
-		case AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT:
+		case AURA_TYPE_ID.MODIFY_DAMAGE_FLAT:
 			return value === 0 ? nothing : `${verb} damage dealt by ${absValue} for ${seconds}s.`;
 
-		case AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT:
+		case AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT:
 			return value === 0 ? nothing : `${verb} damage dealt by ${absValue * 100}% for ${seconds}s.`;
 
-		case AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER:
+		case AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER:
 			return value === 0 ? nothing : `${value * 100}% damage dealt for ${seconds}s.`;
 
 		case AURA_TYPE_ID.PERIODIC_DAMAGE:

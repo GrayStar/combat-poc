@@ -1,5 +1,5 @@
 import {
-	AURA_CATEGORY_TYPE_ID,
+	AURA_DIRECTION_TYPE_ID,
 	AURA_TYPE_ID,
 	DISPEL_TYPE_ID,
 	RESOURCE_TYPE_ID,
@@ -49,7 +49,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
 				auraTypeId: AURA_TYPE_ID.PERIODIC_DAMAGE,
-				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HARMFUL,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.NONE,
 				value: 1,
 				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0 }],
 				intervalInMs: 2000,
@@ -127,8 +127,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT,
-				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_FLAT,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				intervalInMs: 0,
 				value: 10,
 				valueModifiers: [],
@@ -155,8 +155,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT,
-				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HARMFUL,
+				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_FLAT,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				intervalInMs: 0,
 				value: -10,
 				valueModifiers: [],
@@ -183,8 +183,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT,
-				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				auraTypeId: AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				intervalInMs: 0,
 				value: 0.1,
 				valueModifiers: [],
@@ -211,8 +211,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT,
-				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				auraTypeId: AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				intervalInMs: 0,
 				value: -0.1,
 				valueModifiers: [],
@@ -239,8 +239,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER,
-				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				intervalInMs: 0,
 				value: 2,
 				valueModifiers: [],
@@ -267,8 +267,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
-				auraTypeId: AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER,
-				auraCategoryTypeId: AURA_CATEGORY_TYPE_ID.HELPFUL,
+				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				intervalInMs: 0,
 				value: 0.5,
 				valueModifiers: [],

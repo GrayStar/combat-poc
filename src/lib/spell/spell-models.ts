@@ -24,7 +24,7 @@ export interface SpellCost {
 export type SpellEffectApplyAura = {
 	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA;
 	auraTypeId: AURA_TYPE_ID;
-	auraCategoryTypeId: AURA_CATEGORY_TYPE_ID;
+	auraDirectionTypeId: AURA_DIRECTION_TYPE_ID;
 	value: number;
 	valueModifiers: SpellEffectValueModifier[];
 	intervalInMs: number;
@@ -63,28 +63,19 @@ export enum SPELL_EFFECT_TYPE_ID {
 	APPLY_AURA = 'APPLY_AURA',
 	HEAL = 'HEAL',
 	DISPEL = 'DISPEL',
-	// potion
-	// summon
-	// etc
 }
 
 export enum AURA_TYPE_ID {
 	PERIODIC_DAMAGE = 'PERIODIC_DAMAGE',
-	// PERIODIC_HEAL
-	MODIFY_OUTGOING_DAMAGE_FLAT = 'MODIFY_OUTGOING_DAMAGE_FLAT',
-	MOFIFY_OUTGOING_DAMAGE_PERCENT = 'MOFIFY_OUTGOING_DAMAGE_PERCENT',
-	MODIFY_OUTGOING_DAMAGE_MULTIPLIER = 'MODIFY_OUTGOING_DAMAGE_MULTIPLIER',
-	// MODIFY_INCOMING_DAMAGE_FLAT
-	// MODIFY_INCOMING_DAMAGE_MULTIPLIER
-	// MODIFY_INCOMING_DAMAGE_PERCENT
-	// EXPIRE_DAMAGE
-	// EXPIRE_HEAL
+	MODIFY_DAMAGE_FLAT = 'MODIFY_DAMAGE_FLAT',
+	MOFIFY_DAMAGE_PERCENT = 'MOFIFY_DAMAGE_PERCENT',
+	MODIFY_DAMAGE_MULTIPLIER = 'MODIFY_DAMAGE_MULTIPLIER',
 }
 
-export enum AURA_CATEGORY_TYPE_ID {
-	HELPFUL = 'HELPFUL',
-	HARMFUL = 'HARMFUL',
-	PASSIVE = 'PASSIVE',
+export enum AURA_DIRECTION_TYPE_ID {
+	NONE = 'NONE',
+	INCOMING = 'INCOMING',
+	OUTGOING = 'OUTGOING',
 }
 
 export enum SCHOOL_TYPE_ID {
@@ -120,8 +111,8 @@ export type SpellPayload = {
 
 export type AuraEffectConfig = {
 	auraTypeId: AURA_TYPE_ID;
-	auraCategoryTypeId: AURA_CATEGORY_TYPE_ID;
 	schoolTypeId: SCHOOL_TYPE_ID;
+	auraDirectionTypeId: AURA_DIRECTION_TYPE_ID;
 	value: number;
 	intervalInMs: number;
 };
