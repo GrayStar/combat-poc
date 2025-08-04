@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { AURA_DIRECTION_TYPE_ID, AURA_TYPE_ID, AuraEffectConfig } from '@/lib/spell/spell-models';
+import { AURA_DIRECTION_TYPE_ID, AURA_TYPE_ID, AuraEffectConfig, DISPEL_TYPE_ID } from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 
 type IntervalTimer = ReturnType<typeof setTimeout>;
@@ -11,6 +11,7 @@ export type AuraState = {
 	title: string;
 	description: string;
 	durationInMs: number;
+	dispelTypeId: DISPEL_TYPE_ID;
 };
 
 export type AuraConfig = {
@@ -18,6 +19,7 @@ export type AuraConfig = {
 	spellTypeId: SPELL_TYPE_ID;
 	durationInMs: number;
 	auraEffectConfigs: AuraEffectConfig[];
+	dispelTypeId: DISPEL_TYPE_ID;
 };
 
 export class Aura {
@@ -26,6 +28,7 @@ export class Aura {
 	public readonly spellTypeId: SPELL_TYPE_ID;
 	public readonly auraEffectConfigs: AuraEffectConfig[];
 	public readonly durationInMs: number;
+	public readonly dispelTypeId: DISPEL_TYPE_ID;
 
 	private _renderKey: string = '';
 	private _intervalTimers: IntervalTimer[] = [];
@@ -41,6 +44,7 @@ export class Aura {
 		this.spellTypeId = config.spellTypeId;
 		this.auraEffectConfigs = config.auraEffectConfigs;
 		this.durationInMs = config.durationInMs;
+		this.dispelTypeId = config.dispelTypeId;
 
 		this.restartTimers();
 	}
@@ -95,6 +99,7 @@ export class Aura {
 			title: this.title,
 			description: this.getDescription(),
 			durationInMs: this.durationInMs,
+			dispelTypeId: this.dispelTypeId,
 		};
 	}
 }

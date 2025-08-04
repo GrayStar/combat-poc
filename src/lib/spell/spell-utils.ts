@@ -37,15 +37,15 @@ export const aruaTypeIdToSpellEffectTypeId: Record<
 		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_HEAL],
 		applyToValue: (base, modifier) => base + modifier,
 	},
-	[AURA_TYPE_ID.MODIFY_HEALING_PERCENT]: {
-		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.HEAL],
-		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_HEAL],
-		applyToValue: (base, modifier) => base + Math.floor(base * modifier),
-	},
 	[AURA_TYPE_ID.MODIFY_HEALING_MULTIPLIER]: {
 		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.HEAL],
 		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_HEAL],
 		applyToValue: (base, modifier) => Math.floor(base * modifier),
+	},
+	[AURA_TYPE_ID.MODIFY_HEALING_PERCENT]: {
+		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.HEAL],
+		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_HEAL],
+		applyToValue: (base, modifier) => base + Math.floor(base * modifier),
 	},
 
 	// periodic

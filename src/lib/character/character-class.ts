@@ -280,6 +280,7 @@ export class Character {
 			title: spell.title,
 			spellTypeId: spell.spellTypeId,
 			schoolTypeId: spell.schoolTypeId,
+			dispelTypeId: spell.dispelTypeId,
 			auraDurationInMs: spell.auraDurationInMs,
 			spellEffects: statProcessedSpellEffects,
 		};
@@ -365,6 +366,7 @@ export class Character {
 				title: spellPayload.title,
 				spellTypeId: spellPayload.spellTypeId,
 				durationInMs: spellPayload.auraDurationInMs,
+				dispelTypeId: spellPayload.dispelTypeId,
 				auraEffectConfigs,
 			});
 		}

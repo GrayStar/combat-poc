@@ -112,6 +112,7 @@ export type SpellPayload = {
 	title: string;
 	spellTypeId: SPELL_TYPE_ID;
 	schoolTypeId: SCHOOL_TYPE_ID;
+	dispelTypeId: DISPEL_TYPE_ID;
 	auraDurationInMs: number;
 	spellEffects: SpellEffect[];
 };
