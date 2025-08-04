@@ -19,6 +19,7 @@ export enum SPELL_TYPE_ID {
 	DMG_PERCENT_DOWN = 'DMG_PERCENT_DOWN',
 	DMG_MULTIPLIED_UP = 'DMG_MULTIPLIED_UP',
 	DMG_MULTIPLIED_DOWN = 'DMG_MULTIPLIED_DOWN',
+	SHIELD = 'SHIELD',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -271,6 +272,34 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
 				intervalInMs: 0,
 				value: 0.5,
+				valueModifiers: [],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.SHIELD]: {
+		spellTypeId: SPELL_TYPE_ID.SHIELD,
+		title: 'Shield',
+		description: 'Reduce incoming damage by 5',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		dispelTypeId: DISPEL_TYPE_ID.NONE,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_FLAT,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.INCOMING,
+				intervalInMs: 0,
+				value: -5,
 				valueModifiers: [],
 			},
 		],

@@ -221,13 +221,13 @@ export class Character {
 	}
 
 	private createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
-		const auraEffectConfigs = Object.values(this._auras)
+		const outgoingAuraEffectConfigs = Object.values(this._auras)
 			.flatMap((aura) => aura.auraEffectConfigs || [])
 			.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING);
 		const effectedSpellTypeIds = new Map<SPELL_EFFECT_TYPE_ID, AuraEffectConfig[]>();
 		const effectedAuraTypeIds = new Map<AURA_TYPE_ID, AuraEffectConfig[]>();
 
-		for (const cfg of auraEffectConfigs) {
+		for (const cfg of outgoingAuraEffectConfigs) {
 			const mapping = aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId];
 			// map to spellEffectTypeIds
 			for (const spellId of mapping.effectedSpellEffectTypeIds ?? []) {
@@ -253,7 +253,7 @@ export class Character {
 
 			let valueWithAurasApplied = valueWithCharacterStatsApplied;
 
-			if (auraEffectConfigs.length > 0) {
+			if (outgoingAuraEffectConfigs.length > 0) {
 				// O(1) lookups from our indexes
 				const bySpell = effectedSpellTypeIds.get(spellEffect.spellEffectTypeId) || [];
 				const byAura = spellEffectIsApplyAura(spellEffect)
@@ -286,8 +286,7 @@ export class Character {
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, callback: (message: string) => void) {
-		// Do not process incoming auras through buffs/debuffs
-		const auraEffectConfigs = spellPayload.spellEffects
+		const auraEffectConfigs: AuraEffectConfig[] = spellPayload.spellEffects
 			.filter((spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA)
 			.map(({ auraTypeId, auraDirectionTypeId, value, intervalInMs }) => ({
 				auraTypeId,
@@ -296,11 +295,47 @@ export class Character {
 				value,
 				intervalInMs,
 			}));
-
-		// [TODO]: Process applicable immediate effects through buffs/debuffs
-		const otherEffects = spellPayload.spellEffects.filter(
-			(spellEffect) => spellEffect.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
+		const schoolDamageEffectConfigs = spellPayload.spellEffects.filter(
+			(spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE
 		);
+		const healEffectConfigs = spellPayload.spellEffects.filter(
+			(spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.HEAL
+		);
+		const dispelEffectConfigs = spellPayload.spellEffects.filter(
+			(spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.DISPEL
+		);
+		const effectsToProcess = [...schoolDamageEffectConfigs, ...healEffectConfigs];
+
+		const incomingAuraEffectConfigs = Object.values(this._auras)
+			.flatMap((aura) => aura.auraEffectConfigs || [])
+			.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.INCOMING);
+		const effectedSpellTypeIds = new Map<SPELL_EFFECT_TYPE_ID, AuraEffectConfig[]>();
+		for (const cfg of incomingAuraEffectConfigs) {
+			const mapping = aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId];
+			for (const spellEffectTypeId of mapping.effectedSpellEffectTypeIds ?? []) {
+				if (!effectedSpellTypeIds.has(spellEffectTypeId)) {
+					effectedSpellTypeIds.set(spellEffectTypeId, []);
+				}
+				effectedSpellTypeIds.get(spellEffectTypeId)!.push(cfg);
+			}
+		}
+
+		const statProcessedSpellEffects = effectsToProcess.map((spellEffect) => {
+			let valueWithAurasApplied = spellEffect.value;
+			if (incomingAuraEffectConfigs.length > 0) {
+				const bySpell = effectedSpellTypeIds.get(spellEffect.spellEffectTypeId) || [];
+				valueWithAurasApplied = [...bySpell].reduce(
+					(currentValue, cfg) =>
+						aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId].applyToValue?.(currentValue, cfg.value) ?? 0,
+					valueWithAurasApplied
+				);
+			}
+
+			return {
+				...spellEffect,
+				value: valueWithAurasApplied,
+			};
+		});
 
 		const otherEffectMap: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellEffect) => void> = {
 			[SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE]: (spellEffect) => {
@@ -316,13 +351,13 @@ export class Character {
 				this.adjustHealth(spellEffect.value);
 				callback(`${this.title} was healed for ${spellEffect.value}.`);
 			},
-			[SPELL_EFFECT_TYPE_ID.APPLY_AURA]: (spellEffect) => {
-				console.log('[TODO]: throw error, as auras should not be in this array.', spellEffect);
+			[SPELL_EFFECT_TYPE_ID.APPLY_AURA]: () => {
+				return;
 			},
 		};
 
-		otherEffects.forEach((otherEffect) => {
-			otherEffectMap[otherEffect.spellEffectTypeId](otherEffect);
+		[...statProcessedSpellEffects, ...dispelEffectConfigs].forEach((immediateSpellEffect) => {
+			otherEffectMap[immediateSpellEffect.spellEffectTypeId](immediateSpellEffect);
 		});
 
 		if (auraEffectConfigs.length > 0) {

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { AURA_TYPE_ID, AuraEffectConfig } from '@/lib/spell/spell-models';
+import { AURA_DIRECTION_TYPE_ID, AURA_TYPE_ID, AuraEffectConfig } from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 
 type IntervalTimer = ReturnType<typeof setTimeout>;
@@ -100,23 +100,24 @@ export class Aura {
 }
 
 function getAuraEffectDescription(
-	{ auraTypeId, value, schoolTypeId, intervalInMs }: AuraEffectConfig,
+	{ auraTypeId, auraDirectionTypeId, value, schoolTypeId, intervalInMs }: AuraEffectConfig,
 	durationMs: number
 ): string {
 	const seconds = durationMs / 1000;
 	const nothing = `Does nothing for ${seconds}s.`;
 	const absValue = Math.abs(value);
 	const verb = value > 0 ? 'Increases' : value < 0 ? 'Decreases' : '';
+	const action = auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING ? 'damage dealt' : 'damage taken';
 
 	switch (auraTypeId) {
 		case AURA_TYPE_ID.MODIFY_DAMAGE_FLAT:
-			return value === 0 ? nothing : `${verb} damage dealt by ${absValue} for ${seconds}s.`;
+			return value === 0 ? nothing : `${verb} ${action} by ${absValue} for ${seconds}s.`;
 
 		case AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT:
-			return value === 0 ? nothing : `${verb} damage dealt by ${absValue * 100}% for ${seconds}s.`;
+			return value === 0 ? nothing : `${verb} ${action} by ${absValue * 100}% for ${seconds}s.`;
 
 		case AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER:
-			return value === 0 ? nothing : `${value * 100}% damage dealt for ${seconds}s.`;
+			return value === 0 ? nothing : `${value * 100}% ${action} for ${seconds}s.`;
 
 		case AURA_TYPE_ID.PERIODIC_DAMAGE:
 			return value === 0
