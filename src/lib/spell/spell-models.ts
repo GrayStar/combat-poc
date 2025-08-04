@@ -63,6 +63,9 @@ export enum SPELL_EFFECT_TYPE_ID {
 	APPLY_AURA = 'APPLY_AURA',
 	HEAL = 'HEAL',
 	DISPEL = 'DISPEL',
+	// potion
+	// summon
+	// etc
 }
 
 export enum AURA_TYPE_ID {
