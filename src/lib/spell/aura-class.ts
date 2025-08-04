@@ -107,17 +107,28 @@ function getAuraEffectDescription(
 	const nothing = `Does nothing for ${seconds}s.`;
 	const absValue = Math.abs(value);
 	const verb = value > 0 ? 'Increases' : value < 0 ? 'Decreases' : '';
-	const action = auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING ? 'damage dealt' : 'damage taken';
+
+	const damageAction = auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING ? 'damage dealt' : 'damage taken';
+	const healingAction = auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING ? 'healing done' : 'healing recieved';
 
 	switch (auraTypeId) {
 		case AURA_TYPE_ID.MODIFY_DAMAGE_FLAT:
-			return value === 0 ? nothing : `${verb} ${action} by ${absValue} for ${seconds}s.`;
+			return value === 0 ? nothing : `${verb} ${damageAction} by ${absValue} for ${seconds}s.`;
 
 		case AURA_TYPE_ID.MODIFY_DAMAGE_PERCENT:
-			return value === 0 ? nothing : `${verb} ${action} by ${absValue * 100}% for ${seconds}s.`;
+			return value === 0 ? nothing : `${verb} ${damageAction} by ${absValue * 100}% for ${seconds}s.`;
 
 		case AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER:
-			return value === 0 ? nothing : `${value * 100}% ${action} for ${seconds}s.`;
+			return value === 0 ? nothing : `${value * 100}% ${damageAction} for ${seconds}s.`;
+
+		case AURA_TYPE_ID.MODIFY_HEALING_FLAT:
+			return value === 0 ? nothing : `${verb} ${healingAction} by ${absValue} for ${seconds}s.`;
+
+		case AURA_TYPE_ID.MODIFY_HEALING_PERCENT:
+			return value === 0 ? nothing : `${verb} ${healingAction} by ${absValue * 100}% for ${seconds}s.`;
+
+		case AURA_TYPE_ID.MODIFY_HEALING_MULTIPLIER:
+			return value === 0 ? nothing : `${value * 100}% ${healingAction} for ${seconds}s.`;
 
 		case AURA_TYPE_ID.PERIODIC_DAMAGE:
 			return value === 0

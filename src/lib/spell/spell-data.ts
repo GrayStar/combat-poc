@@ -23,6 +23,9 @@ export enum SPELL_TYPE_ID {
 	SHIELD_PERCENT = 'SHIELD_PERCENT',
 	SHIELD_MULTIPLIER = 'SHIELD_MULTIPLIER',
 	HOT = 'HOT',
+	HEAL_BOOST = 'HEAL_BOOST',
+	HEAL_PERCENT_UP = 'HEAL_PERCENT_UP',
+	HEAL_MULTIPLIED_UP = 'HEAL_MULTIPLIED_UP',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -113,7 +116,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.DMG_BOOST]: {
 		spellTypeId: SPELL_TYPE_ID.DMG_BOOST,
-		title: 'Dmg +10',
+		title: 'o.Dmg +10',
 		description: 'Increase outgoing damage by 10.',
 		cost: [
 			{
@@ -141,7 +144,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.DMG_REDUCTION]: {
 		spellTypeId: SPELL_TYPE_ID.DMG_REDUCTION,
-		title: 'Dmg -10',
+		title: 'o.Dmg -10',
 		description: 'Decrease outgoing damage by 10.',
 		cost: [
 			{
@@ -169,7 +172,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.DMG_PERCENT_UP]: {
 		spellTypeId: SPELL_TYPE_ID.DMG_PERCENT_UP,
-		title: 'Dmg +10%',
+		title: 'o.Dmg +10%',
 		description: 'Increase outgoing damage by 10%.',
 		cost: [
 			{
@@ -197,7 +200,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.DMG_PERCENT_DOWN]: {
 		spellTypeId: SPELL_TYPE_ID.DMG_PERCENT_DOWN,
-		title: 'Dmg -10%',
+		title: 'o.Dmg -10%',
 		description: 'Decrease outgoing damage by 10%.',
 		cost: [
 			{
@@ -225,7 +228,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.DMG_MULTIPLIED_UP]: {
 		spellTypeId: SPELL_TYPE_ID.DMG_MULTIPLIED_UP,
-		title: 'Dmg *2',
+		title: 'o.Dmg *2',
 		description: 'Double outgoing damage',
 		cost: [
 			{
@@ -253,7 +256,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.DMG_MULTIPLIED_DOWN]: {
 		spellTypeId: SPELL_TYPE_ID.DMG_MULTIPLIED_DOWN,
-		title: 'Dmg *0.5',
+		title: 'o.Dmg *0.5',
 		description: 'Halve outgoing damage',
 		cost: [
 			{
@@ -281,7 +284,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.SHIELD]: {
 		spellTypeId: SPELL_TYPE_ID.SHIELD,
-		title: 'Shield 5',
+		title: 'i.Dmg -5',
 		description: 'Reduce incoming damage by 5',
 		cost: [
 			{
@@ -309,7 +312,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.SHIELD_PERCENT]: {
 		spellTypeId: SPELL_TYPE_ID.SHIELD_PERCENT,
-		title: 'Shield 10%',
+		title: 'i.Dmg -10%',
 		description: 'Reduce incoming damage by 10%',
 		cost: [
 			{
@@ -337,7 +340,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.SHIELD_MULTIPLIER]: {
 		spellTypeId: SPELL_TYPE_ID.SHIELD_MULTIPLIER,
-		title: 'Shield half',
+		title: 'i.Dmg *0.5',
 		description: 'Reduce incoming damage by qart',
 		cost: [
 			{
@@ -358,14 +361,14 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				auraTypeId: AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER,
 				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.INCOMING,
 				intervalInMs: 0,
-				value: 0.25,
+				value: 0.5,
 				valueModifiers: [],
 			},
 		],
 	},
 	[SPELL_TYPE_ID.HOT]: {
 		spellTypeId: SPELL_TYPE_ID.HOT,
-		title: 'HoT',
+		title: 'HoT 1',
 		description: 'Heals over time.',
 		cost: [
 			{
@@ -388,6 +391,90 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				value: 1,
 				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0 }],
 				intervalInMs: 2000,
+			},
+		],
+	},
+	[SPELL_TYPE_ID.HEAL_BOOST]: {
+		spellTypeId: SPELL_TYPE_ID.HEAL_BOOST,
+		title: 'o.Heal +10',
+		description: 'Increases healing done by 10.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 30,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 1500,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.HOLY,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MODIFY_HEALING_FLAT,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
+				value: 10,
+				valueModifiers: [],
+				intervalInMs: 0,
+			},
+		],
+	},
+	[SPELL_TYPE_ID.HEAL_PERCENT_UP]: {
+		spellTypeId: SPELL_TYPE_ID.HEAL_PERCENT_UP,
+		title: 'o.Heal +10%',
+		description: 'Increases healing done by 10%.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 30,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 1500,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.HOLY,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MODIFY_HEALING_PERCENT,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
+				value: 0.1,
+				valueModifiers: [],
+				intervalInMs: 0,
+			},
+		],
+	},
+	[SPELL_TYPE_ID.HEAL_MULTIPLIED_UP]: {
+		spellTypeId: SPELL_TYPE_ID.HEAL_MULTIPLIED_UP,
+		title: 'o.Heal *2',
+		description: 'Increases healing done by 2x.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 30,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.HOLY,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.MODIFY_HEALING_MULTIPLIER,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.OUTGOING,
+				value: 2,
+				valueModifiers: [],
+				intervalInMs: 0,
 			},
 		],
 	},

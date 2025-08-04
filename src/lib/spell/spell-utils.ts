@@ -14,7 +14,7 @@ export const aruaTypeIdToSpellEffectTypeId: Record<
 		applyToValue?(base: number, modifier: number): number;
 	}
 > = {
-	// modifiers
+	// damage modifiers
 	[AURA_TYPE_ID.MODIFY_DAMAGE_FLAT]: {
 		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
 		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
@@ -29,6 +29,23 @@ export const aruaTypeIdToSpellEffectTypeId: Record<
 		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE],
 		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_DAMAGE],
 		applyToValue: (base, modifier) => base + Math.floor(base * modifier),
+	},
+
+	// healing modifiers
+	[AURA_TYPE_ID.MODIFY_HEALING_FLAT]: {
+		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.HEAL],
+		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_HEAL],
+		applyToValue: (base, modifier) => base + modifier,
+	},
+	[AURA_TYPE_ID.MODIFY_HEALING_PERCENT]: {
+		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.HEAL],
+		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_HEAL],
+		applyToValue: (base, modifier) => base + Math.floor(base * modifier),
+	},
+	[AURA_TYPE_ID.MODIFY_HEALING_MULTIPLIER]: {
+		effectedSpellEffectTypeIds: [SPELL_EFFECT_TYPE_ID.HEAL],
+		effectedAuraTypeIds: [AURA_TYPE_ID.PERIODIC_HEAL],
+		applyToValue: (base, modifier) => Math.floor(base * modifier),
 	},
 
 	// periodic

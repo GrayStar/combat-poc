@@ -7,6 +7,8 @@ This project was bootstrapped with [Vite](https://vite.dev/).
 -   Node: v24.4.1 [Node.js](https://nodejs.org/en)
 -   NPM: v8.15.0 [NPM](https://www.npmjs.com/)
 
+# Vite Stuff
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
