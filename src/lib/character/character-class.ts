@@ -392,11 +392,14 @@ export class Character {
 			[AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER]: () => {
 				return;
 			},
-			[AURA_TYPE_ID.MOFIFY_DAMAGE_PERCENT]: () => {
+			[AURA_TYPE_ID.MODIFY_DAMAGE_PERCENT]: () => {
 				return;
 			},
 			[AURA_TYPE_ID.PERIODIC_DAMAGE]: (auraEffectConfig) => {
 				this.adjustHealth(-auraEffectConfig.value);
+			},
+			[AURA_TYPE_ID.PERIODIC_HEAL]: (auraEffectConfig) => {
+				this.adjustHealth(auraEffectConfig.value);
 			},
 		};
 

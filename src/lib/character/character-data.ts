@@ -24,6 +24,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 			SPELL_TYPE_ID.SHIELD,
 			SPELL_TYPE_ID.SHIELD_PERCENT,
 			SPELL_TYPE_ID.SHIELD_MULTIPLIER,
+			SPELL_TYPE_ID.HOT,
 		],
 		stats: {
 			[STAT_TYPE_ID.ATTACK_POWER]: 100,

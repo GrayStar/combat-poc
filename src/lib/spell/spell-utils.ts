@@ -33,6 +33,7 @@ export const aruaTypeIdToSpellEffectTypeId: Record<
 
 	// periodic
 	[AURA_TYPE_ID.PERIODIC_DAMAGE]: {},
+	[AURA_TYPE_ID.PERIODIC_HEAL]: {},
 };
 
 export function spellEffectIsApplyAura(spellEffect: SpellEffect): spellEffect is SpellEffectApplyAura {

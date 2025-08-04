@@ -22,6 +22,7 @@ export enum SPELL_TYPE_ID {
 	SHIELD = 'SHIELD',
 	SHIELD_PERCENT = 'SHIELD_PERCENT',
 	SHIELD_MULTIPLIER = 'SHIELD_MULTIPLIER',
+	HOT = 'HOT',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -359,6 +360,34 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				intervalInMs: 0,
 				value: 0.25,
 				valueModifiers: [],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.HOT]: {
+		spellTypeId: SPELL_TYPE_ID.HOT,
+		title: 'HoT',
+		description: 'Heals over time.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 30,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 1500,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 20000,
+		schoolTypeId: SCHOOL_TYPE_ID.HOLY,
+		dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA,
+				auraTypeId: AURA_TYPE_ID.PERIODIC_HEAL,
+				auraDirectionTypeId: AURA_DIRECTION_TYPE_ID.NONE,
+				value: 1,
+				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0 }],
+				intervalInMs: 2000,
 			},
 		],
 	},

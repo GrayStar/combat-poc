@@ -124,6 +124,9 @@ function getAuraEffectDescription(
 				? nothing
 				: `Deals ${value} ${schoolTypeId} damage every ${intervalInMs / 1000}s for ${seconds}s.`;
 
+		case AURA_TYPE_ID.PERIODIC_HEAL:
+			return value === 0 ? nothing : `Heals for ${value} every ${intervalInMs / 1000}s for ${seconds}s.`;
+
 		default:
 			return nothing;
 	}
