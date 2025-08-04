@@ -63,9 +63,11 @@ export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
 		<OverlayTrigger
 			overlay={
 				<Tooltip>
-					<h6>{statusEffect.title}</h6>
-					<h6>{statusEffect.dispelTypeId}</h6>
-					<p className="m-0">{statusEffect.description}</p>
+					<div className="d-flex align-items-center justify-content-between">
+						<h6 className="m-0 text-warning">{statusEffect.title}</h6>
+						<h6 className="m-0 text-warning">{statusEffect.dispelTypeId}</h6>
+					</div>
+					<p className="m-0 small text-start">{statusEffect.description}</p>
 				</Tooltip>
 			}
 		>
