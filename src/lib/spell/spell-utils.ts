@@ -3,6 +3,7 @@ import {
 	SPELL_EFFECT_TYPE_ID,
 	SpellEffect,
 	SpellEffectApplyAura,
+	SpellEffectDispel,
 	SpellEffectSchoolDamage,
 } from '@/lib/spell/spell-models';
 
@@ -59,4 +60,8 @@ export function spellEffectIsApplyAura(spellEffect: SpellEffect): spellEffect is
 
 export function spellEffectIsSchoolDamage(spellEffect: SpellEffect): spellEffect is SpellEffectSchoolDamage {
 	return spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
+}
+
+export function spellEffectIsDispel(spellEffect: SpellEffect): spellEffect is SpellEffectDispel {
+	return spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.DISPEL;
 }

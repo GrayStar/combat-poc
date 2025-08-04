@@ -16,6 +16,7 @@ import { Aura, AuraConfig, AuraState } from '@/lib/spell/aura-class';
 import {
 	aruaTypeIdToSpellEffectTypeId,
 	spellEffectIsApplyAura,
+	spellEffectIsDispel,
 	spellEffectIsSchoolDamage,
 } from '@/lib/spell/spell-utils';
 
@@ -340,17 +341,43 @@ export class Character {
 
 		const otherEffectMap: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellEffect) => void> = {
 			[SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE]: (spellEffect) => {
-				this.adjustHealth(-spellEffect.value);
-				if (spellEffectIsSchoolDamage(spellEffect)) {
-					callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
+				if (!spellEffectIsSchoolDamage(spellEffect)) {
+					return;
 				}
+
+				this.adjustHealth(-spellEffect.value);
+				callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
 			},
 			[SPELL_EFFECT_TYPE_ID.DISPEL]: (spellEffect) => {
-				console.log('[TODO]: handle dispel', spellEffect);
+				if (!spellEffectIsDispel(spellEffect)) {
+					return;
+				}
+
+				const candidates = Object.values(this._auras).filter(
+					(aura) => aura.dispelTypeId === spellEffect.dispelTypeId
+				);
+
+				if (candidates.length === 0) {
+					callback(`No auras of type [${spellEffect.dispelTypeId}] on [${this.title}] to dispel.`);
+					return;
+				}
+
+				const removeCount = Math.min(spellEffect.value, candidates.length);
+
+				for (let i = candidates.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+				}
+
+				candidates.slice(0, removeCount).forEach((aura) => {
+					aura.stopTimers();
+					delete this._auras[aura.auraId];
+					callback(`[${aura.title}] was dispelled from [${this.title}].`);
+				});
 			},
 			[SPELL_EFFECT_TYPE_ID.HEAL]: (spellEffect) => {
 				this.adjustHealth(spellEffect.value);
-				callback(`${this.title} was healed for ${spellEffect.value}.`);
+				callback(`[${this.title}] was healed for [${spellEffect.value}].`);
 			},
 			[SPELL_EFFECT_TYPE_ID.APPLY_AURA]: () => {
 				return;
@@ -407,9 +434,11 @@ export class Character {
 				return;
 			},
 			[AURA_TYPE_ID.PERIODIC_DAMAGE]: (auraEffectConfig) => {
+				// TODO: process incoming damage auras
 				this.adjustHealth(-auraEffectConfig.value);
 			},
 			[AURA_TYPE_ID.PERIODIC_HEAL]: (auraEffectConfig) => {
+				// TODO: process incoming healing auras
 				this.adjustHealth(auraEffectConfig.value);
 			},
 		};

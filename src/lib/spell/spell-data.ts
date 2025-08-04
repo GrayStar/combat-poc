@@ -26,6 +26,7 @@ export enum SPELL_TYPE_ID {
 	HEAL_BOOST = 'HEAL_BOOST',
 	HEAL_PERCENT_UP = 'HEAL_PERCENT_UP',
 	HEAL_MULTIPLIED_UP = 'HEAL_MULTIPLIED_UP',
+	DISPEL_MAGIC = 'DISPEL_MAGIC',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -475,6 +476,32 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				value: 2,
 				valueModifiers: [],
 				intervalInMs: 0,
+			},
+		],
+	},
+	[SPELL_TYPE_ID.DISPEL_MAGIC]: {
+		spellTypeId: SPELL_TYPE_ID.DISPEL_MAGIC,
+		title: 'Dispel Magic',
+		description: 'Dispel 1 magic aura.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 30,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		auraDurationInMs: 0,
+		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		dispelTypeId: DISPEL_TYPE_ID.NONE,
+		spellEffects: [
+			{
+				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.DISPEL,
+				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+				value: 2,
+				valueModifiers: [],
 			},
 		],
 	},
