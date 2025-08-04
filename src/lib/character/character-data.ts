@@ -14,6 +14,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		maxMana: 100,
 		spellTypeIds: [
 			SPELL_TYPE_ID.PUNCH,
+			SPELL_TYPE_ID.FIREBALL,
 			SPELL_TYPE_ID.DMG_BOOST,
 			SPELL_TYPE_ID.DMG_REDUCTION,
 			SPELL_TYPE_ID.DMG_PERCENT_UP,

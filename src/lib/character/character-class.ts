@@ -278,6 +278,7 @@ export class Character {
 			casterId: this.characterId,
 			title: spell.title,
 			spellTypeId: spell.spellTypeId,
+			schoolTypeId: spell.schoolTypeId,
 			auraDurationInMs: spell.auraDurationInMs,
 			spellEffects: statProcessedSpellEffects,
 		};
@@ -289,6 +290,7 @@ export class Character {
 			.map(({ auraTypeId, auraCategoryTypeId, value, intervalInMs }) => ({
 				auraTypeId,
 				auraCategoryTypeId,
+				schoolTypeId: spellPayload.schoolTypeId,
 				value,
 				intervalInMs,
 			}));
@@ -333,14 +335,12 @@ export class Character {
 		const existingAura = Object.values(this._auras).find((a) => a.spellTypeId === auraConfig.spellTypeId);
 
 		if (existingAura) {
-			// [TODO]: instead of stopping and deleting, maybe just restart them?
-			existingAura.stopTimers();
-			delete this._auras[existingAura.auraId];
+			existingAura.restartTimers();
+		} else {
+			const aura = new Aura(auraConfig, this.handleAuraInterval.bind(this), this.handleAuraTimeout.bind(this));
+			this._auras[aura.auraId] = aura;
 		}
 
-		const aura = new Aura(auraConfig, this.handleAuraInterval.bind(this), this.handleAuraTimeout.bind(this));
-
-		this._auras[aura.auraId] = aura;
 		this._notify();
 	}
 

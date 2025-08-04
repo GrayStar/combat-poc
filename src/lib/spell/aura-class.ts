@@ -1,13 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
-import { AuraEffectConfig } from '@/lib/spell/spell-models';
+import { AURA_TYPE_ID, AuraEffectConfig } from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 
-type Timer = ReturnType<typeof setInterval> | ReturnType<typeof setTimeout>;
+type IntervalTimer = ReturnType<typeof setTimeout>;
+type TimeoutTimer = ReturnType<typeof setTimeout>;
 
 export type AuraState = {
 	auraId: string;
+	renderKey: string;
 	title: string;
-	spellTypeId: SPELL_TYPE_ID;
 	description: string;
 	durationInMs: number;
 };
@@ -26,16 +27,12 @@ export class Aura {
 	public readonly auraEffectConfigs: AuraEffectConfig[];
 	public readonly durationInMs: number;
 
-	private _intervalTimers: Timer[] = [];
-	private _timeoutTimer: Timer | null = null;
+	private _renderKey: string = '';
+	private _intervalTimers: IntervalTimer[] = [];
+	private _timeoutTimer: TimeoutTimer | null = null;
 
 	constructor(
-		config: {
-			title: string;
-			spellTypeId: SPELL_TYPE_ID;
-			auraEffectConfigs: AuraEffectConfig[];
-			durationInMs: number;
-		},
+		config: AuraConfig,
 		private readonly intervalCallback: (auraId: string, effects: AuraEffectConfig[]) => void,
 		private readonly timeoutCallback: (auraId: string) => void
 	) {
@@ -45,34 +42,7 @@ export class Aura {
 		this.auraEffectConfigs = config.auraEffectConfigs;
 		this.durationInMs = config.durationInMs;
 
-		const intervalToSpellsEffectsMap = new Map<number, AuraEffectConfig[]>();
-		for (const spellEffect of this.auraEffectConfigs) {
-			const currentSpellEffectIntervalInMs = spellEffect.intervalInMs;
-
-			if (currentSpellEffectIntervalInMs <= 0) {
-				continue;
-			}
-
-			let spellEffectBucket = intervalToSpellsEffectsMap.get(currentSpellEffectIntervalInMs);
-
-			if (!spellEffectBucket) {
-				spellEffectBucket = [];
-				intervalToSpellsEffectsMap.set(currentSpellEffectIntervalInMs, spellEffectBucket);
-			}
-			spellEffectBucket.push(spellEffect);
-		}
-
-		for (const [tick, effects] of intervalToSpellsEffectsMap) {
-			const timerId = setInterval(() => {
-				this.intervalCallback(this.auraId, effects);
-			}, tick);
-			this._intervalTimers.push(timerId);
-		}
-
-		this._timeoutTimer = setTimeout(() => {
-			this.clearInternalTimers();
-			this.timeoutCallback(this.auraId);
-		}, config.durationInMs);
+		this.restartTimers();
 	}
 
 	private clearInternalTimers() {
@@ -84,19 +54,77 @@ export class Aura {
 		}
 	}
 
-	/** Manual removal (e.g. dispel) */
-	/** Remove early (e.g. dispel) */
 	public stopTimers() {
 		this.clearInternalTimers();
+	}
+
+	public restartTimers() {
+		this.clearInternalTimers();
+
+		const auraEffectsMappedByInterval = new Map<number, AuraEffectConfig[]>();
+		for (const effect of this.auraEffectConfigs) {
+			if (effect.intervalInMs <= 0) continue;
+			const bucket = auraEffectsMappedByInterval.get(effect.intervalInMs) || [];
+			bucket.push(effect);
+			auraEffectsMappedByInterval.set(effect.intervalInMs, bucket);
+		}
+
+		for (const [interval, effects] of auraEffectsMappedByInterval) {
+			const id = setInterval(() => {
+				this.intervalCallback(this.auraId, effects);
+			}, interval);
+			this._intervalTimers.push(id);
+		}
+
+		this._timeoutTimer = setTimeout(() => {
+			this.clearInternalTimers();
+			this.timeoutCallback(this.auraId);
+		}, this.durationInMs);
+
+		this._renderKey = uuidv4();
+	}
+
+	private getDescription(): string {
+		return this.auraEffectConfigs
+			.map((cfg) => auraEffectDescriptionMap[cfg.auraTypeId](cfg, this.durationInMs))
+			.join(' ');
 	}
 
 	public getState(): AuraState {
 		return {
 			auraId: this.auraId,
+			renderKey: this._renderKey,
 			title: this.title,
-			spellTypeId: this.spellTypeId,
-			description: `${this.auraEffectConfigs.length} effect(s) active`,
+			description: this.getDescription(),
 			durationInMs: this.durationInMs,
 		};
 	}
 }
+
+const auraEffectDescriptionMap: Record<AURA_TYPE_ID, (config: AuraEffectConfig, durationInMs: number) => string> = {
+	[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_FLAT]: ({ value }, durationInMs) => {
+		if (value > 0) {
+			return `Increases damage dealt by ${value} for ${durationInMs / 1000}s.`;
+		} else if (value < 0) {
+			return `Decreases damage dealt by ${Math.abs(value)} for ${durationInMs / 1000}s.`;
+		}
+		return `Does nothing for ${durationInMs / 1000}s.`;
+	},
+	[AURA_TYPE_ID.MOFIFY_OUTGOING_DAMAGE_PERCENT]: ({ value }, durationInMs) => {
+		if (value > 0) {
+			return `Increases damage dealt by ${value * 100}% for ${durationInMs / 1000}s.`;
+		} else if (value < 0) {
+			return `Decreases damage dealt by ${Math.abs(value * 100)}% for ${durationInMs / 1000}s.`;
+		}
+		return `Does nothing.`;
+	},
+	[AURA_TYPE_ID.MODIFY_OUTGOING_DAMAGE_MULTIPLIER]: ({ value }, durationInMs) => {
+		if (value !== 0) {
+			return `${value * 100}% damage dealt for ${durationInMs / 1000}s.`;
+		}
+		return `Does nothing for ${durationInMs / 1000}s.`;
+	},
+	[AURA_TYPE_ID.PERIODIC_DAMAGE]: ({ value, schoolTypeId, intervalInMs }, durationInMs) => {
+		return `Deals ${value} ${schoolTypeId} damage every ${intervalInMs / 1000}s for ${durationInMs / 1000}s.`;
+	},
+};

@@ -1,6 +1,7 @@
 import { keyframes } from 'tss-react';
 import { tss } from '@/styles';
 import { AuraState } from '@/lib/spell/aura-class';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const cooldownAnimation = keyframes`
 	from {
@@ -59,10 +60,12 @@ export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
 	const { classes } = useStyles({ duration: statusEffect.durationInMs });
 
 	return (
-		<div className={classes.statusEffect}>
-			<div className={classes.cooldown} />
-			<p className="m-0">{statusEffect.title}</p>
-			{/* {(statusEffect.stacks ?? 0) > 0 && <div className={classes.stackCount}>{statusEffect.stacks}</div>} */}
-		</div>
+		<OverlayTrigger overlay={<Tooltip>{statusEffect.description}</Tooltip>}>
+			<div className={classes.statusEffect}>
+				<div className={classes.cooldown} key={statusEffect.renderKey} />
+				<p className="m-0">{statusEffect.title}</p>
+				{/* {(statusEffect.stacks ?? 0) > 0 && <div className={classes.stackCount}>{statusEffect.stacks}</div>} */}
+			</div>
+		</OverlayTrigger>
 	);
 };
