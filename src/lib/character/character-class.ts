@@ -8,15 +8,20 @@ import {
 	AuraEffectConfig,
 	SPELL_EFFECT_TYPE_ID,
 	SpellEffect,
+	SpellEffectDispel,
+	SpellEffectHeal,
+	SpellEffectSchoolDamage,
 	SpellPayload,
 } from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 import { Spell, SpellState } from '@/lib/spell/spell-class';
 import { Aura, AuraConfig, AuraState } from '@/lib/spell/aura-class';
 import {
-	aruaTypeIdToSpellEffectTypeId,
-	spellEffectIsApplyAura,
+	applicableAuraTypeIdsByAuraTypeId,
+	applicableAuraTypeIdsBySpellEffectTypeId,
+	auraModifierEquationByAuraTypeId,
 	spellEffectIsDispel,
+	spellEffectIsHeal,
 	spellEffectIsSchoolDamage,
 } from '@/lib/spell/spell-utils';
 
@@ -238,59 +243,68 @@ export class Character {
 	}
 
 	private createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
-		const outgoingAuraEffectConfigs = Object.values(this._auras)
-			.flatMap((aura) => aura.auraEffectConfigs || [])
-			.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING);
-		const effectedSpellTypeIds = new Map<SPELL_EFFECT_TYPE_ID, AuraEffectConfig[]>();
-		const effectedAuraTypeIds = new Map<AURA_TYPE_ID, AuraEffectConfig[]>();
-
-		for (const cfg of outgoingAuraEffectConfigs) {
-			const mapping = aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId];
-			// map to spellEffectTypeIds
-			for (const spellId of mapping.effectedSpellEffectTypeIds ?? []) {
-				if (!effectedSpellTypeIds.has(spellId)) {
-					effectedSpellTypeIds.set(spellId, []);
-				}
-				effectedSpellTypeIds.get(spellId)!.push(cfg);
-			}
-			// map to auraTypeIds
-			for (const auraId of mapping.effectedAuraTypeIds ?? []) {
-				if (!effectedAuraTypeIds.has(auraId)) {
-					effectedAuraTypeIds.set(auraId, []);
-				}
-				effectedAuraTypeIds.get(auraId)!.push(cfg);
-			}
-		}
-
-		const statProcessedSpellEffects = spell.spellEffects.map((spellEffect) => {
-			const valueWithCharacterStatsApplied = spellEffect.valueModifiers.reduce(
-				(sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient,
-				spellEffect.value
-			);
-
-			let valueWithAurasApplied = valueWithCharacterStatsApplied;
-
-			if (outgoingAuraEffectConfigs.length > 0) {
-				// O(1) lookups from our indexes
-				const bySpell = effectedSpellTypeIds.get(spellEffect.spellEffectTypeId) || [];
-				const byAura = spellEffectIsApplyAura(spellEffect)
-					? effectedAuraTypeIds.get(spellEffect.auraTypeId) || []
-					: [];
-
-				// c) apply each matching config
-				valueWithAurasApplied = [...bySpell, ...byAura].reduce(
-					(currentValue, cfg) =>
-						aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId].applyToValue?.(currentValue, cfg.value) ?? 0,
-					valueWithAurasApplied
-				);
-			}
-
-			// d) return the updated effect
+		// process all spellEffects through character stats
+		const characterStatProcessedSpellEffects = spell.spellEffects.map((se) => {
 			return {
-				...spellEffect,
-				value: valueWithAurasApplied,
+				...se,
+				value: se.valueModifiers.reduce(
+					(sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient,
+					se.value
+				),
 			};
 		});
+
+		// process aura effects through outgoing aura effects
+		const auraSpellEffects = characterStatProcessedSpellEffects.filter(
+			(se) => se.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA
+		);
+		const auraProcessedAuraEffects = auraSpellEffects.map((se) => {
+			const numberOfTicks = se.intervalInMs > 0 ? spell.auraDurationInMs / se.intervalInMs : 0;
+			const canBeProcessed = numberOfTicks > 0;
+
+			if (!canBeProcessed) {
+				return se;
+			}
+
+			const applicableAuraTypeIds = applicableAuraTypeIdsByAuraTypeId[se.auraTypeId];
+			const applicableAuraEffectsConfigs = Object.values(this._auras)
+				.flatMap((a) => a.auraEffectConfigs)
+				.filter((cfg) => applicableAuraTypeIds.includes(cfg.auraTypeId))
+				.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING);
+			const totalValue = se.value * numberOfTicks;
+			const processedTotalValue = applicableAuraEffectsConfigs.reduce(
+				(currentValue, cfg) => auraModifierEquationByAuraTypeId[cfg.auraTypeId](currentValue, cfg.value),
+				totalValue
+			);
+			const processedValue = processedTotalValue / numberOfTicks;
+
+			return {
+				...se,
+				value: processedValue,
+			};
+		});
+
+		// process non aura effects through outgoing auras effects
+		const nonAuraSpellEffects = characterStatProcessedSpellEffects.filter(
+			(se) => se.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
+		);
+		const auraProcessedSpellEffects = nonAuraSpellEffects.map((se) => {
+			const applicableAuraTypeIds = applicableAuraTypeIdsBySpellEffectTypeId[se.spellEffectTypeId];
+			const applicableAuraEffectsConfigs = Object.values(this._auras)
+				.flatMap((a) => a.auraEffectConfigs)
+				.filter((cfg) => applicableAuraTypeIds.includes(cfg.auraTypeId))
+				.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING);
+
+			return {
+				...se,
+				value: applicableAuraEffectsConfigs.reduce(
+					(currentValue, cfg) => auraModifierEquationByAuraTypeId[cfg.auraTypeId](currentValue, cfg.value),
+					se.value
+				),
+			};
+		});
+
+		const allProcessedSpellEffects = [...auraProcessedAuraEffects, ...auraProcessedSpellEffects];
 
 		return {
 			casterId: this.characterId,
@@ -299,109 +313,69 @@ export class Character {
 			schoolTypeId: spell.schoolTypeId,
 			dispelTypeId: spell.dispelTypeId,
 			auraDurationInMs: spell.auraDurationInMs,
-			spellEffects: statProcessedSpellEffects,
+			spellEffects: allProcessedSpellEffects,
 		};
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, callback: (message: string) => void) {
-		const auraEffectConfigs: AuraEffectConfig[] = spellPayload.spellEffects
-			.filter((spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA)
-			.map(({ auraTypeId, auraDirectionTypeId, value, intervalInMs }) => ({
-				auraTypeId,
-				schoolTypeId: spellPayload.schoolTypeId,
-				auraDirectionTypeId,
-				value,
-				intervalInMs,
-			}));
-		const schoolDamageEffectConfigs = spellPayload.spellEffects.filter(
-			(spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE
+		const auraSpellEffects = spellPayload.spellEffects.filter(
+			(se) => se.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA
 		);
-		const healEffectConfigs = spellPayload.spellEffects.filter(
-			(spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.HEAL
+		const nonAuraSpellEffects = spellPayload.spellEffects.filter(
+			(se) => se.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
 		);
-		const dispelEffectConfigs = spellPayload.spellEffects.filter(
-			(spellEffect) => spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.DISPEL
-		);
-		const effectsToProcess = [...schoolDamageEffectConfigs, ...healEffectConfigs];
-
-		const incomingAuraEffectConfigs = Object.values(this._auras)
-			.flatMap((aura) => aura.auraEffectConfigs || [])
-			.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.INCOMING);
-		const effectedSpellTypeIds = new Map<SPELL_EFFECT_TYPE_ID, AuraEffectConfig[]>();
-		for (const cfg of incomingAuraEffectConfigs) {
-			const mapping = aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId];
-			for (const spellEffectTypeId of mapping.effectedSpellEffectTypeIds ?? []) {
-				if (!effectedSpellTypeIds.has(spellEffectTypeId)) {
-					effectedSpellTypeIds.set(spellEffectTypeId, []);
-				}
-				effectedSpellTypeIds.get(spellEffectTypeId)!.push(cfg);
-			}
-		}
-
-		const statProcessedSpellEffects = effectsToProcess.map((spellEffect) => {
-			let valueWithAurasApplied = spellEffect.value;
-			if (incomingAuraEffectConfigs.length > 0) {
-				const bySpell = effectedSpellTypeIds.get(spellEffect.spellEffectTypeId) || [];
-				valueWithAurasApplied = [...bySpell].reduce(
-					(currentValue, cfg) =>
-						aruaTypeIdToSpellEffectTypeId[cfg.auraTypeId].applyToValue?.(currentValue, cfg.value) ?? 0,
-					valueWithAurasApplied
-				);
-			}
+		const auraProcessedSpellEffects = nonAuraSpellEffects.map((se) => {
+			const applicableAuraTypeIds = applicableAuraTypeIdsBySpellEffectTypeId[se.spellEffectTypeId];
+			const applicableAuraEffectsConfigs = Object.values(this._auras)
+				.flatMap((a) => a.auraEffectConfigs)
+				.filter((cfg) => applicableAuraTypeIds.includes(cfg.auraTypeId))
+				.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.INCOMING);
 
 			return {
-				...spellEffect,
-				value: valueWithAurasApplied,
+				...se,
+				value: applicableAuraEffectsConfigs.reduce(
+					(currentValue, cfg) => auraModifierEquationByAuraTypeId[cfg.auraTypeId](currentValue, cfg.value),
+					se.value
+				),
 			};
 		});
+		const auraEffectConfigs = auraSpellEffects.map(({ auraTypeId, auraDirectionTypeId, value, intervalInMs }) => ({
+			auraTypeId,
+			schoolTypeId: spellPayload.schoolTypeId,
+			auraDirectionTypeId,
+			value,
+			intervalInMs,
+		}));
 
-		const otherEffectMap: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellEffect) => void> = {
+		const nonAuraSpellEffectHandlers: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellEffect) => void> = {
 			[SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE]: (spellEffect) => {
 				if (!spellEffectIsSchoolDamage(spellEffect)) {
 					return;
 				}
 
-				this.adjustHealth(-spellEffect.value);
-				callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
+				this.handleSchoolDamageEffect(spellEffect, callback);
 			},
 			[SPELL_EFFECT_TYPE_ID.DISPEL]: (spellEffect) => {
 				if (!spellEffectIsDispel(spellEffect)) {
 					return;
 				}
 
-				const candidates = Object.values(this._auras).filter(
-					(aura) => aura.dispelTypeId === spellEffect.dispelTypeId
-				);
-
-				if (candidates.length === 0) {
-					callback(`No auras of type [${spellEffect.dispelTypeId}] on [${this.title}] to dispel.`);
+				this.handleDispelEffect(spellEffect, callback);
+			},
+			[SPELL_EFFECT_TYPE_ID.HEAL]: (spellEffect) => {
+				if (!spellEffectIsHeal(spellEffect)) {
 					return;
 				}
 
-				const removeCount = Math.min(spellEffect.value, candidates.length);
-
-				for (let i = candidates.length - 1; i > 0; i--) {
-					const j = Math.floor(Math.random() * (i + 1));
-					[candidates[i], candidates[j]] = [candidates[j], candidates[i]];
-				}
-
-				candidates.slice(0, removeCount).forEach((aura) => {
-					aura.stopTimers();
-					delete this._auras[aura.auraId];
-					callback(`[${aura.title}] was dispelled from [${this.title}].`);
-				});
-			},
-			[SPELL_EFFECT_TYPE_ID.HEAL]: (spellEffect) => {
-				this.adjustHealth(spellEffect.value);
-				callback(`[${this.title}] was healed for [${spellEffect.value}].`);
+				this.handleHealEffect(spellEffect, callback);
 			},
 			[SPELL_EFFECT_TYPE_ID.APPLY_AURA]: () => {
 				return;
 			},
 		};
 
-		[...statProcessedSpellEffects, ...dispelEffectConfigs].forEach((immediateSpellEffect) => {
-			otherEffectMap[immediateSpellEffect.spellEffectTypeId](immediateSpellEffect);
+		auraProcessedSpellEffects.forEach((se) => {
+			nonAuraSpellEffectHandlers[se.spellEffectTypeId](se);
 		});
 
 		if (auraEffectConfigs.length > 0) {
@@ -413,6 +387,38 @@ export class Character {
 				auraEffectConfigs,
 			});
 		}
+	}
+
+	private handleSchoolDamageEffect(spellEffect: SpellEffectSchoolDamage, callback: (message: string) => void): void {
+		this.adjustHealth(-spellEffect.value);
+		callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
+	}
+
+	private handleHealEffect(spellEffect: SpellEffectHeal, callback: (message: string) => void) {
+		this.adjustHealth(spellEffect.value);
+		callback(`[${this.title}] was healed for [${spellEffect.value}].`);
+	}
+
+	private handleDispelEffect(spellEffect: SpellEffectDispel, callback: (message: string) => void): void {
+		const candidates = Object.values(this._auras).filter((aura) => aura.dispelTypeId === spellEffect.dispelTypeId);
+
+		if (candidates.length === 0) {
+			callback(`No auras of type [${spellEffect.dispelTypeId}] on [${this.title}] to dispel.`);
+			return;
+		}
+
+		const removeCount = Math.min(spellEffect.value, candidates.length);
+
+		for (let i = candidates.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+		}
+
+		candidates.slice(0, removeCount).forEach((aura) => {
+			aura.stopTimers();
+			delete this._auras[aura.auraId];
+			callback(`[${aura.title}] was dispelled from [${this.title}].`);
+		});
 	}
 
 	// --- Auras ---

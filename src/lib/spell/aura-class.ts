@@ -67,10 +67,13 @@ export class Aura {
 
 		const auraEffectsMappedByInterval = new Map<number, AuraEffectConfig[]>();
 		for (const effect of this.auraEffectConfigs) {
-			if (effect.intervalInMs <= 0) continue;
-			const bucket = auraEffectsMappedByInterval.get(effect.intervalInMs) || [];
-			bucket.push(effect);
-			auraEffectsMappedByInterval.set(effect.intervalInMs, bucket);
+			if (effect.intervalInMs <= 0) {
+				continue;
+			}
+
+			const auraEffectGroup = auraEffectsMappedByInterval.get(effect.intervalInMs) ?? [];
+			auraEffectGroup.push(effect);
+			auraEffectsMappedByInterval.set(effect.intervalInMs, auraEffectGroup);
 		}
 
 		for (const [interval, effects] of auraEffectsMappedByInterval) {
@@ -108,8 +111,9 @@ function getAuraEffectDescription(
 	{ auraTypeId, auraDirectionTypeId, value, schoolTypeId, intervalInMs }: AuraEffectConfig,
 	durationMs: number
 ): string {
-	const seconds = durationMs / 1000;
-	const nothing = `Does nothing for ${seconds}s.`;
+	const intervalInSeconds = intervalInMs / 1000;
+	const durationInSeconds = durationMs / 1000;
+	const nothing = `Does nothing for ${durationInSeconds}s.`;
 	const absValue = Math.abs(value);
 	const verb = value > 0 ? 'Increases' : value < 0 ? 'Decreases' : '';
 
@@ -118,30 +122,30 @@ function getAuraEffectDescription(
 
 	switch (auraTypeId) {
 		case AURA_TYPE_ID.MODIFY_DAMAGE_FLAT:
-			return value === 0 ? nothing : `${verb} ${damageAction} by ${absValue} for ${seconds}s.`;
+			return value === 0 ? nothing : `${verb} ${damageAction} by ${absValue} for ${durationInSeconds}s.`;
 
 		case AURA_TYPE_ID.MODIFY_DAMAGE_PERCENT:
-			return value === 0 ? nothing : `${verb} ${damageAction} by ${absValue * 100}% for ${seconds}s.`;
+			return value === 0 ? nothing : `${verb} ${damageAction} by ${absValue * 100}% for ${durationInSeconds}s.`;
 
 		case AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER:
-			return value === 0 ? nothing : `${value * 100}% ${damageAction} for ${seconds}s.`;
+			return value === 0 ? nothing : `${value * 100}% ${damageAction} for ${durationInSeconds}s.`;
 
 		case AURA_TYPE_ID.MODIFY_HEALING_FLAT:
-			return value === 0 ? nothing : `${verb} ${healingAction} by ${absValue} for ${seconds}s.`;
+			return value === 0 ? nothing : `${verb} ${healingAction} by ${absValue} for ${durationInSeconds}s.`;
 
 		case AURA_TYPE_ID.MODIFY_HEALING_PERCENT:
-			return value === 0 ? nothing : `${verb} ${healingAction} by ${absValue * 100}% for ${seconds}s.`;
+			return value === 0 ? nothing : `${verb} ${healingAction} by ${absValue * 100}% for ${durationInSeconds}s.`;
 
 		case AURA_TYPE_ID.MODIFY_HEALING_MULTIPLIER:
-			return value === 0 ? nothing : `${value * 100}% ${healingAction} for ${seconds}s.`;
+			return value === 0 ? nothing : `${value * 100}% ${healingAction} for ${durationInSeconds}s.`;
 
 		case AURA_TYPE_ID.PERIODIC_DAMAGE:
 			return value === 0
 				? nothing
-				: `Deals ${value} ${schoolTypeId} damage every ${intervalInMs / 1000}s for ${seconds}s.`;
+				: `Deals ${value} ${schoolTypeId} damage every ${intervalInSeconds}s for ${durationInSeconds}s.`;
 
 		case AURA_TYPE_ID.PERIODIC_HEAL:
-			return value === 0 ? nothing : `Heals for ${value} every ${intervalInMs / 1000}s for ${seconds}s.`;
+			return value === 0 ? nothing : `Heals for ${value} every ${intervalInSeconds}s for ${durationInSeconds}s.`;
 
 		default:
 			return nothing;
