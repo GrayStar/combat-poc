@@ -114,7 +114,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [],
 		auras: [
 			{
-				durationInMs: 4000,
+				durationInMs: 8000,
 				dispelTypeId: DISPEL_TYPE_ID.NONE,
 				periodicEffects: [
 					{
@@ -147,7 +147,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [],
 		auras: [
 			{
-				durationInMs: 4000,
+				durationInMs: 8000,
 				dispelTypeId: DISPEL_TYPE_ID.NONE,
 				periodicEffects: [
 					{
@@ -180,7 +180,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [],
 		auras: [
 			{
-				durationInMs: 4000,
+				durationInMs: 8000,
 				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
 				periodicEffects: [],
 				modifyStatEffects: [
@@ -211,7 +211,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [],
 		auras: [
 			{
-				durationInMs: 4000,
+				durationInMs: 8000,
 				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
 				periodicEffects: [],
 				modifyStatEffects: [
@@ -242,7 +242,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [],
 		auras: [
 			{
-				durationInMs: 4000,
+				durationInMs: 8000,
 				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
 				periodicEffects: [],
 				modifyStatEffects: [
@@ -273,7 +273,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		spellEffects: [],
 		auras: [
 			{
-				durationInMs: 4000,
+				durationInMs: 8000,
 				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
 				periodicEffects: [],
 				modifyStatEffects: [
