@@ -43,6 +43,9 @@ const useStyles = tss.create((theme) => ({
 			padding: 8,
 			maxWidth: '100%',
 		},
+		'& p': {
+			whiteSpace: 'pre-wrap',
+		},
 	},
 }));
 
@@ -60,11 +63,11 @@ export const Spell = ({ spell, className }: SpellProps) => {
 			overlay={
 				<Tooltip className={classes.tooltip}>
 					<h6 className="mb-0 text-start">{spell.title}</h6>
-					<div className="mb-0 d-flex align-items-center justify-content-between">
+					<div className="mb-3 d-flex align-items-center justify-content-between">
 						<p className="mb-0 small text-nowrap">{spell.castTimeDescription}</p>
 						<p className="mb-0 small text-nowrap">{spell.cooldownDescription} cooldown</p>
 					</div>
-					<p className="mb-0 small text-start text-warning">{spell.description}</p>
+					<p className="mb-3 small text-start text-warning fst-italic">{spell.description}</p>
 					<p className="mb-0 small text-start text-warning">{spell.effects}</p>
 				</Tooltip>
 			}

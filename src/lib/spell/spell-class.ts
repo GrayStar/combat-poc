@@ -160,53 +160,51 @@ export class Spell {
 		return `${castTimeInSeconds} sec cast`;
 	}
 
-	private _getDamageEffectDescriptions(): string {
-		return this._getProcessedDamageEffects()
-			.map((effect) => `Deals ${effect.value} ${effect.schoolTypeId} damage.`)
-			.join(' ');
+	private _getDamageEffectDescriptions() {
+		return this._getProcessedDamageEffects().map(
+			(effect) => `Deals ${effect.value} ${effect.schoolTypeId} damage.`
+		);
 	}
 
-	private _getHealEffectDescriptions(): string {
-		return this._getProcessedHealEffects()
-			.map((effect) => `Heals ${effect.value} health.`)
-			.join(' ');
+	private _getHealEffectDescriptions() {
+		return this._getProcessedHealEffects().map((effect) => `Heals ${effect.value} health.`);
 	}
 
-	private _getDispelEffectDescriptions(): string {
-		return this._dispelEffects.map((effect) => `Removes ${effect.value} ${effect.dispelTypeId} effect.`).join(' ');
+	private _getDispelEffectDescriptions() {
+		return this._dispelEffects.map((effect) => `Removes ${effect.value} ${effect.dispelTypeId} effect.`);
 	}
 
-	private _getAuraDescriptions(): string {
-		return this._getProcessedAuras()
-			.map((a) => {
-				const durationInSeconds = a.durationInMs / 1000;
+	private _getAuraDescriptions() {
+		return this._getProcessedAuras().flatMap((a) => {
+			const durationInSeconds = a.durationInMs / 1000;
 
-				const statEffectDescriptions = a.modifyStatEffects.map((effect) => {
-					const direction = effect.modifyTypeId === MODIFY_TYPE_ID.INCREASE ? 'Increases' : 'Decreases';
-					return `${direction} ${effect.statTypeId} by ${effect.value} for ${durationInSeconds} seconds.`;
-				});
+			const statEffectDescriptions = a.modifyStatEffects.map((effect) => {
+				const direction = effect.modifyTypeId === MODIFY_TYPE_ID.INCREASE ? 'Increases' : 'Decreases';
+				return `${direction} ${effect.statTypeId} by ${effect.value} for ${durationInSeconds} seconds.`;
+			});
 
-				const periodicEffectDescriptions = a.periodicEffects.map((effect) => {
-					const intervalInSeconds = effect.intervalInMs / 1000;
-					const initial =
-						effect.periodicEffectTypeId === PERIODIC_EFFECT_TYPE_ID.DAMAGE
-							? `Deals ${effect.value} ${effect.schoolTypeId} damage`
-							: `Heals ${effect.value} health`;
-					return `${initial} every ${intervalInSeconds} seconds for ${durationInSeconds} seconds.`;
-				});
+			const periodicEffectDescriptions = a.periodicEffects.map((effect) => {
+				const intervalInSeconds = effect.intervalInMs / 1000;
+				const initial =
+					effect.periodicEffectTypeId === PERIODIC_EFFECT_TYPE_ID.DAMAGE
+						? `Deals ${effect.value} ${effect.schoolTypeId} damage`
+						: `Heals ${effect.value} health`;
+				return `${initial} every ${intervalInSeconds} seconds for ${durationInSeconds} seconds.`;
+			});
 
-				return [...statEffectDescriptions, ...periodicEffectDescriptions];
-			})
-			.join(' ');
+			return [...statEffectDescriptions, ...periodicEffectDescriptions];
+		});
 	}
 
 	private _getEffectDescriptions() {
 		return [
-			this._getDamageEffectDescriptions(),
-			this._getHealEffectDescriptions(),
-			this._getDispelEffectDescriptions(),
-			this._getAuraDescriptions(),
-		].join(' ');
+			...this._getDamageEffectDescriptions(),
+			...this._getHealEffectDescriptions(),
+			...this._getDispelEffectDescriptions(),
+			...this._getAuraDescriptions(),
+		]
+			.filter(Boolean)
+			.join('\n');
 	}
 
 	public getPayload(): SpellPayload {

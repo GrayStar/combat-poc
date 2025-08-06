@@ -101,7 +101,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.DOT]: {
 		spellTypeId: SPELL_TYPE_ID.DOT,
 		title: 'DoT',
-		description: 'Damage over time.',
+		description: 'Hurls a ball of fire that causes a burst of damage in addition to a lingering burn.',
 		cost: [
 			{
 				resourceTypeId: RESOURCE_TYPE_ID.MANA,
@@ -109,7 +109,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				amountPercent: 0,
 			},
 		],
-		castTimeDurationInMs: 0,
+		castTimeDurationInMs: 1500,
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
@@ -117,7 +117,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			{
 				schoolTypeId: SCHOOL_TYPE_ID.FIRE,
 				value: 10,
-				valueModifiers: [],
+				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.14 }],
 			},
 		],
 		healEffects: [],
