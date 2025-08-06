@@ -1,0 +1,49 @@
+import { DISPEL_TYPE_ID, SpellEffectDispelModel } from '@/lib/spell/spell-models';
+import { Character } from '@/lib/character/character-class';
+import { SpellEffect } from '@/lib/spell/spell-effects/spell-effect';
+
+export class SpellEffectDispel extends SpellEffect {
+	private readonly _dispelTypeId: DISPEL_TYPE_ID;
+	private readonly _value: number;
+
+	constructor(config: SpellEffectDispelModel, character: Character) {
+		super(character);
+
+		this._dispelTypeId = config.dispelTypeId;
+		this._value = config.value;
+
+		this._handleEffect();
+	}
+
+	protected override _handleEffect() {
+		const auraStates = Object.values(this._character.getAuraStates());
+		const removalCandidatesAuraIds = auraStates
+			.filter(({ dispelTypeId }) => dispelTypeId === this._dispelTypeId)
+			.map(({ auraId }) => auraId);
+
+		if (removalCandidatesAuraIds.length === 0) {
+			return;
+		}
+
+		const removalCount = Math.min(this._value, removalCandidatesAuraIds.length);
+
+		for (let i = removalCandidatesAuraIds.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[removalCandidatesAuraIds[i], removalCandidatesAuraIds[j]] = [
+				removalCandidatesAuraIds[j],
+				removalCandidatesAuraIds[i],
+			];
+		}
+
+		removalCandidatesAuraIds.slice(0, removalCount).forEach((auraId) => {
+			const auraToRemoveState = this._character.getAuraStateByAuraId(auraId);
+			this._character.removeAuraByAuraId(auraId);
+
+			console.log(`[${auraToRemoveState.title}] was dispelled from [${this._character.title}].`);
+		});
+	}
+
+	public override getDescription() {
+		return `Removes ${this._value} ${this._dispelTypeId} aura.`;
+	}
+}

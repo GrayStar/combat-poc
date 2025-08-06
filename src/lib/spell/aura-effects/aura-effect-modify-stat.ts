@@ -1,5 +1,5 @@
 import { MODIFY_TYPE_ID, ModifyStatEffectModel } from '@/lib/spell/spell-models';
-import { AuraEffect } from '@/lib/spell/aura-effect';
+import { AuraEffect } from '@/lib/spell/aura-effects/aura-effect';
 import { STAT_TYPE_ID } from '@/lib/character/character-models';
 import { Character } from '@/lib/character/character-class';
 

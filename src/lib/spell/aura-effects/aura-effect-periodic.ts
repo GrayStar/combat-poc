@@ -4,8 +4,8 @@ import {
 	SCHOOL_TYPE_ID,
 	SpellEffectValueModifier,
 } from '@/lib/spell/spell-models';
-import { Character } from '../character/character-class';
-import { AuraEffect } from '@/lib/spell/aura-effect';
+import { Character } from '@/lib/character/character-class';
+import { AuraEffect } from '@/lib/spell/aura-effects/aura-effect';
 
 export abstract class AuraEffectPeriodic extends AuraEffect {
 	protected readonly periodicEffectTypeId: PERIODIC_EFFECT_TYPE_ID;

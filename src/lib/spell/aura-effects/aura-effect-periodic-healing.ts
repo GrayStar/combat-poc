@@ -1,4 +1,4 @@
-import { AuraEffectPeriodic } from '@/lib/spell/aura-effect-periodic';
+import { AuraEffectPeriodic } from '@/lib/spell/aura-effects/aura-effect-periodic';
 
 export class AuraEffectPeriodicHealing extends AuraEffectPeriodic {
 	protected override _handleIntervalTimerTick() {

@@ -18,7 +18,6 @@ export type SpellEffectDispelModel = {
 	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.DISPEL;
 	dispelTypeId: DISPEL_TYPE_ID;
 	value: number;
-	valueModifiers: SpellEffectValueModifier[];
 };
 export type SpellEffectSchoolDamageModel = {
 	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
@@ -28,6 +27,7 @@ export type SpellEffectSchoolDamageModel = {
 };
 export type SpellEffectHealModel = {
 	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.HEAL;
+	schoolTypeId: SCHOOL_TYPE_ID;
 	value: number;
 	valueModifiers: SpellEffectValueModifier[];
 };
@@ -122,4 +122,18 @@ export type SpellPayload = {
 	schoolTypeId: SCHOOL_TYPE_ID;
 	spellEffects: SpellEffectModel[];
 	auras: AuraModel[];
+};
+
+export const spellEffectIsSchoolDamage = (
+	spellEffect: SpellEffectModel
+): spellEffect is SpellEffectSchoolDamageModel => {
+	return spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
+};
+
+export const spellEffectIsDispel = (spellEffect: SpellEffectModel): spellEffect is SpellEffectDispelModel => {
+	return spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.DISPEL;
+};
+
+export const spellEffectIsHeal = (spellEffect: SpellEffectModel): spellEffect is SpellEffectHealModel => {
+	return spellEffect.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.HEAL;
 };

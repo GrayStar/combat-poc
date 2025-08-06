@@ -1,6 +1,6 @@
 import { ModifyStatEffectModel } from '@/lib/spell/spell-models';
 import { Character } from '@/lib/character/character-class';
-import { AuraEffectModifyStat } from '@/lib/spell/aura-effect-modify-stat';
+import { AuraEffectModifyStat } from '@/lib/spell/aura-effects/aura-effect-modify-stat';
 
 export class AuraEffectModifyStatIncrease extends AuraEffectModifyStat {
 	constructor(config: ModifyStatEffectModel, character: Character) {
