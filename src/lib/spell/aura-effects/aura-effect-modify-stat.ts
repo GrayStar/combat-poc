@@ -18,6 +18,6 @@ export abstract class AuraEffectModifyStat extends AuraEffect {
 		this._character = character;
 	}
 
-	protected abstract modifyStat(): void;
-	protected abstract revertStat(): void;
+	public abstract modifyStat(): void;
+	public abstract revertStat(): void;
 }
