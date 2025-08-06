@@ -17,20 +17,17 @@ export type SpellModel = {
 };
 
 export type SpellEffectDispelModel = {
-	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.DISPEL;
 	dispelTypeId: DISPEL_TYPE_ID;
 	value: number;
 };
 
 export type SpellEffectDamageModel = {
-	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
 	schoolTypeId: SCHOOL_TYPE_ID;
 	value: number;
 	valueModifiers: SpellEffectValueModifier[];
 };
 
 export type SpellEffectHealModel = {
-	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.HEAL;
 	schoolTypeId: SCHOOL_TYPE_ID;
 	value: number;
 	valueModifiers: SpellEffectValueModifier[];
@@ -81,13 +78,6 @@ export enum MODIFY_TYPE_ID {
 export enum RESOURCE_TYPE_ID {
 	HEALTH = 'HEALTH',
 	MANA = 'MANA',
-}
-
-export enum SPELL_EFFECT_TYPE_ID {
-	APPLY_AURA = 'APPLY_AURA',
-	DISPEL = 'DISPEL',
-	HEAL = 'HEAL',
-	SCHOOL_DAMAGE = 'SCHOOL_DAMAGE',
 }
 
 export enum AURA_DIRECTION_TYPE_ID {

@@ -4,7 +4,6 @@ import {
 	PERIODIC_EFFECT_TYPE_ID,
 	RESOURCE_TYPE_ID,
 	SCHOOL_TYPE_ID,
-	SPELL_EFFECT_TYPE_ID,
 	SpellModel,
 } from '@/lib/spell/spell-models';
 import { STAT_TYPE_ID } from '@/lib/character/character-models';
@@ -39,7 +38,6 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
 		damageEffects: [
 			{
-				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE,
 				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
 				value: 10,
 				valueModifiers: [{ stat: STAT_TYPE_ID.ATTACK_POWER, coefficient: 0.1 }],
@@ -66,7 +64,6 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		schoolTypeId: SCHOOL_TYPE_ID.HOLY,
 		healEffects: [
 			{
-				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.HEAL,
 				schoolTypeId: SCHOOL_TYPE_ID.HOLY,
 				value: 10,
 				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.1 }],
@@ -93,7 +90,6 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
 		dispelEffects: [
 			{
-				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.DISPEL,
 				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
 				value: 1,
 			},
@@ -117,7 +113,13 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
-		damageEffects: [],
+		damageEffects: [
+			{
+				schoolTypeId: SCHOOL_TYPE_ID.FIRE,
+				value: 10,
+				valueModifiers: [],
+			},
+		],
 		healEffects: [],
 		dispelEffects: [],
 		auras: [
