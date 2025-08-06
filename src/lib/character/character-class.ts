@@ -68,7 +68,7 @@ export class Character {
 		this._maxHealth = config.maxHealth;
 		this._mana = config.maxMana;
 		this._maxMana = config.maxMana;
-		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, notify));
+		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this, notify));
 		this._stats = config.stats;
 		this._auras = {};
 
@@ -164,12 +164,12 @@ export class Character {
 			});
 		}
 
-		this._spells = spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this._notify.bind(this)));
+		this._spells = spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this, this._notify.bind(this)));
 		this._notify();
 	}
 
 	public addSpell(spellTypeId: SPELL_TYPE_ID) {
-		this._spells.push(new Spell(spellTypeId, this._notify.bind(this)));
+		this._spells.push(new Spell(spellTypeId, this, this._notify.bind(this)));
 		this._notify();
 	}
 
@@ -188,7 +188,7 @@ export class Character {
 			return Promise.reject(new Error('spell is undefined.'));
 		}
 
-		const spellPayload = this.createSpellPayloadForCastSpell(spell);
+		const spellPayload = spell.getPayload();
 
 		if (spell.castTimeDurationInMs <= 0) {
 			spell.startCooldown();
@@ -251,17 +251,6 @@ export class Character {
 		}
 
 		this._currentCast.abortController.abort();
-	}
-
-	private createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
-		return {
-			casterId: this.characterId,
-			title: spell.title,
-			spellTypeId: spell.spellTypeId,
-			schoolTypeId: spell.schoolTypeId,
-			spellEffects: spell.spellEffects,
-			auras: spell.auras,
-		};
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, _callback: (message: string) => void) {

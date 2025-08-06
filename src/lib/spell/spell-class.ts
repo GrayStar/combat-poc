@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { SPELL_TYPE_ID, spellData } from '@/lib/spell/spell-data';
 import { AuraModel, SCHOOL_TYPE_ID, SpellEffectModel } from '@/lib/spell/spell-models';
+import { Character } from '@/lib/character/character-class';
 
 export type SpellState = {
 	spellId: string;
@@ -28,11 +29,12 @@ export class Spell {
 	public readonly spellEffects: SpellEffectModel[];
 	public readonly auras: AuraModel[];
 
+	private readonly _character;
 	private _cooldownAnimationDurationInMs: number;
 	private _cooldownTimeout?: NodeJS.Timeout;
 	private _notify: () => void;
 
-	constructor(spellTypeId: SPELL_TYPE_ID, notify: () => void) {
+	constructor(spellTypeId: SPELL_TYPE_ID, character: Character, notify: () => void) {
 		const config = cloneDeep(spellData[spellTypeId]);
 
 		this.spellId = uuidv4();
@@ -49,6 +51,7 @@ export class Spell {
 		this.spellEffects = config.spellEffects;
 		this.auras = config.auras;
 
+		this._character = character;
 		this._cooldownAnimationDurationInMs = this.cooldownDurationInMs;
 		this._notify = notify;
 	}
@@ -92,6 +95,17 @@ export class Spell {
 		}, this.globalCooldownDurationInMs);
 
 		this._notify();
+	}
+
+	public getPayload() {
+		return {
+			casterId: this._character.characterId,
+			title: this.title,
+			spellTypeId: this.spellTypeId,
+			schoolTypeId: this.schoolTypeId,
+			spellEffects: this.spellEffects,
+			auras: this.auras,
+		};
 	}
 
 	private _getCastTimeDescription() {
