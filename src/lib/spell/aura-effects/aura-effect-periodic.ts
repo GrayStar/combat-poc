@@ -13,18 +13,17 @@ export abstract class AuraEffectPeriodic extends AuraEffect {
 	protected readonly intervalInMs: number;
 	protected readonly value: number;
 	protected readonly valueModifiers: SpellEffectValueModifier[];
-	protected readonly character: Character;
 
 	private _intervalTimer: ReturnType<typeof setInterval> | undefined = undefined;
 
 	constructor(config: PeriodicEffectModel, character: Character) {
-		super();
+		super(character);
+
 		this.periodicEffectTypeId = config.periodicEffectTypeId;
 		this.intervalInMs = config.intervalInMs;
 		this.schoolTypeId = config.schoolTypeId;
 		this.value = config.value;
 		this.valueModifiers = config.valueModifiers;
-		this.character = character;
 	}
 
 	protected abstract _handleIntervalTimerTick(): void;

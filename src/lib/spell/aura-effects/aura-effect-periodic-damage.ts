@@ -2,7 +2,7 @@ import { AuraEffectPeriodic } from '@/lib/spell/aura-effects/aura-effect-periodi
 
 export class AuraEffectPeriodicDamage extends AuraEffectPeriodic {
 	protected override _handleIntervalTimerTick() {
-		this.character.adjustHealth(-this.value);
+		this._character.adjustHealth(-this.value);
 
 		console.log('Periodic Damage:', this.value);
 	}
