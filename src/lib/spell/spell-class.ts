@@ -25,6 +25,9 @@ export class Spell {
 	public readonly castTimeDurationInMs: number;
 	public readonly cooldownDurationInMs: number;
 	public readonly globalCooldownDurationInMs: number;
+	// todo make these private and expose getters
+	// that way spells can regenerate spell/aura effects on stat change
+	// those updated configs can be sent in the payload, and used in the description text
 	public readonly schoolTypeId: SCHOOL_TYPE_ID;
 	public readonly spellEffects: SpellEffectModel[];
 	public readonly auras: AuraModel[];
