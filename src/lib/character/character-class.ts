@@ -2,14 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { STAT_TYPE_ID } from '@/lib/character/character-models';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character/character-data';
-import {
-	SPELL_EFFECT_TYPE_ID,
-	SpellPayload,
-	SpellEffectModel,
-	spellEffectIsSchoolDamage,
-	spellEffectIsDispel,
-	spellEffectIsHeal,
-} from '@/lib/spell/spell-models';
+import { SpellPayload } from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 import { Spell, SpellState } from '@/lib/spell/spell-class';
 import { Aura, AuraConfig, AuraState } from '@/lib/spell/aura-class';
@@ -75,7 +68,9 @@ export class Character {
 		this._notify = notify;
 	}
 
-	// --- Health ---
+	/* ----------------------------------------------- */
+	/* Health */
+	/* ----------------------------------------------- */
 	public get health() {
 		return this._health;
 	}
@@ -106,7 +101,9 @@ export class Character {
 		this._notify();
 	}
 
-	// --- Mana ---
+	/* ----------------------------------------------- */
+	/* Mana */
+	/* ----------------------------------------------- */
 	public get mana() {
 		return this._mana;
 	}
@@ -142,7 +139,9 @@ export class Character {
 		this._notify();
 	}
 
-	// --- Stats ---
+	/* ----------------------------------------------- */
+	/* Stats */
+	/* ----------------------------------------------- */
 	public get stats() {
 		return this._stats;
 	}
@@ -152,7 +151,9 @@ export class Character {
 		this._notify();
 	}
 
-	// --- Spells ---
+	/* ----------------------------------------------- */
+	/* Spells */
+	/* ----------------------------------------------- */
 	public get spells() {
 		return this._spells;
 	}
@@ -176,7 +177,9 @@ export class Character {
 	// [TODO]: public removeSpell()
 	// not sure if they should be removed by spellId, or spellTypeId
 
-	// --- Spell casting ---
+	/* ----------------------------------------------- */
+	/* Spell Casting */
+	/* ----------------------------------------------- */
 	public castSpell(spellId: string): Promise<SpellPayload> {
 		if (this._currentCast) {
 			return Promise.reject(new Error(`${this.title} is already casting ${this._currentCast.spell.title}.`));
@@ -254,35 +257,16 @@ export class Character {
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, _callback: (message: string) => void) {
-		const nonAuraSpellEffectHandlers: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellEffectModel) => void> = {
-			[SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE]: (spellEffect) => {
-				if (!spellEffectIsSchoolDamage(spellEffect)) {
-					return;
-				}
+		spellPayload.damageEffects.forEach((se) => {
+			new SpellEffectSchoolDamage(se, this);
+		});
 
-				new SpellEffectSchoolDamage(spellEffect, this);
-			},
-			[SPELL_EFFECT_TYPE_ID.DISPEL]: (spellEffect) => {
-				if (!spellEffectIsDispel(spellEffect)) {
-					return;
-				}
+		spellPayload.healEffects.forEach((se) => {
+			new SpellEffectHeal(se, this);
+		});
 
-				new SpellEffectDispel(spellEffect, this);
-			},
-			[SPELL_EFFECT_TYPE_ID.HEAL]: (spellEffect) => {
-				if (!spellEffectIsHeal(spellEffect)) {
-					return;
-				}
-
-				new SpellEffectHeal(spellEffect, this);
-			},
-			[SPELL_EFFECT_TYPE_ID.APPLY_AURA]: () => {
-				return;
-			},
-		};
-
-		spellPayload.spellEffects.forEach((se) => {
-			nonAuraSpellEffectHandlers[se.spellEffectTypeId](se);
+		spellPayload.dispelEffects.forEach((se) => {
+			new SpellEffectDispel(se, this);
 		});
 
 		spellPayload.auras.forEach((a) => {
@@ -297,7 +281,9 @@ export class Character {
 		});
 	}
 
-	// --- Auras ---
+	/* ----------------------------------------------- */
+	/* Auras */
+	/* ----------------------------------------------- */
 	public applyAura(auraConfig: AuraConfig) {
 		const existingAura = Object.values(this._auras).find((a) => a.spellTypeId === auraConfig.spellTypeId);
 
@@ -338,7 +324,9 @@ export class Character {
 		);
 	}
 
-	// --- State Snapshot ---
+	/* ----------------------------------------------- */
+	/* State */
+	/* ----------------------------------------------- */
 	public getState(): CharacterState {
 		return {
 			characterId: this.characterId,

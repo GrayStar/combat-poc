@@ -1,4 +1,4 @@
-import { SCHOOL_TYPE_ID, SpellEffectSchoolDamageModel } from '@/lib/spell/spell-models';
+import { SCHOOL_TYPE_ID, SpellEffectDamageModel } from '@/lib/spell/spell-models';
 import { Character } from '@/lib/character/character-class';
 import { SpellEffect } from '@/lib/spell/spell-effects/spell-effect';
 
@@ -6,7 +6,7 @@ export class SpellEffectSchoolDamage extends SpellEffect {
 	private readonly _schoolTypeId: SCHOOL_TYPE_ID;
 	private readonly _value: number;
 
-	constructor(config: SpellEffectSchoolDamageModel, character: Character) {
+	constructor(config: SpellEffectDamageModel, character: Character) {
 		super(character);
 
 		this._schoolTypeId = config.schoolTypeId;

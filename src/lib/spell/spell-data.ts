@@ -37,7 +37,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
-		spellEffects: [
+		damageEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE,
 				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
@@ -45,6 +45,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				valueModifiers: [{ stat: STAT_TYPE_ID.ATTACK_POWER, coefficient: 0.1 }],
 			},
 		],
+		healEffects: [],
+		dispelEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DH_SP]: {
@@ -62,7 +64,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.HOLY,
-		spellEffects: [
+		healEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.HEAL,
 				schoolTypeId: SCHOOL_TYPE_ID.HOLY,
@@ -70,6 +72,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.1 }],
 			},
 		],
+		damageEffects: [],
+		dispelEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DISPEL_MAGIC]: {
@@ -87,13 +91,15 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
-		spellEffects: [
+		dispelEffects: [
 			{
 				spellEffectTypeId: SPELL_EFFECT_TYPE_ID.DISPEL,
 				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
 				value: 1,
 			},
 		],
+		damageEffects: [],
+		healEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DOT]: {
@@ -111,7 +117,9 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
-		spellEffects: [],
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -122,7 +130,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 						schoolTypeId: SCHOOL_TYPE_ID.FIRE,
 						intervalInMs: 2000,
 						value: 1,
-						valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0 }],
+						valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.1 }],
 					},
 				],
 				modifyStatEffects: [],
@@ -144,7 +152,9 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
-		spellEffects: [],
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -155,7 +165,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 						schoolTypeId: SCHOOL_TYPE_ID.HOLY,
 						intervalInMs: 2000,
 						value: 1,
-						valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0 }],
+						valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.14 }],
 					},
 				],
 				modifyStatEffects: [],
@@ -177,7 +187,9 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
-		spellEffects: [],
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -208,7 +220,9 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
-		spellEffects: [],
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -239,7 +253,9 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
-		spellEffects: [],
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -270,7 +286,9 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
-		spellEffects: [],
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,

@@ -1,7 +1,17 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { SPELL_TYPE_ID, spellData } from '@/lib/spell/spell-data';
-import { AuraModel, SCHOOL_TYPE_ID, SpellEffectModel } from '@/lib/spell/spell-models';
+import {
+	AuraModel,
+	MODIFY_TYPE_ID,
+	PERIODIC_EFFECT_TYPE_ID,
+	SCHOOL_TYPE_ID,
+	SpellEffectDamageModel,
+	SpellEffectDispelModel,
+	SpellEffectHealModel,
+	SpellEffectValueModifier,
+	SpellPayload,
+} from '@/lib/spell/spell-models';
 import { Character } from '@/lib/character/character-class';
 
 export type SpellState = {
@@ -25,14 +35,14 @@ export class Spell {
 	public readonly castTimeDurationInMs: number;
 	public readonly cooldownDurationInMs: number;
 	public readonly globalCooldownDurationInMs: number;
-	// todo make these private and expose getters
-	// that way spells can regenerate spell/aura effects on stat change
-	// those updated configs can be sent in the payload, and used in the description text
 	public readonly schoolTypeId: SCHOOL_TYPE_ID;
-	public readonly spellEffects: SpellEffectModel[];
-	public readonly auras: AuraModel[];
 
+	private readonly _damageEffects: SpellEffectDamageModel[];
+	private readonly _healEffects: SpellEffectHealModel[];
+	private readonly _dispelEffects: SpellEffectDispelModel[];
+	private readonly _auras: AuraModel[];
 	private readonly _character;
+
 	private _cooldownAnimationDurationInMs: number;
 	private _cooldownTimeout?: NodeJS.Timeout;
 	private _notify: () => void;
@@ -51,8 +61,10 @@ export class Spell {
 				: config.globalCooldownDurationInMs;
 		this.globalCooldownDurationInMs = config.globalCooldownDurationInMs;
 		this.schoolTypeId = config.schoolTypeId;
-		this.spellEffects = config.spellEffects;
-		this.auras = config.auras;
+		this._damageEffects = config.damageEffects;
+		this._healEffects = config.healEffects;
+		this._dispelEffects = config.dispelEffects;
+		this._auras = config.auras;
 
 		this._character = character;
 		this._cooldownAnimationDurationInMs = this.cooldownDurationInMs;
@@ -100,15 +112,43 @@ export class Spell {
 		this._notify();
 	}
 
-	public getPayload() {
-		return {
-			casterId: this._character.characterId,
-			title: this.title,
-			spellTypeId: this.spellTypeId,
-			schoolTypeId: this.schoolTypeId,
-			spellEffects: this.spellEffects,
-			auras: this.auras,
-		};
+	private _getProcessedDamageEffects(): SpellEffectDamageModel[] {
+		return this._damageEffects.map((effect) => ({
+			...effect,
+			value: this._getCharacterStatsProcessedValue(effect.value, effect.valueModifiers),
+		}));
+	}
+
+	private _getProcessedHealEffects(): SpellEffectHealModel[] {
+		return this._healEffects.map((effect) => ({
+			...effect,
+			value: this._getCharacterStatsProcessedValue(effect.value, effect.valueModifiers),
+		}));
+	}
+
+	private _getProcessedAuras(): AuraModel[] {
+		return this._auras.map((a) => ({
+			...a,
+			periodicEffects: a.periodicEffects.map((effect) => {
+				const tickCount = a.durationInMs / effect.intervalInMs;
+				const totalValue = tickCount * effect.value;
+				const processedTotalValue = this._getCharacterStatsProcessedValue(totalValue, effect.valueModifiers);
+				const processedTickValue = processedTotalValue / tickCount;
+
+				return {
+					...effect,
+					value: processedTickValue,
+				};
+			}),
+		}));
+	}
+
+	private _getCharacterStatsProcessedValue(value: number, valueModifiers: SpellEffectValueModifier[]): number {
+		return valueModifiers.reduce<number>(
+			(currentValue, valueModifier) =>
+				currentValue + this._character.stats[valueModifier.stat] * valueModifier.coefficient,
+			value
+		);
 	}
 
 	private _getCastTimeDescription() {
@@ -120,14 +160,66 @@ export class Spell {
 		return `${castTimeInSeconds} sec cast`;
 	}
 
-	private _getEffectText() {
-		const spellEffectDescriptions = this.spellEffects.map((se) => `SE: ${se.value}.`);
-		const auraEffectDescriptions = this.auras.map((ae) => {
-			const periodicDescs = ae.periodicEffects.map((pe) => `PE: ${pe.value}.`);
-			const modifierDescs = ae.modifyStatEffects.map((mse) => `MSE: ${mse.value}.`);
-			return [...periodicDescs, ...modifierDescs];
-		});
-		return [...spellEffectDescriptions, ...auraEffectDescriptions].join(' ');
+	private _getDamageEffectDescriptions(): string {
+		return this._getProcessedDamageEffects()
+			.map((effect) => `Deals ${effect.value} ${effect.schoolTypeId} damage.`)
+			.join(' ');
+	}
+
+	private _getHealEffectDescriptions(): string {
+		return this._getProcessedHealEffects()
+			.map((effect) => `Heals ${effect.value} health.`)
+			.join(' ');
+	}
+
+	private _getDispelEffectDescriptions(): string {
+		return this._dispelEffects.map((effect) => `Removes ${effect.value} ${effect.dispelTypeId} effect.`).join(' ');
+	}
+
+	private _getAuraDescriptions(): string {
+		return this._getProcessedAuras()
+			.map((a) => {
+				const durationInSeconds = a.durationInMs / 1000;
+
+				const statEffectDescriptions = a.modifyStatEffects.map((effect) => {
+					const direction = effect.modifyTypeId === MODIFY_TYPE_ID.INCREASE ? 'Increases' : 'Decreases';
+					return `${direction} ${effect.statTypeId} by ${effect.value} for ${durationInSeconds} seconds.`;
+				});
+
+				const periodicEffectDescriptions = a.periodicEffects.map((effect) => {
+					const intervalInSeconds = effect.intervalInMs / 1000;
+					const initial =
+						effect.periodicEffectTypeId === PERIODIC_EFFECT_TYPE_ID.DAMAGE
+							? `Deals ${effect.value} ${effect.schoolTypeId} damage`
+							: `Heals ${effect.value} health`;
+					return `${initial} every ${intervalInSeconds} seconds for ${durationInSeconds} seconds.`;
+				});
+
+				return [...statEffectDescriptions, ...periodicEffectDescriptions];
+			})
+			.join(' ');
+	}
+
+	private _getEffectDescriptions() {
+		return [
+			this._getDamageEffectDescriptions(),
+			this._getHealEffectDescriptions(),
+			this._getDispelEffectDescriptions(),
+			this._getAuraDescriptions(),
+		].join(' ');
+	}
+
+	public getPayload(): SpellPayload {
+		return {
+			casterId: this._character.characterId,
+			title: this.title,
+			spellTypeId: this.spellTypeId,
+			schoolTypeId: this.schoolTypeId,
+			damageEffects: this._getProcessedDamageEffects(),
+			healEffects: this._getProcessedHealEffects(),
+			dispelEffects: this._dispelEffects,
+			auras: this._getProcessedAuras(),
+		};
 	}
 
 	public getState(): SpellState {
@@ -136,7 +228,7 @@ export class Spell {
 			spellTypeId: this.spellTypeId,
 			title: this.title,
 			description: this.description,
-			effects: this._getEffectText(),
+			effects: this._getEffectDescriptions(),
 			castTimeDurationInMs: this.castTimeDurationInMs,
 			castTimeDescription: this._getCastTimeDescription(),
 			cooldownDurationInMs: this._cooldownAnimationDurationInMs,
