@@ -4,6 +4,7 @@ import { tss } from '@/styles';
 import { useRef } from 'react';
 import { SpellState } from '@/lib/spell/spell-class';
 import { CooldownCircle } from '@/components/cooldown-circle';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const size = 48;
 const flashAnimationDurationInMs = 1000;
@@ -36,6 +37,13 @@ const useStyles = tss.create((theme) => ({
 		opacity: 0,
 		transition: `opacity ${flashAnimationDurationInMs}ms linear`,
 	},
+	tooltip: {
+		width: 320,
+		'& .tooltip-inner': {
+			padding: 8,
+			maxWidth: '100%',
+		},
+	},
 }));
 
 interface SpellProps {
@@ -48,22 +56,36 @@ export const Spell = ({ spell, className }: SpellProps) => {
 	const overlayRef = useRef<HTMLDivElement>(null);
 
 	return (
-		<div className={classNames(classes.spell, className)}>
-			<CSSTransition
-				in={!spell.isOnCooldown}
-				timeout={flashAnimationDurationInMs}
-				classNames={{
-					enter: classes.flashEnter,
-					enterActive: classes.flashEnterActive,
-				}}
-				nodeRef={overlayRef}
-				mountOnEnter
-				unmountOnExit
-			>
-				<div ref={overlayRef} className={classes.flash} />
-			</CSSTransition>
-			{spell.isOnCooldown && <CooldownCircle size={size} durationInMs={spell.cooldownDurationInMs} />}
-			<span className="small">{spell.title}</span>
-		</div>
+		<OverlayTrigger
+			overlay={
+				<Tooltip className={classes.tooltip}>
+					<h6 className="mb-0 text-start">{spell.title}</h6>
+					<div className="mb-0 d-flex align-items-center justify-content-between">
+						<p className="mb-0 small text-nowrap">{spell.castTimeDescription}</p>
+						<p className="mb-0 small text-nowrap">{spell.cooldownDescription} cooldown</p>
+					</div>
+					<p className="mb-0 small text-start text-warning">{spell.description}</p>
+					<p className="mb-0 small text-start text-warning">{spell.effects}</p>
+				</Tooltip>
+			}
+		>
+			<div className={classNames(classes.spell, className)}>
+				<CSSTransition
+					in={!spell.isOnCooldown}
+					timeout={flashAnimationDurationInMs}
+					classNames={{
+						enter: classes.flashEnter,
+						enterActive: classes.flashEnterActive,
+					}}
+					nodeRef={overlayRef}
+					mountOnEnter
+					unmountOnExit
+				>
+					<div ref={overlayRef} className={classes.flash} />
+				</CSSTransition>
+				{spell.isOnCooldown && <CooldownCircle size={size} durationInMs={spell.cooldownDurationInMs} />}
+				<span className="small">{spell.title}</span>
+			</div>
+		</OverlayTrigger>
 	);
 };

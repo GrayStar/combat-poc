@@ -257,8 +257,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	},
 	[SPELL_TYPE_ID.AP_DOWN]: {
 		spellTypeId: SPELL_TYPE_ID.AP_DOWN,
-		title: 'SP-',
-		description: 'Decreases SP',
+		title: 'AP-',
+		description: 'Decreases AP',
 		cost: [
 			{
 				resourceTypeId: RESOURCE_TYPE_ID.MANA,

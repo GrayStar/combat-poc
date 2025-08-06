@@ -8,8 +8,11 @@ export type SpellState = {
 	spellTypeId: SPELL_TYPE_ID;
 	title: string;
 	description: string;
+	effects: string;
 	castTimeDurationInMs: number;
+	castTimeDescription: string;
 	cooldownDurationInMs: number;
+	cooldownDescription: string;
 	isOnCooldown: boolean;
 };
 
@@ -91,14 +94,36 @@ export class Spell {
 		this._notify();
 	}
 
+	private _getCastTimeDescription() {
+		const castTimeInSeconds = this.castTimeDurationInMs / 1000;
+		if (castTimeInSeconds === 0) {
+			return 'Instant';
+		}
+
+		return `${castTimeInSeconds} sec cast`;
+	}
+
+	private _getEffectText() {
+		const spellEffectDescriptions = this.spellEffects.map((se) => `SE: ${se.value}.`);
+		const auraEffectDescriptions = this.auras.map((ae) => {
+			const periodicDescs = ae.periodicEffects.map((pe) => `PE: ${pe.value}.`);
+			const modifierDescs = ae.modifyStatEffects.map((mse) => `MSE: ${mse.value}.`);
+			return [...periodicDescs, ...modifierDescs];
+		});
+		return [...spellEffectDescriptions, ...auraEffectDescriptions].join(' ');
+	}
+
 	public getState(): SpellState {
 		return {
 			spellId: this.spellId,
 			spellTypeId: this.spellTypeId,
 			title: this.title,
 			description: this.description,
+			effects: this._getEffectText(),
 			castTimeDurationInMs: this.castTimeDurationInMs,
+			castTimeDescription: this._getCastTimeDescription(),
 			cooldownDurationInMs: this._cooldownAnimationDurationInMs,
+			cooldownDescription: `${this._cooldownAnimationDurationInMs / 1000} sec`,
 			isOnCooldown: !!this._cooldownTimeout,
 		};
 	}
