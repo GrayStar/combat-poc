@@ -2,28 +2,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { STAT_TYPE_ID } from '@/lib/character/character-models';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character/character-data';
-import {
-	AURA_DIRECTION_TYPE_ID,
-	AURA_TYPE_ID,
-	AuraEffectConfig,
-	SPELL_EFFECT_TYPE_ID,
-	SpellEffect,
-	SpellEffectDispel,
-	SpellEffectHeal,
-	SpellEffectSchoolDamage,
-	SpellPayload,
-} from '@/lib/spell/spell-models';
+import { SpellPayload } from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 import { Spell, SpellState } from '@/lib/spell/spell-class';
 import { Aura, AuraConfig, AuraState } from '@/lib/spell/aura-class';
-import {
-	applicableAuraTypeIdsByAuraTypeId,
-	applicableAuraTypeIdsBySpellEffectTypeId,
-	auraModifierEquationByAuraTypeId,
-	spellEffectIsDispel,
-	spellEffectIsHeal,
-	spellEffectIsSchoolDamage,
-} from '@/lib/spell/spell-utils';
 
 export type CharacterState = {
 	characterId: string;
@@ -39,6 +21,7 @@ export type CharacterState = {
 	renderKeyDamage: string;
 	renderKeyHealing: string;
 	renderKeyCastSpell: string;
+	stats: Record<STAT_TYPE_ID, number>;
 };
 
 export class Character {
@@ -93,10 +76,12 @@ export class Character {
 
 	public setHealth(amount: number) {
 		this._health = amount;
+		this._notify();
 	}
 
 	public setMaxHealth(amount: number) {
 		this._maxHealth = amount;
+		this._notify();
 	}
 
 	public adjustHealth(amount: number) {
@@ -108,6 +93,7 @@ export class Character {
 		} else if (amount > 0) {
 			this._renderKeyHealing = uuidv4();
 		}
+		this._notify();
 	}
 
 	// --- Mana ---
@@ -121,10 +107,12 @@ export class Character {
 
 	public setMana(amount: number) {
 		this._mana = amount;
+		this._notify();
 	}
 
 	public setMaxMana(amount: number) {
 		this._maxMana = amount;
+		this._notify();
 	}
 
 	public adjustMana(amount: number) {
@@ -141,6 +129,17 @@ export class Character {
 		}
 
 		this._mana = nextManaValue;
+		this._notify();
+	}
+
+	// --- Stats ---
+	public get stats() {
+		return this._stats;
+	}
+
+	public setStat(statTypeId: STAT_TYPE_ID, value: number) {
+		this._stats[statTypeId] = value;
+		this._notify();
 	}
 
 	// --- Spells ---
@@ -156,10 +155,12 @@ export class Character {
 		}
 
 		this._spells = spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this._notify.bind(this)));
+		this._notify();
 	}
 
 	public addSpell(spellTypeId: SPELL_TYPE_ID) {
 		this._spells.push(new Spell(spellTypeId, this._notify.bind(this)));
+		this._notify();
 	}
 
 	// [TODO]: public removeSpell()
@@ -244,182 +245,184 @@ export class Character {
 
 	private createSpellPayloadForCastSpell(spell: Spell): SpellPayload {
 		// process all spellEffects through character stats
-		const characterStatProcessedSpellEffects = spell.spellEffects.map((se) => {
-			return {
-				...se,
-				value: se.valueModifiers.reduce(
-					(sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient,
-					se.value
-				),
-			};
-		});
+		// const characterStatProcessedSpellEffects = spell.spellEffects.map((se) => {
+		// 	return {
+		// 		...se,
+		// 		value: se.valueModifiers.reduce(
+		// 			(sum, { stat, coefficient }) => sum + this._stats[stat] * coefficient,
+		// 			se.value
+		// 		),
+		// 	};
+		// });
 
 		// process aura effects through outgoing aura effects
-		const auraSpellEffects = characterStatProcessedSpellEffects.filter(
-			(se) => se.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA
-		);
-		const auraProcessedAuraEffects = auraSpellEffects.map((se) => {
-			const numberOfTicks = se.intervalInMs > 0 ? spell.auraDurationInMs / se.intervalInMs : 0;
-			const canBeProcessed = numberOfTicks > 0;
+		// const auraSpellEffects = characterStatProcessedSpellEffects.filter(
+		// 	(se) => se.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA
+		// );
+		// const auraProcessedAuraEffects = auraSpellEffects.map((se) => {
+		// 	const numberOfTicks = se.intervalInMs > 0 ? spell.auraDurationInMs / se.intervalInMs : 0;
+		// 	const canBeProcessed = numberOfTicks > 0;
 
-			if (!canBeProcessed) {
-				return se;
-			}
+		// 	if (!canBeProcessed) {
+		// 		return se;
+		// 	}
 
-			const applicableAuraTypeIds = applicableAuraTypeIdsByAuraTypeId[se.auraTypeId];
-			const applicableAuraEffectsConfigs = Object.values(this._auras)
-				.flatMap((a) => a.auraEffectConfigs)
-				.filter((cfg) => applicableAuraTypeIds.includes(cfg.auraTypeId))
-				.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING);
-			const totalValue = se.value * numberOfTicks;
-			const processedTotalValue = applicableAuraEffectsConfigs.reduce(
-				(currentValue, cfg) => auraModifierEquationByAuraTypeId[cfg.auraTypeId](currentValue, cfg.value),
-				totalValue
-			);
-			const processedValue = processedTotalValue / numberOfTicks;
+		// 	const applicableAuraTypeIds = applicableAuraTypeIdsByAuraTypeId[se.auraTypeId];
+		// 	const applicableAuraEffectsConfigs = Object.values(this._auras)
+		// 		.flatMap((a) => a.auraEffectConfigs)
+		// 		.filter((cfg) => applicableAuraTypeIds.includes(cfg.auraTypeId))
+		// 		.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING);
+		// 	const totalValue = se.value * numberOfTicks;
+		// 	const processedTotalValue = applicableAuraEffectsConfigs.reduce(
+		// 		(currentValue, cfg) => auraModifierEquationByAuraTypeId[cfg.auraTypeId](currentValue, cfg.value),
+		// 		totalValue
+		// 	);
+		// 	const processedValue = processedTotalValue / numberOfTicks;
 
-			return {
-				...se,
-				value: processedValue,
-			};
-		});
+		// 	return {
+		// 		...se,
+		// 		value: processedValue,
+		// 	};
+		// });
 
 		// process non aura effects through outgoing auras effects
-		const nonAuraSpellEffects = characterStatProcessedSpellEffects.filter(
-			(se) => se.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
-		);
-		const auraProcessedSpellEffects = nonAuraSpellEffects.map((se) => {
-			const applicableAuraTypeIds = applicableAuraTypeIdsBySpellEffectTypeId[se.spellEffectTypeId];
-			const applicableAuraEffectsConfigs = Object.values(this._auras)
-				.flatMap((a) => a.auraEffectConfigs)
-				.filter((cfg) => applicableAuraTypeIds.includes(cfg.auraTypeId))
-				.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING);
+		// const nonAuraSpellEffects = characterStatProcessedSpellEffects.filter(
+		// 	(se) => se.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
+		// );
+		// const auraProcessedSpellEffects = nonAuraSpellEffects.map((se) => {
+		// 	const applicableAuraTypeIds = applicableAuraTypeIdsBySpellEffectTypeId[se.spellEffectTypeId];
+		// 	const applicableAuraEffectsConfigs = Object.values(this._auras)
+		// 		.flatMap((a) => a.auraEffectConfigs)
+		// 		.filter((cfg) => applicableAuraTypeIds.includes(cfg.auraTypeId))
+		// 		.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING);
 
-			return {
-				...se,
-				value: applicableAuraEffectsConfigs.reduce(
-					(currentValue, cfg) => auraModifierEquationByAuraTypeId[cfg.auraTypeId](currentValue, cfg.value),
-					se.value
-				),
-			};
-		});
+		// 	return {
+		// 		...se,
+		// 		value: applicableAuraEffectsConfigs.reduce(
+		// 			(currentValue, cfg) => auraModifierEquationByAuraTypeId[cfg.auraTypeId](currentValue, cfg.value),
+		// 			se.value
+		// 		),
+		// 	};
+		// });
 
-		const allProcessedSpellEffects = [...auraProcessedAuraEffects, ...auraProcessedSpellEffects];
+		// const allProcessedSpellEffects = [...auraProcessedAuraEffects, ...auraProcessedSpellEffects];
 
 		return {
 			casterId: this.characterId,
 			title: spell.title,
 			spellTypeId: spell.spellTypeId,
 			schoolTypeId: spell.schoolTypeId,
-			dispelTypeId: spell.dispelTypeId,
-			auraDurationInMs: spell.auraDurationInMs,
-			spellEffects: allProcessedSpellEffects,
+			spellEffects: spell.spellEffects,
+			auras: spell.auras,
 		};
 	}
 
-	public recieveSpellPayload(spellPayload: SpellPayload, callback: (message: string) => void) {
-		const auraSpellEffects = spellPayload.spellEffects.filter(
-			(se) => se.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA
-		);
-		const nonAuraSpellEffects = spellPayload.spellEffects.filter(
-			(se) => se.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
-		);
-		const auraProcessedSpellEffects = nonAuraSpellEffects.map((se) => {
-			const applicableAuraTypeIds = applicableAuraTypeIdsBySpellEffectTypeId[se.spellEffectTypeId];
-			const applicableAuraEffectsConfigs = Object.values(this._auras)
-				.flatMap((a) => a.auraEffectConfigs)
-				.filter((cfg) => applicableAuraTypeIds.includes(cfg.auraTypeId))
-				.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.INCOMING);
+	public recieveSpellPayload(spellPayload: SpellPayload, _callback: (message: string) => void) {
+		// const auraSpellEffects = spellPayload.spellEffects.filter(
+		// 	(se) => se.spellEffectTypeId === SPELL_EFFECT_TYPE_ID.APPLY_AURA
+		// );
+		// const nonAuraSpellEffects = spellPayload.spellEffects.filter(
+		// 	(se) => se.spellEffectTypeId !== SPELL_EFFECT_TYPE_ID.APPLY_AURA
+		// );
+		// const auraProcessedSpellEffects = nonAuraSpellEffects.map((se) => {
+		// 	const applicableAuraTypeIds = applicableAuraTypeIdsBySpellEffectTypeId[se.spellEffectTypeId];
+		// 	const applicableAuraEffectsConfigs = Object.values(this._auras)
+		// 		.flatMap((a) => a.auraEffectConfigs)
+		// 		.filter((cfg) => applicableAuraTypeIds.includes(cfg.auraTypeId))
+		// 		.filter((cfg) => cfg.auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.INCOMING);
 
-			return {
-				...se,
-				value: applicableAuraEffectsConfigs.reduce(
-					(currentValue, cfg) => auraModifierEquationByAuraTypeId[cfg.auraTypeId](currentValue, cfg.value),
-					se.value
-				),
-			};
-		});
-		const auraEffectConfigs = auraSpellEffects.map(({ auraTypeId, auraDirectionTypeId, value, intervalInMs }) => ({
-			auraTypeId,
-			schoolTypeId: spellPayload.schoolTypeId,
-			auraDirectionTypeId,
-			value,
-			intervalInMs,
-		}));
+		// 	return {
+		// 		...se,
+		// 		value: applicableAuraEffectsConfigs.reduce(
+		// 			(currentValue, cfg) => auraModifierEquationByAuraTypeId[cfg.auraTypeId](currentValue, cfg.value),
+		// 			se.value
+		// 		),
+		// 	};
+		// });
+		// const auraEffectConfigs = auraSpellEffects.map(({ auraTypeId, auraDirectionTypeId, value, intervalInMs }) => ({
+		// 	auraTypeId,
+		// 	schoolTypeId: spellPayload.schoolTypeId,
+		// 	auraDirectionTypeId,
+		// 	value,
+		// 	intervalInMs,
+		// }));
 
-		const nonAuraSpellEffectHandlers: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellEffect) => void> = {
-			[SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE]: (spellEffect) => {
-				if (!spellEffectIsSchoolDamage(spellEffect)) {
-					return;
-				}
+		// const nonAuraSpellEffectHandlers: Record<SPELL_EFFECT_TYPE_ID, (spellEffect: SpellEffect) => void> = {
+		// 	[SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE]: (spellEffect) => {
+		// 		if (!spellEffectIsSchoolDamage(spellEffect)) {
+		// 			return;
+		// 		}
 
-				this.handleSchoolDamageEffect(spellEffect, callback);
-			},
-			[SPELL_EFFECT_TYPE_ID.DISPEL]: (spellEffect) => {
-				if (!spellEffectIsDispel(spellEffect)) {
-					return;
-				}
+		// 		this.handleSchoolDamageEffect(spellEffect, callback);
+		// 	},
+		// 	[SPELL_EFFECT_TYPE_ID.DISPEL]: (spellEffect) => {
+		// 		if (!spellEffectIsDispel(spellEffect)) {
+		// 			return;
+		// 		}
 
-				this.handleDispelEffect(spellEffect, callback);
-			},
-			[SPELL_EFFECT_TYPE_ID.HEAL]: (spellEffect) => {
-				if (!spellEffectIsHeal(spellEffect)) {
-					return;
-				}
+		// 		this.handleDispelEffect(spellEffect, callback);
+		// 	},
+		// 	[SPELL_EFFECT_TYPE_ID.HEAL]: (spellEffect) => {
+		// 		if (!spellEffectIsHeal(spellEffect)) {
+		// 			return;
+		// 		}
 
-				this.handleHealEffect(spellEffect, callback);
-			},
-			[SPELL_EFFECT_TYPE_ID.APPLY_AURA]: () => {
-				return;
-			},
-		};
+		// 		this.handleHealEffect(spellEffect, callback);
+		// 	},
+		// 	[SPELL_EFFECT_TYPE_ID.APPLY_AURA]: () => {
+		// 		return;
+		// 	},
+		// };
 
-		auraProcessedSpellEffects.forEach((se) => {
-			nonAuraSpellEffectHandlers[se.spellEffectTypeId](se);
-		});
+		// nonAuraSpellEffects.forEach((se) => {
+		// 	nonAuraSpellEffectHandlers[se.spellEffectTypeId](se);
+		// });
 
-		if (auraEffectConfigs.length > 0) {
-			this.applyAura({
-				title: spellPayload.title,
-				spellTypeId: spellPayload.spellTypeId,
-				durationInMs: spellPayload.auraDurationInMs,
-				dispelTypeId: spellPayload.dispelTypeId,
-				auraEffectConfigs,
+		if (spellPayload.auras.length > 0) {
+			spellPayload.auras.forEach((a) => {
+				this.applyAura({
+					title: spellPayload.title,
+					spellTypeId: spellPayload.spellTypeId,
+					durationInMs: a.durationInMs,
+					dispelTypeId: a.dispelTypeId,
+					periodicEffects: a.periodicEffects,
+					modifyStatEffects: a.modifyStatEffects,
+				});
 			});
 		}
 	}
 
-	private handleSchoolDamageEffect(spellEffect: SpellEffectSchoolDamage, callback: (message: string) => void): void {
-		this.adjustHealth(-spellEffect.value);
-		callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
-	}
+	// private handleSchoolDamageEffect(spellEffect: SpellEffectSchoolDamage, callback: (message: string) => void): void {
+	// 	this.adjustHealth(-spellEffect.value);
+	// 	callback(`${this.title} took ${spellEffect.value} ${spellEffect.schoolTypeId} damage.`);
+	// }
 
-	private handleHealEffect(spellEffect: SpellEffectHeal, callback: (message: string) => void) {
-		this.adjustHealth(spellEffect.value);
-		callback(`[${this.title}] was healed for [${spellEffect.value}].`);
-	}
+	// private handleHealEffect(spellEffect: SpellEffectHeal, callback: (message: string) => void) {
+	// 	this.adjustHealth(spellEffect.value);
+	// 	callback(`[${this.title}] was healed for [${spellEffect.value}].`);
+	// }
 
-	private handleDispelEffect(spellEffect: SpellEffectDispel, callback: (message: string) => void): void {
-		const candidates = Object.values(this._auras).filter((aura) => aura.dispelTypeId === spellEffect.dispelTypeId);
+	// private handleDispelEffect(spellEffect: SpellEffectDispel, callback: (message: string) => void): void {
+	// 	const candidates = Object.values(this._auras).filter((aura) => aura.dispelTypeId === spellEffect.dispelTypeId);
 
-		if (candidates.length === 0) {
-			callback(`No auras of type [${spellEffect.dispelTypeId}] on [${this.title}] to dispel.`);
-			return;
-		}
+	// 	if (candidates.length === 0) {
+	// 		callback(`No auras of type [${spellEffect.dispelTypeId}] on [${this.title}] to dispel.`);
+	// 		return;
+	// 	}
 
-		const removeCount = Math.min(spellEffect.value, candidates.length);
+	// 	const removeCount = Math.min(spellEffect.value, candidates.length);
 
-		for (let i = candidates.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[candidates[i], candidates[j]] = [candidates[j], candidates[i]];
-		}
+	// 	for (let i = candidates.length - 1; i > 0; i--) {
+	// 		const j = Math.floor(Math.random() * (i + 1));
+	// 		[candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+	// 	}
 
-		candidates.slice(0, removeCount).forEach((aura) => {
-			aura.stopTimers();
-			delete this._auras[aura.auraId];
-			callback(`[${aura.title}] was dispelled from [${this.title}].`);
-		});
-	}
+	// 	candidates.slice(0, removeCount).forEach((aura) => {
+	// 		aura.stopTimers();
+	// 		delete this._auras[aura.auraId];
+	// 		callback(`[${aura.title}] was dispelled from [${this.title}].`);
+	// 	});
+	// }
 
 	// --- Auras ---
 	public applyAura(auraConfig: AuraConfig) {
@@ -428,51 +431,14 @@ export class Character {
 		if (existingAura) {
 			existingAura.restartTimers();
 		} else {
-			const aura = new Aura(auraConfig, this.handleAuraInterval.bind(this), this.handleAuraTimeout.bind(this));
+			const aura = new Aura(auraConfig, this);
 			this._auras[aura.auraId] = aura;
 		}
 
 		this._notify();
 	}
 
-	private handleAuraInterval(_auraId: string, auraEffectConfigs: AuraEffectConfig[]) {
-		const auraTypeIdMap: Record<AURA_TYPE_ID, (auraEffectConfig: AuraEffectConfig) => void> = {
-			[AURA_TYPE_ID.MODIFY_DAMAGE_FLAT]: () => {
-				return;
-			},
-			[AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER]: () => {
-				return;
-			},
-			[AURA_TYPE_ID.MODIFY_DAMAGE_PERCENT]: () => {
-				return;
-			},
-			[AURA_TYPE_ID.MODIFY_HEALING_FLAT]: () => {
-				return;
-			},
-			[AURA_TYPE_ID.MODIFY_HEALING_MULTIPLIER]: () => {
-				return;
-			},
-			[AURA_TYPE_ID.MODIFY_HEALING_PERCENT]: () => {
-				return;
-			},
-			[AURA_TYPE_ID.PERIODIC_DAMAGE]: (auraEffectConfig) => {
-				// TODO: process incoming damage auras
-				this.adjustHealth(-auraEffectConfig.value);
-			},
-			[AURA_TYPE_ID.PERIODIC_HEAL]: (auraEffectConfig) => {
-				// TODO: process incoming healing auras
-				this.adjustHealth(auraEffectConfig.value);
-			},
-		};
-
-		auraEffectConfigs.forEach((auraEffectConfig) => {
-			auraTypeIdMap[auraEffectConfig.auraTypeId](auraEffectConfig);
-		});
-
-		this._notify();
-	}
-
-	private handleAuraTimeout(auraId: string) {
+	public removeAuraByAuraId(auraId: string) {
 		const aura = this._auras[auraId];
 
 		if (!aura) {
@@ -501,6 +467,7 @@ export class Character {
 			renderKeyDamage: this._renderKeyDamage,
 			renderKeyHealing: this._renderKeyHealing,
 			renderKeyCastSpell: this._renderKeyCastSpell,
+			stats: this._stats,
 		};
 	}
 }

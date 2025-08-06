@@ -1,8 +1,19 @@
 import { v4 as uuidv4 } from 'uuid';
-import { AURA_DIRECTION_TYPE_ID, AURA_TYPE_ID, AuraEffectConfig, DISPEL_TYPE_ID } from '@/lib/spell/spell-models';
+import {
+	DISPEL_TYPE_ID,
+	MODIFY_TYPE_ID,
+	ModifyStatEffectModel,
+	PERIODIC_EFFECT_TYPE_ID,
+	PeriodicEffectModel,
+} from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
+import { Character } from '@/lib/character/character-class';
 
-type IntervalTimer = ReturnType<typeof setTimeout>;
+import { AuraEffectPeriodicDamage } from '@/lib/spell/aura-effect-periodic-damage';
+import { AuraEffectPeriodicHealing } from '@/lib/spell/aura-effect-periodic-healing';
+import { AuraEffectModifyStatIncrease } from '@/lib/spell/aura-effect-modify-stat-increase';
+import { AuraEffectModifyStatDecrease } from '@/lib/spell/aura-effect-modify-stat-decrease';
+
 type TimeoutTimer = ReturnType<typeof setTimeout>;
 
 export type AuraState = {
@@ -18,41 +29,56 @@ export type AuraConfig = {
 	title: string;
 	spellTypeId: SPELL_TYPE_ID;
 	durationInMs: number;
-	auraEffectConfigs: AuraEffectConfig[];
 	dispelTypeId: DISPEL_TYPE_ID;
+	periodicEffects: PeriodicEffectModel[];
+	modifyStatEffects: ModifyStatEffectModel[];
 };
 
 export class Aura {
 	public readonly auraId: string;
 	public readonly title: string;
 	public readonly spellTypeId: SPELL_TYPE_ID;
-	public readonly auraEffectConfigs: AuraEffectConfig[];
+	public readonly periodicEffects: (AuraEffectPeriodicDamage | AuraEffectPeriodicHealing)[];
+	public readonly modifyStatEffects: (AuraEffectModifyStatIncrease | AuraEffectModifyStatDecrease)[];
 	public readonly durationInMs: number;
 	public readonly dispelTypeId: DISPEL_TYPE_ID;
+	private readonly character: Character;
 
 	private _renderKey: string = '';
-	private _intervalTimers: IntervalTimer[] = [];
 	private _timeoutTimer: TimeoutTimer | null = null;
 
-	constructor(
-		config: AuraConfig,
-		private readonly intervalCallback: (auraId: string, effects: AuraEffectConfig[]) => void,
-		private readonly timeoutCallback: (auraId: string) => void
-	) {
+	constructor(config: AuraConfig, character: Character) {
 		this.auraId = uuidv4();
 		this.title = config.title;
 		this.spellTypeId = config.spellTypeId;
-		this.auraEffectConfigs = config.auraEffectConfigs;
 		this.durationInMs = config.durationInMs;
 		this.dispelTypeId = config.dispelTypeId;
+		this.character = character;
+
+		this.periodicEffects = config.periodicEffects.map((cfg) => {
+			if (cfg.periodicEffectTypeId === PERIODIC_EFFECT_TYPE_ID.DAMAGE) {
+				return new AuraEffectPeriodicDamage(cfg, character);
+			} else {
+				return new AuraEffectPeriodicHealing(cfg, character);
+			}
+		});
+
+		this.modifyStatEffects = config.modifyStatEffects.map((cfg) => {
+			if (cfg.modifyTypeId === MODIFY_TYPE_ID.INCREASE) {
+				return new AuraEffectModifyStatIncrease(cfg, character);
+			} else {
+				return new AuraEffectModifyStatDecrease(cfg, character);
+			}
+		});
 
 		this.restartTimers();
 	}
 
 	private clearInternalTimers() {
-		this._intervalTimers.forEach(clearInterval);
-		this._intervalTimers = [];
+		this.periodicEffects.forEach((a) => a.stopInterval());
+
 		if (this._timeoutTimer) {
+			this.modifyStatEffects.forEach((a) => a.revertStat());
 			clearTimeout(this._timeoutTimer);
 			this._timeoutTimer = null;
 		}
@@ -65,34 +91,22 @@ export class Aura {
 	public restartTimers() {
 		this.clearInternalTimers();
 
-		const auraEffectsMappedByInterval = new Map<number, AuraEffectConfig[]>();
-		for (const effect of this.auraEffectConfigs) {
-			if (effect.intervalInMs <= 0) {
-				continue;
-			}
-
-			const auraEffectGroup = auraEffectsMappedByInterval.get(effect.intervalInMs) ?? [];
-			auraEffectGroup.push(effect);
-			auraEffectsMappedByInterval.set(effect.intervalInMs, auraEffectGroup);
-		}
-
-		for (const [interval, effects] of auraEffectsMappedByInterval) {
-			const id = setInterval(() => {
-				this.intervalCallback(this.auraId, effects);
-			}, interval);
-			this._intervalTimers.push(id);
-		}
+		this.periodicEffects.forEach((a) => a.startInterval());
+		this.modifyStatEffects.forEach((a) => a.modifyStat());
 
 		this._timeoutTimer = setTimeout(() => {
 			this.clearInternalTimers();
-			this.timeoutCallback(this.auraId);
+			this.character.removeAuraByAuraId(this.auraId);
 		}, this.durationInMs);
 
 		this._renderKey = uuidv4();
 	}
 
 	private getDescription(): string {
-		return this.auraEffectConfigs.map((cfg) => getAuraEffectDescription(cfg, this.durationInMs)).join(' ');
+		return [
+			this.periodicEffects.map((ae) => ae.getDescription()),
+			this.modifyStatEffects.map((ae) => ae.getDescription()),
+		].join(' ');
 	}
 
 	public getState(): AuraState {
@@ -104,50 +118,5 @@ export class Aura {
 			durationInMs: this.durationInMs,
 			dispelTypeId: this.dispelTypeId,
 		};
-	}
-}
-
-function getAuraEffectDescription(
-	{ auraTypeId, auraDirectionTypeId, value, schoolTypeId, intervalInMs }: AuraEffectConfig,
-	durationMs: number
-): string {
-	const intervalInSeconds = intervalInMs / 1000;
-	const durationInSeconds = durationMs / 1000;
-	const nothing = `Does nothing for ${durationInSeconds}s.`;
-	const absValue = Math.abs(value);
-	const verb = value > 0 ? 'Increases' : value < 0 ? 'Decreases' : '';
-
-	const damageAction = auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING ? 'damage dealt' : 'damage taken';
-	const healingAction = auraDirectionTypeId === AURA_DIRECTION_TYPE_ID.OUTGOING ? 'healing done' : 'healing recieved';
-
-	switch (auraTypeId) {
-		case AURA_TYPE_ID.MODIFY_DAMAGE_FLAT:
-			return value === 0 ? nothing : `${verb} ${damageAction} by ${absValue} for ${durationInSeconds}s.`;
-
-		case AURA_TYPE_ID.MODIFY_DAMAGE_PERCENT:
-			return value === 0 ? nothing : `${verb} ${damageAction} by ${absValue * 100}% for ${durationInSeconds}s.`;
-
-		case AURA_TYPE_ID.MODIFY_DAMAGE_MULTIPLIER:
-			return value === 0 ? nothing : `${value * 100}% ${damageAction} for ${durationInSeconds}s.`;
-
-		case AURA_TYPE_ID.MODIFY_HEALING_FLAT:
-			return value === 0 ? nothing : `${verb} ${healingAction} by ${absValue} for ${durationInSeconds}s.`;
-
-		case AURA_TYPE_ID.MODIFY_HEALING_PERCENT:
-			return value === 0 ? nothing : `${verb} ${healingAction} by ${absValue * 100}% for ${durationInSeconds}s.`;
-
-		case AURA_TYPE_ID.MODIFY_HEALING_MULTIPLIER:
-			return value === 0 ? nothing : `${value * 100}% ${healingAction} for ${durationInSeconds}s.`;
-
-		case AURA_TYPE_ID.PERIODIC_DAMAGE:
-			return value === 0
-				? nothing
-				: `Deals ${value} ${schoolTypeId} damage every ${intervalInSeconds}s for ${durationInSeconds}s.`;
-
-		case AURA_TYPE_ID.PERIODIC_HEAL:
-			return value === 0 ? nothing : `Heals for ${value} every ${intervalInSeconds}s for ${durationInSeconds}s.`;
-
-		default:
-			return nothing;
 	}
 }

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
-import { SPELL_TYPE_ID, spellData } from './spell-data';
-import { DISPEL_TYPE_ID, SCHOOL_TYPE_ID, SpellEffect } from './spell-models';
+import { SPELL_TYPE_ID, spellData } from '@/lib/spell/spell-data';
+import { AuraModel, SCHOOL_TYPE_ID, SpellEffectModel } from '@/lib/spell/spell-models';
 
 export type SpellState = {
 	spellId: string;
@@ -21,10 +21,9 @@ export class Spell {
 	public readonly castTimeDurationInMs: number;
 	public readonly cooldownDurationInMs: number;
 	public readonly globalCooldownDurationInMs: number;
-	public readonly auraDurationInMs: number;
 	public readonly schoolTypeId: SCHOOL_TYPE_ID;
-	public readonly dispelTypeId: DISPEL_TYPE_ID;
-	public readonly spellEffects: SpellEffect[];
+	public readonly spellEffects: SpellEffectModel[];
+	public readonly auras: AuraModel[];
 
 	private _cooldownAnimationDurationInMs: number;
 	private _cooldownTimeout?: NodeJS.Timeout;
@@ -43,13 +42,11 @@ export class Spell {
 				? config.cooldownDurationInMs
 				: config.globalCooldownDurationInMs;
 		this.globalCooldownDurationInMs = config.globalCooldownDurationInMs;
-		this.auraDurationInMs = config.auraDurationInMs;
 		this.schoolTypeId = config.schoolTypeId;
-		this.dispelTypeId = config.dispelTypeId;
 		this.spellEffects = config.spellEffects;
+		this.auras = config.auras;
 
 		this._cooldownAnimationDurationInMs = this.cooldownDurationInMs;
-
 		this._notify = notify;
 	}
 

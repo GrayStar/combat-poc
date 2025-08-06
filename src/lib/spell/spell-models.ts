@@ -9,10 +9,49 @@ export interface SpellModel {
 	castTimeDurationInMs: number;
 	cooldownDurationInMs: number;
 	globalCooldownDurationInMs: number;
-	spellEffects: SpellEffect[];
-	auraDurationInMs: number;
+	spellEffects: SpellEffectModel[];
+	auras: AuraModel[];
 	schoolTypeId: SCHOOL_TYPE_ID;
+}
+
+export type SpellEffectDispelModel = {
+	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.DISPEL;
 	dispelTypeId: DISPEL_TYPE_ID;
+	value: number;
+	valueModifiers: SpellEffectValueModifier[];
+};
+export type SpellEffectSchoolDamageModel = {
+	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
+	schoolTypeId: SCHOOL_TYPE_ID;
+	value: number;
+	valueModifiers: SpellEffectValueModifier[];
+};
+export type SpellEffectHealModel = {
+	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.HEAL;
+	value: number;
+	valueModifiers: SpellEffectValueModifier[];
+};
+export type SpellEffectModel = SpellEffectDispelModel | SpellEffectSchoolDamageModel | SpellEffectHealModel;
+
+export interface AuraModel {
+	durationInMs: number;
+	dispelTypeId: DISPEL_TYPE_ID;
+	periodicEffects: PeriodicEffectModel[];
+	modifyStatEffects: ModifyStatEffectModel[];
+}
+
+export interface PeriodicEffectModel {
+	periodicEffectTypeId: PERIODIC_EFFECT_TYPE_ID;
+	schoolTypeId: SCHOOL_TYPE_ID;
+	intervalInMs: number;
+	value: number;
+	valueModifiers: SpellEffectValueModifier[];
+}
+
+export interface ModifyStatEffectModel {
+	modifyTypeId: MODIFY_TYPE_ID;
+	statTypeId: STAT_TYPE_ID;
+	value: number;
 }
 
 export interface SpellCost {
@@ -21,36 +60,19 @@ export interface SpellCost {
 	amountPercent: number;
 }
 
-export type SpellEffectApplyAura = {
-	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.APPLY_AURA;
-	auraTypeId: AURA_TYPE_ID;
-	auraDirectionTypeId: AURA_DIRECTION_TYPE_ID;
-	value: number;
-	valueModifiers: SpellEffectValueModifier[];
-	intervalInMs: number;
-};
-export type SpellEffectDispel = {
-	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.DISPEL;
-	dispelTypeId: DISPEL_TYPE_ID;
-	value: number;
-	valueModifiers: SpellEffectValueModifier[];
-};
-export type SpellEffectSchoolDamage = {
-	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.SCHOOL_DAMAGE;
-	schoolTypeId: SCHOOL_TYPE_ID;
-	value: number;
-	valueModifiers: SpellEffectValueModifier[];
-};
-export type SpellEffectHeal = {
-	spellEffectTypeId: SPELL_EFFECT_TYPE_ID.HEAL;
-	value: number;
-	valueModifiers: SpellEffectValueModifier[];
-};
-export type SpellEffect = SpellEffectApplyAura | SpellEffectDispel | SpellEffectSchoolDamage | SpellEffectHeal;
-
 export interface SpellEffectValueModifier {
 	stat: STAT_TYPE_ID;
 	coefficient: number;
+}
+
+export enum PERIODIC_EFFECT_TYPE_ID {
+	DAMAGE = 'DAMAGE',
+	HEALING = 'HEALING',
+}
+
+export enum MODIFY_TYPE_ID {
+	INCREASE = 'INCREASE',
+	DECREASE = 'DECREASE',
 }
 
 export enum RESOURCE_TYPE_ID {
@@ -63,20 +85,6 @@ export enum SPELL_EFFECT_TYPE_ID {
 	DISPEL = 'DISPEL',
 	HEAL = 'HEAL',
 	SCHOOL_DAMAGE = 'SCHOOL_DAMAGE',
-}
-
-export enum AURA_TYPE_ID {
-	// Damage modifiers
-	MODIFY_DAMAGE_FLAT = 'MODIFY_DAMAGE_FLAT',
-	MODIFY_DAMAGE_MULTIPLIER = 'MODIFY_DAMAGE_MULTIPLIER',
-	MODIFY_DAMAGE_PERCENT = 'MODIFY_DAMAGE_PERCENT',
-	// Healing modifiers
-	MODIFY_HEALING_FLAT = 'MODIFY_HEALING_FLAT',
-	MODIFY_HEALING_MULTIPLIER = 'MODIFY_HEALING_MULTIPLIER',
-	MODIFY_HEALING_PERCENT = 'MODIFY_HEALING_PERCENT',
-	// Periodic effects
-	PERIODIC_DAMAGE = 'PERIODIC_DAMAGE',
-	PERIODIC_HEAL = 'PERIODIC_HEAL',
 }
 
 export enum AURA_DIRECTION_TYPE_ID {
@@ -112,15 +120,6 @@ export type SpellPayload = {
 	title: string;
 	spellTypeId: SPELL_TYPE_ID;
 	schoolTypeId: SCHOOL_TYPE_ID;
-	dispelTypeId: DISPEL_TYPE_ID;
-	auraDurationInMs: number;
-	spellEffects: SpellEffect[];
-};
-
-export type AuraEffectConfig = {
-	auraTypeId: AURA_TYPE_ID;
-	schoolTypeId: SCHOOL_TYPE_ID;
-	auraDirectionTypeId: AURA_DIRECTION_TYPE_ID;
-	value: number;
-	intervalInMs: number;
+	spellEffects: SpellEffectModel[];
+	auras: AuraModel[];
 };
