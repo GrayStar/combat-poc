@@ -42,8 +42,4 @@ export class SpellEffectDispel extends SpellEffect {
 			console.log(`[${auraToRemoveState.title}] was dispelled from [${this._character.title}].`);
 		});
 	}
-
-	public override getDescription() {
-		return `Removes ${this._value} ${this._dispelTypeId} aura.`;
-	}
 }

@@ -10,5 +10,4 @@ export abstract class SpellEffect {
 	}
 
 	protected abstract _handleEffect(): void;
-	public abstract getDescription(): string;
 }
