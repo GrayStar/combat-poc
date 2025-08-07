@@ -1,8 +1,25 @@
-import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 import { useBattle } from '@/hooks';
-import { Character, Spell } from '@/components';
+import { Character } from '@/components';
+import { ActionBar } from '@/components/action-bar';
+import { tss } from '@/styles';
+import { Button } from 'react-bootstrap';
+
+const useStyles = tss.create(() => ({
+	actionBarOuter: {
+		left: 16,
+		right: 16,
+		bottom: 16,
+		display: 'flex',
+		position: 'absolute',
+		alignItems: 'center',
+		flexDirection: 'column',
+		justifyContent: 'center',
+	},
+}));
 
 export const Battle = () => {
+	const { classes } = useStyles();
 	const { battle, handleCastSpell, handleAbortCastSpell } = useBattle();
 
 	if (!battle) {
@@ -30,7 +47,7 @@ export const Battle = () => {
 			<DragDropContext onDragEnd={handleDragEnd}>
 				<>
 					{battle.hostileNonPlayerCharacterIds.length > 0 && (
-						<div className="d-flex mb-5">
+						<div className="d-flex mb-5 justify-content-center">
 							{battle.hostileNonPlayerCharacterIds.map((characterId) => {
 								const character = battle.characters[characterId];
 
@@ -47,7 +64,7 @@ export const Battle = () => {
 						</div>
 					)}
 
-					<div className="d-flex mb-5">
+					<div className="d-flex mb-5 justify-content-center">
 						<Droppable droppableId={playerCharacter.characterId}>
 							{(provided) => (
 								<div {...provided.droppableProps} ref={provided.innerRef}>
@@ -74,52 +91,21 @@ export const Battle = () => {
 						)}
 					</div>
 
-					{playerCharacter.isCastingSpell && (
-						<button
-							onClick={() => {
-								handleAbortCastSpell({ casterId: playerCharacter.characterId });
-							}}
-						>
-							abort cast
-						</button>
-					)}
-					<Droppable droppableId="SPELLS" isDropDisabled direction="horizontal">
-						{(droppableProvided) => (
-							<div
-								{...droppableProvided.droppableProps}
-								ref={droppableProvided.innerRef}
-								className="d-flex"
+					<div className={classes.actionBarOuter}>
+						{playerCharacter.isCastingSpell && (
+							<Button
+								size="lg"
+								variant="warning"
+								className="mb-2"
+								onClick={() => {
+									handleAbortCastSpell({ casterId: playerCharacter.characterId });
+								}}
 							>
-								{playerCharacter.spells.map((spell, spellIndex) => (
-									<Draggable
-										key={spell.spellId}
-										draggableId={spell.spellId}
-										index={spellIndex}
-										isDragDisabled={spell.isOnCooldown || !!playerCharacter.isCastingSpell}
-									>
-										{(draggableProvided, draggableSnapshot) => (
-											<>
-												<div
-													{...draggableProvided.draggableProps}
-													{...draggableProvided.dragHandleProps}
-													ref={draggableProvided.innerRef}
-												>
-													<div className="mx-1">
-														<Spell spell={spell} />
-													</div>
-												</div>
-												{draggableSnapshot.isDragging && (
-													<div className="mx-1" style={{ transform: 'none !important' }}>
-														<Spell spell={spell} />
-													</div>
-												)}
-											</>
-										)}
-									</Draggable>
-								))}
-							</div>
+								Cancel {playerCharacter.isCastingSpell.title}
+							</Button>
 						)}
-					</Droppable>
+						<ActionBar spells={playerCharacter.spells} disabled={!!playerCharacter.isCastingSpell} />
+					</div>
 				</>
 			</DragDropContext>
 

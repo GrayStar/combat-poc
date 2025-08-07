@@ -10,15 +10,15 @@ export const defaultTheme = {
 		danger: '#e34555ff',
 
 		// Grays
-		gray100: '#FAF9F8',
-		gray200: '#EFECE9',
-		gray300: '#E6E2DE',
-		gray400: '#DAD4CE',
-		gray500: '#BDB5AD',
-		gray600: '#7D756C',
-		gray700: '#575049',
-		gray800: '#44403C',
-		gray900: '#292724',
+		gray100: '#f8f9fa',
+		gray200: '#e9ecef',
+		gray300: '#dee2e6',
+		gray400: '#ced4da',
+		gray500: '#adb5bd',
+		gray600: '#6c757d',
+		gray700: '#495057',
+		gray800: '#343a40',
+		gray900: '#212529',
 
 		// Default
 		white: '#FFFFFF',

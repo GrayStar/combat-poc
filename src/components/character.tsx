@@ -5,7 +5,6 @@ import { Meter, MeterAnimated, StatusEffect } from '@/components';
 import { tss } from '@/styles';
 import { useTheme } from '@/styles/hooks';
 import classNames from 'classnames';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const damageFlash = keyframes`
 	from {
@@ -147,36 +146,6 @@ export const Character = ({ character }: CharacterProps) => {
 						})}
 					</div>
 				)}
-				<OverlayTrigger
-					overlay={
-						<Tooltip>
-							{Object.entries(character.stats).map(([stat, value]) => {
-								return (
-									<p key={stat} className="small mb-0 no-wrap">
-										{stat}: {value}
-									</p>
-								);
-							})}
-						</Tooltip>
-					}
-				>
-					<div>stats</div>
-				</OverlayTrigger>
-				<OverlayTrigger
-					overlay={
-						<Tooltip>
-							{Object.entries(character.threat).map(([characterId, amount]) => {
-								return (
-									<p key={characterId} className="small mb-0 no-wrap">
-										{characterId}: {amount}
-									</p>
-								);
-							})}
-						</Tooltip>
-					}
-				>
-					<div>threat</div>
-				</OverlayTrigger>
 			</div>
 			<div className={classes.avatar} key={character.renderKeyCastSpell}>
 				{character.renderKeyDamage && (

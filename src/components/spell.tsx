@@ -7,16 +7,17 @@ import { CooldownCircle } from '@/components/cooldown-circle';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const size = 48;
+const borderRadius = 8;
 const flashAnimationDurationInMs = 1000;
 
 const useStyles = tss.create((theme) => ({
 	spell: {
 		width: size,
 		height: size,
-		borderRadius: 8,
 		overflow: 'hidden',
 		textAlign: 'center',
 		position: 'relative',
+		borderRadius: borderRadius,
 		backgroundColor: theme.colors.gray400,
 	},
 	flash: {
@@ -94,4 +95,18 @@ export const Spell = ({ spell, className }: SpellProps) => {
 			</div>
 		</OverlayTrigger>
 	);
+};
+
+const useSpellShellStyles = tss.create((theme) => ({
+	spellShell: {
+		width: size,
+		height: size,
+		borderRadius: borderRadius,
+		backgroundColor: theme.colors.gray900,
+	},
+}));
+
+export const SpellShell = () => {
+	const { classes } = useSpellShellStyles();
+	return <div className={classes.spellShell} />;
 };
