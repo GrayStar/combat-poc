@@ -21,3 +21,10 @@ export enum STAT_TYPE_ID {
 	DEXTERITY = 'DEXTERITY',
 	INTELLIGENCE = 'INTELLIGENCE',
 }
+
+export enum SECONDARY_STAT_TYPE_ID {
+	HASTE = 'HASTE',
+}
+
+export const combinedStats = { ...STAT_TYPE_ID, ...SECONDARY_STAT_TYPE_ID };
+export type ALL_STAT_TYPE_ID = keyof typeof combinedStats;

@@ -1,4 +1,4 @@
-import { CharacterModel, STAT_TYPE_ID } from '@/lib/character/character-models';
+import { CharacterModel, SECONDARY_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 
 export enum CHARACTER_TYPE_ID {
@@ -17,6 +17,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 			SPELL_TYPE_ID.DOT,
 			SPELL_TYPE_ID.HOT,
 			SPELL_TYPE_ID.VIT_UP,
+			SPELL_TYPE_ID.HASTE_UP,
 		],
 		stats: {
 			[STAT_TYPE_ID.VITALITY]: 10,
@@ -40,4 +41,8 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 			[STAT_TYPE_ID.INTELLIGENCE]: 10,
 		},
 	},
+};
+
+export const defaultSecondaryStats = {
+	[SECONDARY_STAT_TYPE_ID.HASTE]: 0,
 };

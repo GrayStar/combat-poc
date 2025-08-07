@@ -6,7 +6,7 @@ import {
 	SCHOOL_TYPE_ID,
 	SpellModel,
 } from '@/lib/spell/spell-models';
-import { STAT_TYPE_ID } from '@/lib/character/character-models';
+import { SECONDARY_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
 
 export enum SPELL_TYPE_ID {
 	DD_AP = 'DD_AP',
@@ -15,6 +15,7 @@ export enum SPELL_TYPE_ID {
 	HOT = 'HOT',
 	DISPEL_MAGIC = 'DISPEL_MAGIC',
 	VIT_UP = 'VIT_UP',
+	HASTE_UP = 'HASTE_UP',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -199,6 +200,39 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 						modifyTypeId: MODIFY_TYPE_ID.INCREASE,
 						statTypeId: STAT_TYPE_ID.VITALITY,
 						value: 2,
+					},
+				],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.HASTE_UP]: {
+		spellTypeId: SPELL_TYPE_ID.HASTE_UP,
+		title: 'H+',
+		description: 'Increases haste.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
+		auras: [
+			{
+				durationInMs: 8000,
+				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+				periodicEffects: [],
+				modifyStatEffects: [
+					{
+						modifyTypeId: MODIFY_TYPE_ID.INCREASE,
+						statTypeId: SECONDARY_STAT_TYPE_ID.HASTE,
+						value: 0.63,
 					},
 				],
 			},

@@ -14,18 +14,18 @@ import {
 	SpellPayload,
 } from '@/lib/spell/spell-models';
 import { Character } from '@/lib/character/character-class';
+import { SECONDARY_STAT_TYPE_ID } from '../character/character-models';
 
 export type SpellState = {
 	spellId: string;
-	spellTypeId: SPELL_TYPE_ID;
 	title: string;
 	costDescription: string;
 	description: string;
-	effects: string;
-	castTimeDurationInMs: number;
+	spellEffectDescription: string;
 	castTimeDescription: string;
-	cooldownDurationInMs: number;
 	cooldownDescription: string;
+	castTimeAnimationDurationInMs: number;
+	cooldownAnimationDurationInMs: number;
 	isOnCooldown: boolean;
 };
 
@@ -92,12 +92,12 @@ export class Spell {
 			return;
 		}
 
-		this._cooldownAnimationDurationInMs = this.cooldownDurationInMs;
+		this._cooldownAnimationDurationInMs = this._getProcessedCooldownDurationInMs();
 
 		this._cooldownTimeout = setTimeout(() => {
 			this._cooldownTimeout = undefined;
 			this._notify();
-		}, this.cooldownDurationInMs);
+		}, this._getProcessedCooldownDurationInMs());
 
 		this._notify();
 	}
@@ -107,17 +107,29 @@ export class Spell {
 			return;
 		}
 
-		this._cooldownAnimationDurationInMs = this.globalCooldownDurationInMs;
+		this._cooldownAnimationDurationInMs = this._getProcessedGlobalCooldownDurationInMs();
 
 		this._cooldownTimeout = setTimeout(() => {
 			this._cooldownTimeout = undefined;
 			this._notify();
-		}, this.globalCooldownDurationInMs);
+		}, this._getProcessedGlobalCooldownDurationInMs());
 
 		this._notify();
 	}
 
-	public _getProcessedCost(): SpellCostModel[] {
+	private _getProcessedCastTimeDurationInMs(): number {
+		return this.castTimeDurationInMs / (1 + this._character.stats[SECONDARY_STAT_TYPE_ID.HASTE]);
+	}
+
+	private _getProcessedCooldownDurationInMs(): number {
+		return this.cooldownDurationInMs / (1 + this._character.stats[SECONDARY_STAT_TYPE_ID.HASTE]);
+	}
+
+	private _getProcessedGlobalCooldownDurationInMs(): number {
+		return this.globalCooldownDurationInMs / (1 + this._character.stats[SECONDARY_STAT_TYPE_ID.HASTE]);
+	}
+
+	private _getProcessedCost(): SpellCostModel[] {
 		return this._cost;
 	}
 
@@ -170,12 +182,21 @@ export class Spell {
 	}
 
 	private _getCastTimeDescription() {
-		const castTimeInSeconds = this.castTimeDurationInMs / 1000;
+		const castTimeInSeconds = this._getProcessedCastTimeDurationInMs() / 1000;
 		if (castTimeInSeconds === 0) {
 			return 'Instant';
 		}
 
 		return `${castTimeInSeconds} sec cast`;
+	}
+
+	private _getCooldownDescription() {
+		const cooldownInSeconds = this._getProcessedCooldownDurationInMs() / 1000;
+		if (cooldownInSeconds === 0) {
+			return 'Instant';
+		}
+
+		return `${cooldownInSeconds} sec cooldown`;
 	}
 
 	private _getDamageEffectDescriptions() {
@@ -236,21 +257,21 @@ export class Spell {
 			healEffects: this._getProcessedHealEffects(),
 			dispelEffects: this._dispelEffects,
 			auras: this._getProcessedAuras(),
+			castTimeDurationInMs: this._getProcessedCastTimeDurationInMs(),
 		};
 	}
 
 	public getState(): SpellState {
 		return {
 			spellId: this.spellId,
-			spellTypeId: this.spellTypeId,
 			title: this.title,
 			costDescription: this._getCostDescription(),
-			description: this.description,
-			effects: this._getEffectDescriptions(),
-			castTimeDurationInMs: this.castTimeDurationInMs,
 			castTimeDescription: this._getCastTimeDescription(),
-			cooldownDurationInMs: this._cooldownAnimationDurationInMs,
-			cooldownDescription: `${this._cooldownAnimationDurationInMs / 1000} sec`,
+			cooldownDescription: this._getCooldownDescription(),
+			description: this.description,
+			spellEffectDescription: this._getEffectDescriptions(),
+			castTimeAnimationDurationInMs: this._getProcessedCastTimeDurationInMs(),
+			cooldownAnimationDurationInMs: this._cooldownAnimationDurationInMs,
 			isOnCooldown: !!this._cooldownTimeout,
 		};
 	}

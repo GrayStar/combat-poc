@@ -66,10 +66,10 @@ export const Spell = ({ spell, className }: SpellProps) => {
 					<p className="mb-0 small text-start text-nowrap">{spell.costDescription}</p>
 					<div className="mb-3 d-flex align-items-center justify-content-between">
 						<p className="mb-0 small text-nowrap">{spell.castTimeDescription}</p>
-						<p className="mb-0 small text-nowrap">{spell.cooldownDescription} cooldown</p>
+						<p className="mb-0 small text-nowrap">{spell.cooldownDescription}</p>
 					</div>
 					<p className="mb-3 small text-start text-warning fst-italic">{spell.description}</p>
-					<p className="mb-0 small text-start text-warning">{spell.effects}</p>
+					<p className="mb-0 small text-start text-warning">{spell.spellEffectDescription}</p>
 				</Tooltip>
 			}
 		>
@@ -87,7 +87,9 @@ export const Spell = ({ spell, className }: SpellProps) => {
 				>
 					<div ref={overlayRef} className={classes.flash} />
 				</CSSTransition>
-				{spell.isOnCooldown && <CooldownCircle size={size} durationInMs={spell.cooldownDurationInMs} />}
+				{spell.isOnCooldown && (
+					<CooldownCircle size={size} durationInMs={spell.cooldownAnimationDurationInMs} />
+				)}
 				<span className="small">{spell.title}</span>
 			</div>
 		</OverlayTrigger>

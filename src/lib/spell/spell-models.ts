@@ -1,4 +1,4 @@
-import { STAT_TYPE_ID } from '@/lib/character/character-models';
+import { ALL_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 
 export type SpellModel = {
@@ -50,7 +50,7 @@ export type PeriodicEffectModel = {
 
 export type ModifyStatEffectModel = {
 	modifyTypeId: MODIFY_TYPE_ID;
-	statTypeId: STAT_TYPE_ID;
+	statTypeId: ALL_STAT_TYPE_ID;
 	value: number;
 };
 
@@ -114,6 +114,7 @@ export type SpellPayload = {
 	spellTypeId: SPELL_TYPE_ID;
 	schoolTypeId: SCHOOL_TYPE_ID;
 	cost: SpellCostModel[];
+	castTimeDurationInMs: number;
 	damageEffects: SpellEffectDamageModel[];
 	healEffects: SpellEffectHealModel[];
 	dispelEffects: SpellEffectDispelModel[];

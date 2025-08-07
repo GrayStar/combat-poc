@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
-import { STAT_TYPE_ID } from '@/lib/character/character-models';
-import { CHARACTER_TYPE_ID, characterData } from '@/lib/character/character-data';
+import { ALL_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
+import { CHARACTER_TYPE_ID, characterData, defaultSecondaryStats } from '@/lib/character/character-data';
 import { RESOURCE_TYPE_ID, SpellPayload } from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 import { Spell, SpellState } from '@/lib/spell/spell-class';
@@ -42,7 +42,7 @@ export class Character {
 		abortController: AbortController;
 		timeout?: NodeJS.Timeout;
 	};
-	private _stats: Record<STAT_TYPE_ID, number>;
+	private _stats: Record<ALL_STAT_TYPE_ID, number>;
 	private _auras: Record<string, Aura>;
 
 	private _renderKeyDamage: string = '';
@@ -57,7 +57,7 @@ export class Character {
 		this.characterTypeId = characterTypeId;
 		this.title = config.title;
 
-		this._stats = config.stats;
+		this._stats = { ...config.stats, ...defaultSecondaryStats };
 		this._updateResourceMaxValues();
 		this._health = this.maxHealth;
 		this._mana = this._maxMana;
@@ -125,7 +125,7 @@ export class Character {
 		return this._stats;
 	}
 
-	public setStat(statTypeId: STAT_TYPE_ID, value: number) {
+	public setStat(statTypeId: ALL_STAT_TYPE_ID, value: number) {
 		this._stats[statTypeId] = value;
 		this._updateResourceMaxValues();
 		this._notify();
@@ -180,7 +180,7 @@ export class Character {
 
 		const spellPayload = spell.getPayload();
 
-		if (spell.castTimeDurationInMs <= 0) {
+		if (spellPayload.castTimeDurationInMs <= 0) {
 			this._handleSpellPayloadCost(spellPayload);
 
 			spell.startCooldown();
@@ -212,7 +212,7 @@ export class Character {
 				this._renderKeyCastSpell = uuidv4();
 				this._notify();
 				return resolve(spellPayload);
-			}, spell.castTimeDurationInMs);
+			}, spellPayload.castTimeDurationInMs);
 
 			this._currentCast.timeout = timeout;
 
