@@ -5,10 +5,9 @@ import { BattleFunctions, BattleHandleSpellCastData } from '../battle/battle-cla
 
 export class CharacterNonPlayer extends Character {
 	private _targetCharacterId: string = '';
-	private _triggerCastSpell: (data: BattleHandleSpellCastData) => void;
-
 	private _actionInterval?: NodeJS.Timeout;
 	private _actionIntervalInMs: number = 1500;
+	private _triggerCastSpell: (data: BattleHandleSpellCastData) => void;
 
 	constructor(characterTypeId: CHARACTER_TYPE_ID, battleFuctions: BattleFunctions) {
 		super(characterTypeId, battleFuctions);

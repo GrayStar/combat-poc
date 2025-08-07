@@ -3,7 +3,7 @@ import { AuraState } from '@/lib/spell/aura-class';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { CooldownCircle } from '@/components/cooldown-circle';
 
-const size = 32;
+const size = 24;
 
 const useStyles = tss.create((theme) => ({
 	statusEffect: {

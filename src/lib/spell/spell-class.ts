@@ -220,11 +220,29 @@ export class Spell {
 	}
 
 	private _getHealEffectDescriptions() {
-		return this._getProcessedHealEffects().map((effect) => `Heals ${effect.value} health.`);
+		return this._getProcessedHealEffects().map((effect) => `Heal the target for ${effect.value}.`);
 	}
 
 	private _getDispelEffectDescriptions() {
-		return this._dispelEffects.map((effect) => `Removes ${effect.value} ${effect.dispelTypeId} effect.`);
+		return this._dispelEffects.map(
+			(effect) =>
+				`Dispells ${effect.dispelTypeId} from the target, removing ${effect.value} effect${
+					effect.value === 1 ? '' : 's'
+				} at random.`
+		);
+	}
+
+	private _getInterruptEffectDescriptions() {
+		return this._interruptEffects.map(() => `Interrupts spell casting.`);
+	}
+
+	private _getSummonEffectDescriptions() {
+		return this._summonEffects.map(
+			(effect) =>
+				`Summons ${effect.value} ${effect.characterTypeId}${
+					effect.value === 1 ? '' : 's'
+				}, loyal to the target.`
+		);
 	}
 
 	private _getAuraDescriptions() {
@@ -255,6 +273,8 @@ export class Spell {
 			...this._getHealEffectDescriptions(),
 			...this._getDispelEffectDescriptions(),
 			...this._getAuraDescriptions(),
+			...this._getInterruptEffectDescriptions(),
+			...this._getSummonEffectDescriptions(),
 		]
 			.filter(Boolean)
 			.join('\n');

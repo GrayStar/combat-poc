@@ -37,6 +37,7 @@ export type SpellEffectInterruptModel = {
 	value: number;
 };
 export type SpellEffectSummonModel = {
+	value: number;
 	characterTypeId: CHARACTER_TYPE_ID;
 };
 

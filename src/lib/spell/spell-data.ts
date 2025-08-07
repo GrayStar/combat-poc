@@ -280,7 +280,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.SUMMON_SKELETON]: {
 		spellTypeId: SPELL_TYPE_ID.SUMMON_SKELETON,
 		title: 'Summon Skeleton',
-		description: 'Summons a skeleton that is loyal to the target.',
+		description: 'Summons a small army of skeletons.',
 		cost: [
 			{
 				resourceTypeId: RESOURCE_TYPE_ID.MANA,
@@ -298,6 +298,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		interruptEffects: [],
 		summonEffects: [
 			{
+				value: 3,
 				characterTypeId: CHARACTER_TYPE_ID.SKELETON,
 			},
 		],

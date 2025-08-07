@@ -196,8 +196,9 @@ export class Battle {
 		} else {
 			const threatCandidateIds = ownerIsFriendly
 				? this._hostileNonPlayerCharacterIds
-				: this._friendlyNonPlayerCharacterIds;
+				: [...this._friendlyNonPlayerCharacterIds, this._playerCharacterId];
 			const randomTargetId = threatCandidateIds[Math.floor(Math.random() * threatCandidateIds.length)];
+
 			summon.adjustThreat(randomTargetId, 100);
 		}
 
