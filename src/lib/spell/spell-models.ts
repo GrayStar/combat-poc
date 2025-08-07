@@ -5,7 +5,7 @@ export type SpellModel = {
 	spellTypeId: SPELL_TYPE_ID;
 	title: string;
 	description: string;
-	cost: SpellCost[];
+	cost: SpellCostModel[];
 	castTimeDurationInMs: number;
 	cooldownDurationInMs: number;
 	globalCooldownDurationInMs: number;
@@ -54,7 +54,7 @@ export type ModifyStatEffectModel = {
 	value: number;
 };
 
-export type SpellCost = {
+export type SpellCostModel = {
 	resourceTypeId: RESOURCE_TYPE_ID;
 	amountFlat: number;
 	amountPercent: number;
@@ -113,6 +113,7 @@ export type SpellPayload = {
 	title: string;
 	spellTypeId: SPELL_TYPE_ID;
 	schoolTypeId: SCHOOL_TYPE_ID;
+	cost: SpellCostModel[];
 	damageEffects: SpellEffectDamageModel[];
 	healEffects: SpellEffectHealModel[];
 	dispelEffects: SpellEffectDispelModel[];

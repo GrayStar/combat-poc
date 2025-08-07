@@ -146,13 +146,13 @@ export const Character = ({ character }: CharacterProps) => {
 						})}
 					</div>
 				)}
-				{Object.entries(character.stats).map(([stat, value]) => {
+				{/* {Object.entries(character.stats).map(([stat, value]) => {
 					return (
 						<p key={stat} className="small mb-0 no-wrap">
 							{stat}: {value}
 						</p>
 					);
-				})}
+				})} */}
 			</div>
 			<div className={classes.avatar} key={character.renderKeyCastSpell}>
 				{character.renderKeyDamage && (

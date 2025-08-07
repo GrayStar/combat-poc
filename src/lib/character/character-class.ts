@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { STAT_TYPE_ID } from '@/lib/character/character-models';
 import { CHARACTER_TYPE_ID, characterData } from '@/lib/character/character-data';
-import { SpellPayload } from '@/lib/spell/spell-models';
+import { RESOURCE_TYPE_ID, SpellPayload } from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 import { Spell, SpellState } from '@/lib/spell/spell-class';
 import { Aura, AuraConfig, AuraState } from '@/lib/spell/aura-class';
@@ -32,10 +32,10 @@ export class Character {
 	public readonly characterTypeId: CHARACTER_TYPE_ID;
 	public readonly title: string;
 
-	private _health: number;
 	private _maxHealth: number;
-	private _mana: number;
+	private _health: number;
 	private _maxMana: number;
+	private _mana: number;
 	private _spells: Spell[];
 	private _currentCast?: {
 		spell: SpellState;
@@ -57,10 +57,10 @@ export class Character {
 		this.characterTypeId = characterTypeId;
 		this.title = config.title;
 
-		this._health = config.maxHealth;
-		this._maxHealth = config.maxHealth;
-		this._mana = config.maxMana;
-		this._maxMana = config.maxMana;
+		this._maxHealth = config.stats[STAT_TYPE_ID.VITALITY] * 10;
+		this._health = this.maxHealth;
+		this._maxMana = config.stats[STAT_TYPE_ID.WISDOM] * 15;
+		this._mana = this._maxMana;
 		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this, notify));
 		this._stats = config.stats;
 		this._auras = {};
@@ -77,16 +77,6 @@ export class Character {
 
 	public get maxHealth() {
 		return this._maxHealth;
-	}
-
-	public setHealth(amount: number) {
-		this._health = amount;
-		this._notify();
-	}
-
-	public setMaxHealth(amount: number) {
-		this._maxHealth = amount;
-		this._notify();
 	}
 
 	public adjustHealth(amount: number) {
@@ -110,16 +100,6 @@ export class Character {
 
 	public get maxMana() {
 		return this._maxMana;
-	}
-
-	public setMana(amount: number) {
-		this._mana = amount;
-		this._notify();
-	}
-
-	public setMaxMana(amount: number) {
-		this._maxMana = amount;
-		this._notify();
 	}
 
 	public adjustMana(amount: number) {
@@ -148,7 +128,14 @@ export class Character {
 
 	public setStat(statTypeId: STAT_TYPE_ID, value: number) {
 		this._stats[statTypeId] = value;
+		this._updateResourceMaxValues();
 		this._notify();
+	}
+
+	private _updateResourceMaxValues() {
+		// logic to add health if it goes up, remove it if it goes down
+		this._maxHealth = this._stats[STAT_TYPE_ID.VITALITY] * 10;
+		this._maxMana = this._stats[STAT_TYPE_ID.WISDOM] * 15;
 	}
 
 	/* ----------------------------------------------- */
@@ -194,6 +181,8 @@ export class Character {
 		const spellPayload = spell.getPayload();
 
 		if (spell.castTimeDurationInMs <= 0) {
+			this._handleSpellPayloadCost(spellPayload);
+
 			spell.startCooldown();
 			otherSpells.forEach((s) => {
 				s.startGlobalCooldown();
@@ -213,6 +202,7 @@ export class Character {
 
 			const timeout = setTimeout(() => {
 				this._clearCurrentCast();
+				this._handleSpellPayloadCost(spellPayload);
 
 				spell.startCooldown();
 				otherSpells.forEach((s) => {
@@ -236,6 +226,21 @@ export class Character {
 				},
 				{ once: true }
 			);
+		});
+	}
+
+	private _handleSpellPayloadCost(spellPayload: SpellPayload): void {
+		spellPayload.cost.forEach((c) => {
+			// TODO: Check costs and throw ERROR------------------------------
+
+			if (c.resourceTypeId === RESOURCE_TYPE_ID.HEALTH) {
+				this.adjustHealth(-c.amountFlat);
+				return;
+			}
+			if (c.resourceTypeId === RESOURCE_TYPE_ID.MANA) {
+				this.adjustMana(-c.amountFlat);
+				return;
+			}
 		});
 	}
 

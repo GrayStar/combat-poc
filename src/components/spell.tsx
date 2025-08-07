@@ -63,6 +63,7 @@ export const Spell = ({ spell, className }: SpellProps) => {
 			overlay={
 				<Tooltip className={classes.tooltip}>
 					<h6 className="mb-0 text-start">{spell.title}</h6>
+					<p className="mb-0 small text-start text-nowrap">{spell.costDescription}</p>
 					<div className="mb-3 d-flex align-items-center justify-content-between">
 						<p className="mb-0 small text-nowrap">{spell.castTimeDescription}</p>
 						<p className="mb-0 small text-nowrap">{spell.cooldownDescription} cooldown</p>

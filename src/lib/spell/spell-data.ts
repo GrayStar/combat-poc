@@ -18,6 +18,7 @@ export enum SPELL_TYPE_ID {
 	AP_UP = 'AP_UP',
 	AP_DOWN = 'AP_DOWN',
 	DISPEL_MAGIC = 'DISPEL_MAGIC',
+	VIT_UP = 'VIT_UP',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -40,7 +41,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			{
 				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
 				value: 10,
-				valueModifiers: [{ stat: STAT_TYPE_ID.ATTACK_POWER, coefficient: 0.1 }],
+				valueModifiers: [{ stat: STAT_TYPE_ID.STRENGTH, coefficient: 0.1 }],
 			},
 		],
 		healEffects: [],
@@ -66,7 +67,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			{
 				schoolTypeId: SCHOOL_TYPE_ID.HOLY,
 				value: 10,
-				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.1 }],
+				valueModifiers: [{ stat: STAT_TYPE_ID.INTELLIGENCE, coefficient: 0.1 }],
 			},
 		],
 		damageEffects: [],
@@ -117,7 +118,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			{
 				schoolTypeId: SCHOOL_TYPE_ID.FIRE,
 				value: 10,
-				valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.14 }],
+				valueModifiers: [{ stat: STAT_TYPE_ID.INTELLIGENCE, coefficient: 0.14 }],
 			},
 		],
 		healEffects: [],
@@ -132,7 +133,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 						schoolTypeId: SCHOOL_TYPE_ID.FIRE,
 						intervalInMs: 2000,
 						value: 1,
-						valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.1 }],
+						valueModifiers: [{ stat: STAT_TYPE_ID.INTELLIGENCE, coefficient: 0.1 }],
 					},
 				],
 				modifyStatEffects: [],
@@ -167,7 +168,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 						schoolTypeId: SCHOOL_TYPE_ID.HOLY,
 						intervalInMs: 2000,
 						value: 1,
-						valueModifiers: [{ stat: STAT_TYPE_ID.SPELL_POWER, coefficient: 0.14 }],
+						valueModifiers: [{ stat: STAT_TYPE_ID.INTELLIGENCE, coefficient: 0.14 }],
 					},
 				],
 				modifyStatEffects: [],
@@ -200,7 +201,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				modifyStatEffects: [
 					{
 						modifyTypeId: MODIFY_TYPE_ID.INCREASE,
-						statTypeId: STAT_TYPE_ID.SPELL_POWER,
+						statTypeId: STAT_TYPE_ID.INTELLIGENCE,
 						value: 10,
 					},
 				],
@@ -233,7 +234,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				modifyStatEffects: [
 					{
 						modifyTypeId: MODIFY_TYPE_ID.DECREASE,
-						statTypeId: STAT_TYPE_ID.SPELL_POWER,
+						statTypeId: STAT_TYPE_ID.INTELLIGENCE,
 						value: 10,
 					},
 				],
@@ -266,7 +267,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				modifyStatEffects: [
 					{
 						modifyTypeId: MODIFY_TYPE_ID.INCREASE,
-						statTypeId: STAT_TYPE_ID.ATTACK_POWER,
+						statTypeId: STAT_TYPE_ID.INTELLIGENCE,
 						value: 10,
 					},
 				],
@@ -299,8 +300,41 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				modifyStatEffects: [
 					{
 						modifyTypeId: MODIFY_TYPE_ID.DECREASE,
-						statTypeId: STAT_TYPE_ID.ATTACK_POWER,
+						statTypeId: STAT_TYPE_ID.INTELLIGENCE,
 						value: 10,
+					},
+				],
+			},
+		],
+	},
+	[SPELL_TYPE_ID.VIT_UP]: {
+		spellTypeId: SPELL_TYPE_ID.VIT_UP,
+		title: 'VIT+',
+		description: 'Increases vitality.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 30,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
+		auras: [
+			{
+				durationInMs: 8000,
+				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
+				periodicEffects: [],
+				modifyStatEffects: [
+					{
+						modifyTypeId: MODIFY_TYPE_ID.INCREASE,
+						statTypeId: STAT_TYPE_ID.VITALITY,
+						value: 2,
 					},
 				],
 			},

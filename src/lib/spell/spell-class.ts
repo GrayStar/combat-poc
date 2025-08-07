@@ -6,6 +6,7 @@ import {
 	MODIFY_TYPE_ID,
 	PERIODIC_EFFECT_TYPE_ID,
 	SCHOOL_TYPE_ID,
+	SpellCostModel,
 	SpellEffectDamageModel,
 	SpellEffectDispelModel,
 	SpellEffectHealModel,
@@ -18,6 +19,7 @@ export type SpellState = {
 	spellId: string;
 	spellTypeId: SPELL_TYPE_ID;
 	title: string;
+	costDescription: string;
 	description: string;
 	effects: string;
 	castTimeDurationInMs: number;
@@ -37,6 +39,7 @@ export class Spell {
 	public readonly globalCooldownDurationInMs: number;
 	public readonly schoolTypeId: SCHOOL_TYPE_ID;
 
+	private readonly _cost: SpellCostModel[];
 	private readonly _damageEffects: SpellEffectDamageModel[];
 	private readonly _healEffects: SpellEffectHealModel[];
 	private readonly _dispelEffects: SpellEffectDispelModel[];
@@ -61,6 +64,8 @@ export class Spell {
 				: config.globalCooldownDurationInMs;
 		this.globalCooldownDurationInMs = config.globalCooldownDurationInMs;
 		this.schoolTypeId = config.schoolTypeId;
+
+		this._cost = config.cost;
 		this._damageEffects = config.damageEffects;
 		this._healEffects = config.healEffects;
 		this._dispelEffects = config.dispelEffects;
@@ -112,6 +117,10 @@ export class Spell {
 		this._notify();
 	}
 
+	public _getProcessedCost(): SpellCostModel[] {
+		return this._cost;
+	}
+
 	private _getProcessedDamageEffects(): SpellEffectDamageModel[] {
 		return this._damageEffects.map((effect) => ({
 			...effect,
@@ -149,6 +158,15 @@ export class Spell {
 				currentValue + this._character.stats[valueModifier.stat] * valueModifier.coefficient,
 			value
 		);
+	}
+
+	private _getCostDescription() {
+		return this._getProcessedCost()
+			.map((c) => {
+				return `${c.amountFlat} ${c.resourceTypeId}`;
+			})
+			.filter(Boolean)
+			.join('\n');
 	}
 
 	private _getCastTimeDescription() {
@@ -213,6 +231,7 @@ export class Spell {
 			title: this.title,
 			spellTypeId: this.spellTypeId,
 			schoolTypeId: this.schoolTypeId,
+			cost: this._getProcessedCost(),
 			damageEffects: this._getProcessedDamageEffects(),
 			healEffects: this._getProcessedHealEffects(),
 			dispelEffects: this._dispelEffects,
@@ -225,6 +244,7 @@ export class Spell {
 			spellId: this.spellId,
 			spellTypeId: this.spellTypeId,
 			title: this.title,
+			costDescription: this._getCostDescription(),
 			description: this.description,
 			effects: this._getEffectDescriptions(),
 			castTimeDurationInMs: this.castTimeDurationInMs,

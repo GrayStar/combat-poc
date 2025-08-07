@@ -4,13 +4,20 @@ import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 export type CharacterModel = {
 	characterTypeId: CHARACTER_TYPE_ID;
 	title: string;
-	maxHealth: number;
-	maxMana: number;
-	spellTypeIds: SPELL_TYPE_ID[];
 	stats: Record<STAT_TYPE_ID, number>;
+	spellTypeIds: SPELL_TYPE_ID[];
 };
 
 export enum STAT_TYPE_ID {
-	SPELL_POWER = 'SPELL_POWER',
-	ATTACK_POWER = 'ATTACK_POWER',
+	// governs HP
+	VITALITY = 'VITALITY',
+	// governs SP
+	ENDURANCE = 'ENDURANCE',
+	// governs MP
+	WISDOM = 'WISDOM',
+
+	// governs attack scalings
+	STRENGTH = 'STRENGTH',
+	DEXTERITY = 'DEXTERITY',
+	INTELLIGENCE = 'INTELLIGENCE',
 }
