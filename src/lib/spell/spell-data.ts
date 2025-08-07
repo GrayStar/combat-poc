@@ -26,7 +26,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cost: [
 			{
 				resourceTypeId: RESOURCE_TYPE_ID.MANA,
-				amountFlat: 30,
+				amountFlat: 10,
 				amountPercent: 0,
 			},
 		],
@@ -37,8 +37,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		damageEffects: [
 			{
 				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
-				value: 10,
-				valueModifiers: [{ stat: STAT_TYPE_ID.STRENGTH, coefficient: 0.1 }],
+				value: 20,
+				valueModifiers: [{ stat: STAT_TYPE_ID.STRENGTH, coefficient: 0.15 }],
 			},
 		],
 		healEffects: [],

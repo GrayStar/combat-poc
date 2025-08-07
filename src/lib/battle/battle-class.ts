@@ -159,7 +159,7 @@ export class Battle {
 
 	private createCharacterRecord(ids: CHARACTER_TYPE_ID[]): Record<string, CharacterNonPlayer> {
 		return ids.reduce((acc, id) => {
-			const character = new CharacterNonPlayer(id, this.notify.bind(this));
+			const character = new CharacterNonPlayer(id, this.notify.bind(this), this.handleCastSpell.bind(this));
 			acc[character.characterId] = character;
 			return acc;
 		}, {} as Record<string, CharacterNonPlayer>);

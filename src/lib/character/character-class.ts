@@ -91,6 +91,10 @@ export abstract class Character {
 		} else if (amount > 0) {
 			this._renderKeyHealing = uuidv4();
 		}
+
+		if (this._health <= 0) {
+			this._die();
+		}
 		this._notify();
 	}
 
@@ -375,4 +379,19 @@ export abstract class Character {
 	}
 
 	protected abstract _determineTarget(): void;
+
+	private _die(): void {
+		this.spells.forEach((s) => s.stopCooldown());
+		Object.values(this._auras).forEach((a) => {
+			this.removeAuraByAuraId(a.auraId);
+		});
+		this._threat = {};
+		this._mana = 0;
+		this._health = 0;
+		this._clearCurrentCast();
+		this._dieTriggerSideEffects();
+		this._notify();
+	}
+
+	protected abstract _dieTriggerSideEffects(): void;
 }

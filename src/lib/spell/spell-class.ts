@@ -77,6 +77,13 @@ export class Spell {
 		this._notify = notify;
 	}
 
+	public get isOnCooldown() {
+		return !!this._cooldownTimeout;
+	}
+	public get cost() {
+		return this._cost;
+	}
+
 	public stopCooldown(): void {
 		if (!this._cooldownTimeout) {
 			return;
@@ -273,7 +280,7 @@ export class Spell {
 			spellEffectDescription: this._getEffectDescriptions(),
 			castTimeAnimationDurationInMs: this._getProcessedCastTimeDurationInMs(),
 			cooldownAnimationDurationInMs: this._cooldownAnimationDurationInMs,
-			isOnCooldown: !!this._cooldownTimeout,
+			isOnCooldown: this.isOnCooldown,
 		};
 	}
 }

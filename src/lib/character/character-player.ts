@@ -9,4 +9,8 @@ export class CharacterPlayer extends Character {
 	protected override _determineTarget() {
 		return;
 	}
+
+	protected override _dieTriggerSideEffects() {
+		return;
+	}
 }
