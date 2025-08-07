@@ -10,6 +10,7 @@ import {
 	SpellEffectDamageModel,
 	SpellEffectDispelModel,
 	SpellEffectHealModel,
+	SpellEffectInterruptModel,
 	SpellEffectValueModifier,
 	SpellPayload,
 } from '@/lib/spell/spell-models';
@@ -44,6 +45,7 @@ export class Spell {
 	private readonly _damageEffects: SpellEffectDamageModel[];
 	private readonly _healEffects: SpellEffectHealModel[];
 	private readonly _dispelEffects: SpellEffectDispelModel[];
+	private readonly _interruptEffects: SpellEffectInterruptModel[];
 	private readonly _auras: AuraModel[];
 	private readonly _character;
 
@@ -70,6 +72,7 @@ export class Spell {
 		this._damageEffects = config.damageEffects;
 		this._healEffects = config.healEffects;
 		this._dispelEffects = config.dispelEffects;
+		this._interruptEffects = config.interruptEffects;
 		this._auras = config.auras;
 
 		this._character = character;
@@ -264,6 +267,7 @@ export class Spell {
 			damageEffects: this._getProcessedDamageEffects(),
 			healEffects: this._getProcessedHealEffects(),
 			dispelEffects: this._dispelEffects,
+			interruptEffects: this._interruptEffects,
 			auras: this._getProcessedAuras(),
 			castTimeDurationInMs: this._getProcessedCastTimeDurationInMs(),
 		};

@@ -18,6 +18,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 			SPELL_TYPE_ID.HOT,
 			SPELL_TYPE_ID.VIT_UP,
 			SPELL_TYPE_ID.HASTE_UP,
+			SPELL_TYPE_ID.INTERRUPT,
 		],
 		stats: {
 			[STAT_TYPE_ID.VITALITY]: 10,

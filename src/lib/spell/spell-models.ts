@@ -13,6 +13,7 @@ export type SpellModel = {
 	damageEffects: SpellEffectDamageModel[];
 	healEffects: SpellEffectHealModel[];
 	dispelEffects: SpellEffectDispelModel[];
+	interruptEffects: SpellEffectInterruptModel[];
 	auras: AuraModel[];
 };
 
@@ -31,6 +32,9 @@ export type SpellEffectHealModel = {
 	schoolTypeId: SCHOOL_TYPE_ID;
 	value: number;
 	valueModifiers: SpellEffectValueModifier[];
+};
+export type SpellEffectInterruptModel = {
+	value: number;
 };
 
 export type AuraModel = {
@@ -118,5 +122,6 @@ export type SpellPayload = {
 	damageEffects: SpellEffectDamageModel[];
 	healEffects: SpellEffectHealModel[];
 	dispelEffects: SpellEffectDispelModel[];
+	interruptEffects: SpellEffectInterruptModel[];
 	auras: AuraModel[];
 };

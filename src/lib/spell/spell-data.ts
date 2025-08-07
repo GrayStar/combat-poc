@@ -16,6 +16,7 @@ export enum SPELL_TYPE_ID {
 	DISPEL_MAGIC = 'DISPEL_MAGIC',
 	VIT_UP = 'VIT_UP',
 	HASTE_UP = 'HASTE_UP',
+	INTERRUPT = 'INTERRUPT',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -43,6 +44,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		],
 		healEffects: [],
 		dispelEffects: [],
+		interruptEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DH_SP]: {
@@ -69,6 +71,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		],
 		damageEffects: [],
 		dispelEffects: [],
+		interruptEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DISPEL_MAGIC]: {
@@ -94,6 +97,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		],
 		damageEffects: [],
 		healEffects: [],
+		interruptEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DOT]: {
@@ -120,6 +124,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		],
 		healEffects: [],
 		dispelEffects: [],
+		interruptEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -155,6 +160,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		damageEffects: [],
 		healEffects: [],
 		dispelEffects: [],
+		interruptEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -190,6 +196,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		damageEffects: [],
 		healEffects: [],
 		dispelEffects: [],
+		interruptEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -223,6 +230,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		damageEffects: [],
 		healEffects: [],
 		dispelEffects: [],
+		interruptEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -237,5 +245,26 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 				],
 			},
 		],
+	},
+	[SPELL_TYPE_ID.INTERRUPT]: {
+		spellTypeId: SPELL_TYPE_ID.INTERRUPT,
+		title: 'Interrupt',
+		description: 'Interrupts spell casting.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 10,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
+		interruptEffects: [{ value: 1 }],
+		auras: [],
 	},
 };

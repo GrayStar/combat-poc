@@ -10,6 +10,7 @@ import { SpellEffectSchoolDamage } from '../spell/spell-effects/spell-effect-sch
 import { SpellEffectDispel } from '@/lib/spell/spell-effects/spell-effect-dispel';
 import { SpellEffectHeal } from '@/lib/spell/spell-effects/spell-effect-heal';
 import { roundNumber } from '../utils/number-utils';
+import { SpellEffectInterrupt } from '../spell/spell-effects/spell-effect-interrupt';
 
 export type CharacterState = {
 	characterId: string;
@@ -262,11 +263,15 @@ export abstract class Character {
 	}
 
 	public interuptCasting(): void {
+		console.log(`interrupt on ${this.title}`);
+
 		if (!this._currentCast) {
+			console.log(`interrupt failed`);
 			return;
 		}
 
 		this._currentCast.abortController.abort();
+		this._notify();
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, _callback: (message: string) => void) {
@@ -280,6 +285,10 @@ export abstract class Character {
 
 		spellPayload.dispelEffects.forEach((se) => {
 			new SpellEffectDispel(se, this, spellPayload.casterId);
+		});
+
+		spellPayload.interruptEffects.forEach((se) => {
+			new SpellEffectInterrupt(se, this, spellPayload.casterId);
 		});
 
 		spellPayload.auras.forEach((a) => {
