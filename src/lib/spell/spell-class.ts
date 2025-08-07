@@ -53,9 +53,8 @@ export class Spell {
 
 	private _cooldownAnimationDurationInMs: number;
 	private _cooldownTimeout?: NodeJS.Timeout;
-	private _notify: () => void;
 
-	constructor(spellTypeId: SPELL_TYPE_ID, character: Character, notify: () => void) {
+	constructor(spellTypeId: SPELL_TYPE_ID, character: Character) {
 		const config = cloneDeep(spellData[spellTypeId]);
 
 		this.spellId = uuidv4();
@@ -80,7 +79,6 @@ export class Spell {
 
 		this._character = character;
 		this._cooldownAnimationDurationInMs = this.cooldownDurationInMs;
-		this._notify = notify;
 	}
 
 	public get isOnCooldown() {
@@ -98,7 +96,7 @@ export class Spell {
 		clearTimeout(this._cooldownTimeout);
 		this._cooldownTimeout = undefined;
 
-		this._notify();
+		this._character.battle.notify();
 	}
 
 	public startCooldown(): void {
@@ -110,10 +108,10 @@ export class Spell {
 
 		this._cooldownTimeout = setTimeout(() => {
 			this._cooldownTimeout = undefined;
-			this._notify();
+			this._character.battle.notify();
 		}, this._getProcessedCooldownDurationInMs());
 
-		this._notify();
+		this._character.battle.notify();
 	}
 
 	public startGlobalCooldown(): void {
@@ -125,10 +123,10 @@ export class Spell {
 
 		this._cooldownTimeout = setTimeout(() => {
 			this._cooldownTimeout = undefined;
-			this._notify();
+			this._character.battle.notify();
 		}, this._getProcessedGlobalCooldownDurationInMs());
 
-		this._notify();
+		this._character.battle.notify();
 	}
 
 	private _getProcessedCastTimeDurationInMs(): number {

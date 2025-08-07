@@ -13,7 +13,7 @@ import { SpellEffectHeal } from '@/lib/spell/spell-effects/spell-effect-heal';
 import { SpellEffectInterrupt } from '@/lib/spell/spell-effects/spell-effect-interrupt';
 import { SpellEffectSummon } from '@/lib/spell/spell-effects/spell-effect-summon';
 import { CHARACTER_TYPE_ID } from '../data/enums';
-import { BattleFunctions, AddSummonPayload } from '@/lib/battle/battle-class';
+import { Battle } from '@/lib/battle/battle-class';
 
 export type CharacterState = {
 	characterId: string;
@@ -56,10 +56,9 @@ export abstract class Character {
 	private _renderKeyCastSpell: string = '';
 	protected _threat: Record<string, number> = {};
 
-	private _notify: () => void;
-	private _summonAlly: (data: AddSummonPayload) => void;
+	protected _battle: Battle;
 
-	constructor(characterTypeId: CHARACTER_TYPE_ID, battleFuctions: BattleFunctions) {
+	constructor(characterTypeId: CHARACTER_TYPE_ID, battle: Battle) {
 		const config = cloneDeep(characterData[characterTypeId]);
 
 		this.characterId = uuidv4();
@@ -70,11 +69,14 @@ export abstract class Character {
 		this._updateResourceMaxValues();
 		this._health = this.maxHealth;
 		this._mana = this._maxMana;
-		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this, battleFuctions.notify));
+		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this));
 		this._auras = {};
 
-		this._notify = battleFuctions.notify;
-		this._summonAlly = battleFuctions.addSummon;
+		this._battle = battle;
+	}
+
+	public get battle() {
+		return this._battle;
 	}
 
 	/* ----------------------------------------------- */
@@ -101,7 +103,8 @@ export abstract class Character {
 		if (this._health <= 0) {
 			this._die();
 		}
-		this._notify();
+
+		this._battle.notify();
 	}
 
 	/* ----------------------------------------------- */
@@ -129,7 +132,7 @@ export abstract class Character {
 		}
 
 		this._mana = nextManaValue;
-		this._notify();
+		this._battle.notify();
 	}
 
 	/* ----------------------------------------------- */
@@ -142,7 +145,7 @@ export abstract class Character {
 	public setStat(statTypeId: ALL_STAT_TYPE_ID, value: number) {
 		this._stats[statTypeId] = value;
 		this._updateResourceMaxValues();
-		this._notify();
+		this._battle.notify();
 	}
 
 	private _updateResourceMaxValues() {
@@ -166,13 +169,13 @@ export abstract class Character {
 			});
 		}
 
-		this._spells = spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this, this._notify.bind(this)));
-		this._notify();
+		this._spells = spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this));
+		this._battle.notify();
 	}
 
 	public addSpell(spellTypeId: SPELL_TYPE_ID) {
-		this._spells.push(new Spell(spellTypeId, this, this._notify.bind(this)));
-		this._notify();
+		this._spells.push(new Spell(spellTypeId, this));
+		this._battle.notify();
 	}
 
 	// [TODO]: public removeSpell()
@@ -203,7 +206,7 @@ export abstract class Character {
 			});
 
 			this._renderKeyCastSpell = uuidv4();
-			this._notify();
+			this._battle.notify();
 			return Promise.resolve(spellPayload);
 		}
 
@@ -212,7 +215,7 @@ export abstract class Character {
 			const { signal } = abortController;
 			this._currentCast = { spell: spell.getState(), abortController };
 
-			this._notify();
+			this._battle.notify();
 
 			const timeout = setTimeout(() => {
 				this._clearCurrentCast();
@@ -224,7 +227,7 @@ export abstract class Character {
 				});
 
 				this._renderKeyCastSpell = uuidv4();
-				this._notify();
+				this._battle.notify();
 				return resolve(spellPayload);
 			}, spellPayload.castTimeDurationInMs);
 
@@ -234,7 +237,7 @@ export abstract class Character {
 				'abort',
 				() => {
 					this._clearCurrentCast();
-					this._notify();
+					this._battle.notify();
 
 					return reject(new Error(`${this.title} was interrupted.`));
 				},
@@ -276,7 +279,7 @@ export abstract class Character {
 		}
 
 		this._currentCast.abortController.abort();
-		this._notify();
+		this._battle.notify();
 	}
 
 	public recieveSpellPayload(spellPayload: SpellPayload, _callback: (message: string) => void) {
@@ -298,6 +301,7 @@ export abstract class Character {
 
 		spellPayload.summonEffects.forEach((se) => {
 			new SpellEffectSummon(se, this, spellPayload.casterId);
+			this._battle.notify();
 		});
 
 		spellPayload.auras.forEach((a) => {
@@ -326,7 +330,7 @@ export abstract class Character {
 			this._auras[aura.auraId] = aura;
 		}
 
-		this._notify();
+		this._battle.notify();
 	}
 
 	public removeAuraByAuraId(auraId: string) {
@@ -339,7 +343,7 @@ export abstract class Character {
 		aura.stopTimers();
 		delete this._auras[auraId];
 
-		this._notify();
+		this._battle.notify();
 	}
 
 	public getAuraStateByAuraId(auraId: string) {
@@ -415,12 +419,8 @@ export abstract class Character {
 		this._health = 0;
 		this._clearCurrentCast();
 		this._dieTriggerSideEffects();
-		this._notify();
+		this._battle.notify();
 	}
 
 	protected abstract _dieTriggerSideEffects(): void;
-
-	public summonAlly(data: AddSummonPayload): void {
-		this._summonAlly(data);
-	}
 }

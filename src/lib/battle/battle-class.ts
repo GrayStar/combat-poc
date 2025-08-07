@@ -30,12 +30,6 @@ export type AddSummonPayload = {
 	targetId: string;
 };
 
-export type BattleFunctions = {
-	notify: () => void;
-	handleSpellCast: (data: BattleHandleSpellCastData) => void;
-	addSummon: (data: AddSummonPayload) => void;
-};
-
 export class Battle {
 	private readonly _battleId: string;
 	private readonly _battleTypeId: BATTLE_TYPE_ID;
@@ -55,6 +49,22 @@ export class Battle {
 		this._title = config.title;
 
 		this._initializeCharacters(config);
+	}
+
+	public get playerCharacterId() {
+		return this._playerCharacterId;
+	}
+
+	public get friendlyNonPlayerCharacterIds() {
+		return this._friendlyNonPlayerCharacterIds;
+	}
+
+	public get hostileNonPlayerCharacterIds() {
+		return this._hostileNonPlayerCharacterIds;
+	}
+
+	public get characters() {
+		return this._characters;
 	}
 
 	public get battleId() {
@@ -143,11 +153,7 @@ export class Battle {
 	}
 
 	private _initializeCharacters(config: (typeof battleData)[BATTLE_TYPE_ID]): void {
-		const player = new CharacterPlayer(config.playerCharacterTypeId, {
-			addSummon: this.addSummon.bind(this),
-			notify: this.notify.bind(this),
-			handleSpellCast: this.handleCastSpell.bind(this),
-		});
+		const player = new CharacterPlayer(config.playerCharacterTypeId, this);
 		const friendly = this._createCharacterRecord(config.friendlyNonPlayerCharacterTypeIds);
 		const hostile = this._createCharacterRecord(config.hostileNonPlayerCharacterTypeIds);
 
@@ -164,55 +170,23 @@ export class Battle {
 
 	private _createCharacterRecord(ids: CHARACTER_TYPE_ID[]): Record<string, CharacterNonPlayer> {
 		return ids.reduce((acc, id) => {
-			const character = new CharacterNonPlayer(id, {
-				addSummon: this.addSummon.bind(this),
-				notify: this.notify.bind(this),
-				handleSpellCast: this.handleCastSpell.bind(this),
-			});
+			const character = new CharacterNonPlayer(id, this);
 			acc[character.characterId] = character;
 			return acc;
 		}, {} as Record<string, CharacterNonPlayer>);
 	}
 
-	public addSummon({ characterTypeId, targetId }: AddSummonPayload) {
-		const owner = this._characters[targetId];
-		const ownerIsFriendly =
-			this._friendlyNonPlayerCharacterIds.includes(targetId) || this._playerCharacterId === targetId;
-		const ownerIsHostile = this._hostileNonPlayerCharacterIds.includes(targetId);
+	public addFriendlyCharacter(characterTypeId: CHARACTER_TYPE_ID) {
+		const character = new CharacterNonPlayer(characterTypeId, this);
+		this._friendlyNonPlayerCharacterIds.push(character.characterId);
+		this._characters[character.characterId] = character;
+		return character.characterId;
+	}
 
-		if (!ownerIsFriendly && !ownerIsHostile) {
-			throw new Error('no owner found.');
-		}
-
-		const summon = new CharacterNonPlayer(characterTypeId, {
-			addSummon: this.addSummon.bind(this),
-			notify: this.notify.bind(this),
-			handleSpellCast: this.handleCastSpell.bind(this),
-		});
-
-		const ownerHasThreat = Object.keys(owner.threat).length > 0;
-		if (ownerHasThreat) {
-			summon.setThreat(owner.threat);
-		} else {
-			const threatCandidateIds = ownerIsFriendly
-				? this._hostileNonPlayerCharacterIds
-				: [...this._friendlyNonPlayerCharacterIds, this._playerCharacterId];
-			const randomTargetId = threatCandidateIds[Math.floor(Math.random() * threatCandidateIds.length)];
-
-			summon.adjustThreat(randomTargetId, 100);
-		}
-
-		if (ownerIsFriendly) {
-			this._friendlyNonPlayerCharacterIds.push(summon.characterId);
-		} else {
-			this._hostileNonPlayerCharacterIds.push(summon.characterId);
-		}
-
-		this._characters = {
-			...this._characters,
-			[summon.characterId]: summon,
-		};
-
-		this.notify();
+	public addHostileCharacter(characterTypeId: CHARACTER_TYPE_ID) {
+		const character = new CharacterNonPlayer(characterTypeId, this);
+		this._friendlyNonPlayerCharacterIds.push(character.characterId);
+		this._characters[character.characterId] = character;
+		return character.characterId;
 	}
 }
