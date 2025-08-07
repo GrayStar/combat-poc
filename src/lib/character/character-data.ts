@@ -16,10 +16,6 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 			SPELL_TYPE_ID.DISPEL_MAGIC,
 			SPELL_TYPE_ID.DOT,
 			SPELL_TYPE_ID.HOT,
-			SPELL_TYPE_ID.SP_UP,
-			SPELL_TYPE_ID.SP_DOWN,
-			SPELL_TYPE_ID.AP_UP,
-			SPELL_TYPE_ID.AP_DOWN,
 			SPELL_TYPE_ID.VIT_UP,
 		],
 		stats: {

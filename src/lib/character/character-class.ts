@@ -32,9 +32,9 @@ export class Character {
 	public readonly characterTypeId: CHARACTER_TYPE_ID;
 	public readonly title: string;
 
-	private _maxHealth: number;
+	private _maxHealth: number = 0;
+	private _maxMana: number = 0;
 	private _health: number;
-	private _maxMana: number;
 	private _mana: number;
 	private _spells: Spell[];
 	private _currentCast?: {
@@ -57,12 +57,11 @@ export class Character {
 		this.characterTypeId = characterTypeId;
 		this.title = config.title;
 
-		this._maxHealth = config.stats[STAT_TYPE_ID.VITALITY] * 10;
+		this._stats = config.stats;
+		this._updateResourceMaxValues();
 		this._health = this.maxHealth;
-		this._maxMana = config.stats[STAT_TYPE_ID.WISDOM] * 15;
 		this._mana = this._maxMana;
 		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this, notify));
-		this._stats = config.stats;
 		this._auras = {};
 
 		this._notify = notify;
@@ -135,6 +134,7 @@ export class Character {
 	private _updateResourceMaxValues() {
 		// logic to add health if it goes up, remove it if it goes down
 		this._maxHealth = this._stats[STAT_TYPE_ID.VITALITY] * 10;
+		// logic to add mana if it goes up, remove it if it goes down
 		this._maxMana = this._stats[STAT_TYPE_ID.WISDOM] * 15;
 	}
 
