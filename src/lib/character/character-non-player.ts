@@ -39,6 +39,10 @@ export class CharacterNonPlayer extends Character {
 	}
 
 	private _determineSpellToCast() {
+		if (this._currentCast) {
+			return;
+		}
+
 		const offCooldownSpells = this.spells.filter((s) => !s.isOnCooldown);
 
 		if (offCooldownSpells.length <= 0) {

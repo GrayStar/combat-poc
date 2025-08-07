@@ -43,7 +43,7 @@ export abstract class Character {
 	private _health: number;
 	private _mana: number;
 	private _spells: Spell[];
-	private _currentCast?: {
+	protected _currentCast?: {
 		spell: SpellState;
 		abortController: AbortController;
 		timeout?: NodeJS.Timeout;
