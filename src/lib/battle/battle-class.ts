@@ -6,7 +6,7 @@ import { CharacterState } from '@/lib/character/character-class';
 import { CombatLogEntry } from '@/lib/battle/battle-models';
 import { CharacterPlayer } from '@/lib/character/character-player';
 import { CharacterNonPlayer } from '@/lib/character/character-non-player';
-import { CHARACTER_TYPE_ID } from '../data/enums';
+import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
 
 export type BattleState = {
 	battleId: string;
@@ -75,41 +75,6 @@ export class Battle {
 		return this._subscribe.bind(this);
 	}
 
-	public getState(): BattleState {
-		const characterStates: Record<string, CharacterState> = {};
-
-		for (const [id, instance] of Object.entries(this._characters)) {
-			characterStates[id] = instance.getState();
-		}
-
-		return {
-			battleId: this._battleId,
-			battleTypeId: this._battleTypeId,
-			title: this._title,
-			playerCharacterId: this._playerCharacterId,
-			friendlyNonPlayerCharacterIds: [...this._friendlyNonPlayerCharacterIds],
-			hostileNonPlayerCharacterIds: [...this._hostileNonPlayerCharacterIds],
-			characters: characterStates,
-			combatLog: [...this._combatLog],
-		};
-	}
-
-	private _handleCombatLogMessage(message: string) {
-		const date = new Date();
-
-		this._combatLog = [
-			...this._combatLog,
-			{
-				combatLogEntryId: uuidv4(),
-				time: date.getTime().toString(),
-				timeDescription: format(date, 'hh:mm:ss aaa'),
-				message,
-			},
-		];
-
-		this.notify();
-	}
-
 	public notify(): void {
 		const state = this.getState();
 		for (const subscriber of this._notificationSubscribers) {
@@ -144,6 +109,39 @@ export class Battle {
 		character.interuptCasting();
 	}
 
+	public addFriendlyCharacter(characterTypeId: CHARACTER_TYPE_ID) {
+		const character = new CharacterNonPlayer(characterTypeId, this);
+		this._friendlyNonPlayerCharacterIds.push(character.characterId);
+		this._characters[character.characterId] = character;
+		return character.characterId;
+	}
+
+	public addHostileCharacter(characterTypeId: CHARACTER_TYPE_ID) {
+		const character = new CharacterNonPlayer(characterTypeId, this);
+		this._friendlyNonPlayerCharacterIds.push(character.characterId);
+		this._characters[character.characterId] = character;
+		return character.characterId;
+	}
+
+	public getState(): BattleState {
+		const characterStates: Record<string, CharacterState> = {};
+
+		for (const [id, instance] of Object.entries(this._characters)) {
+			characterStates[id] = instance.getState();
+		}
+
+		return {
+			battleId: this._battleId,
+			battleTypeId: this._battleTypeId,
+			title: this._title,
+			playerCharacterId: this._playerCharacterId,
+			friendlyNonPlayerCharacterIds: [...this._friendlyNonPlayerCharacterIds],
+			hostileNonPlayerCharacterIds: [...this._hostileNonPlayerCharacterIds],
+			characters: characterStates,
+			combatLog: [...this._combatLog],
+		};
+	}
+
 	private _subscribe(callback: (state: BattleState) => void): () => void {
 		this._notificationSubscribers.add(callback);
 		callback(this.getState());
@@ -169,24 +167,26 @@ export class Battle {
 	}
 
 	private _createCharacterRecord(ids: CHARACTER_TYPE_ID[]): Record<string, CharacterNonPlayer> {
-		return ids.reduce((acc, id) => {
+		return ids.reduce<Record<string, CharacterNonPlayer>>((acc, id) => {
 			const character = new CharacterNonPlayer(id, this);
 			acc[character.characterId] = character;
 			return acc;
-		}, {} as Record<string, CharacterNonPlayer>);
+		}, {});
 	}
 
-	public addFriendlyCharacter(characterTypeId: CHARACTER_TYPE_ID) {
-		const character = new CharacterNonPlayer(characterTypeId, this);
-		this._friendlyNonPlayerCharacterIds.push(character.characterId);
-		this._characters[character.characterId] = character;
-		return character.characterId;
-	}
+	private _handleCombatLogMessage(message: string) {
+		const date = new Date();
 
-	public addHostileCharacter(characterTypeId: CHARACTER_TYPE_ID) {
-		const character = new CharacterNonPlayer(characterTypeId, this);
-		this._friendlyNonPlayerCharacterIds.push(character.characterId);
-		this._characters[character.characterId] = character;
-		return character.characterId;
+		this._combatLog = [
+			...this._combatLog,
+			{
+				combatLogEntryId: uuidv4(),
+				time: date.getTime().toString(),
+				timeDescription: format(date, 'hh:mm:ss aaa'),
+				message,
+			},
+		];
+
+		this.notify();
 	}
 }
