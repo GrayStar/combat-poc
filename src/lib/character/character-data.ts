@@ -1,10 +1,6 @@
 import { CharacterModel, SECONDARY_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
-
-export enum CHARACTER_TYPE_ID {
-	PLAYER = 'PLAYER',
-	SKELETON = 'SKELETON',
-}
+import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
 
 export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 	[CHARACTER_TYPE_ID.PLAYER]: {
@@ -19,6 +15,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 			SPELL_TYPE_ID.VIT_UP,
 			SPELL_TYPE_ID.HASTE_UP,
 			SPELL_TYPE_ID.INTERRUPT,
+			SPELL_TYPE_ID.SUMMON_SKELETON,
 		],
 		stats: {
 			[STAT_TYPE_ID.VITALITY]: 10,

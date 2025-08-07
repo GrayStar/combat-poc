@@ -1,5 +1,6 @@
 import { ALL_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
+import { CHARACTER_TYPE_ID } from '../data/enums';
 
 export type SpellModel = {
 	spellTypeId: SPELL_TYPE_ID;
@@ -14,6 +15,7 @@ export type SpellModel = {
 	healEffects: SpellEffectHealModel[];
 	dispelEffects: SpellEffectDispelModel[];
 	interruptEffects: SpellEffectInterruptModel[];
+	summonEffects: SpellEffectSummonModel[];
 	auras: AuraModel[];
 };
 
@@ -21,13 +23,11 @@ export type SpellEffectDispelModel = {
 	dispelTypeId: DISPEL_TYPE_ID;
 	value: number;
 };
-
 export type SpellEffectDamageModel = {
 	schoolTypeId: SCHOOL_TYPE_ID;
 	value: number;
 	valueModifiers: SpellEffectValueModifier[];
 };
-
 export type SpellEffectHealModel = {
 	schoolTypeId: SCHOOL_TYPE_ID;
 	value: number;
@@ -35,6 +35,9 @@ export type SpellEffectHealModel = {
 };
 export type SpellEffectInterruptModel = {
 	value: number;
+};
+export type SpellEffectSummonModel = {
+	characterTypeId: CHARACTER_TYPE_ID;
 };
 
 export type AuraModel = {
@@ -123,5 +126,6 @@ export type SpellPayload = {
 	healEffects: SpellEffectHealModel[];
 	dispelEffects: SpellEffectDispelModel[];
 	interruptEffects: SpellEffectInterruptModel[];
+	summonEffects: SpellEffectSummonModel[];
 	auras: AuraModel[];
 };

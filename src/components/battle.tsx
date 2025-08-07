@@ -47,24 +47,6 @@ export const Battle = () => {
 						</div>
 					)}
 
-					{battle.friendlyNonPlayerCharacterIds.length > 0 && (
-						<div className="d-flex mb-5">
-							{battle.friendlyNonPlayerCharacterIds.map((characterId) => {
-								const character = battle.characters[characterId];
-
-								return (
-									<Droppable key={character.characterId} droppableId={character.characterId}>
-										{(provided) => (
-											<div {...provided.droppableProps} ref={provided.innerRef}>
-												<Character character={character} />
-											</div>
-										)}
-									</Droppable>
-								);
-							})}
-						</div>
-					)}
-
 					<div className="d-flex mb-5">
 						<Droppable droppableId={playerCharacter.characterId}>
 							{(provided) => (
@@ -73,6 +55,23 @@ export const Battle = () => {
 								</div>
 							)}
 						</Droppable>
+						{battle.friendlyNonPlayerCharacterIds.length > 0 && (
+							<>
+								{battle.friendlyNonPlayerCharacterIds.map((characterId) => {
+									const character = battle.characters[characterId];
+
+									return (
+										<Droppable key={character.characterId} droppableId={character.characterId}>
+											{(provided) => (
+												<div {...provided.droppableProps} ref={provided.innerRef}>
+													<Character character={character} />
+												</div>
+											)}
+										</Droppable>
+									);
+								})}
+							</>
+						)}
 					</div>
 
 					{playerCharacter.isCastingSpell && (

@@ -1,5 +1,5 @@
 import { BattleModel } from '@/lib/battle/battle-models';
-import { CHARACTER_TYPE_ID } from '@/lib/character/character-data';
+import { CHARACTER_TYPE_ID } from '../data/enums';
 
 export enum BATTLE_TYPE_ID {
 	TUTORIAL = 'TUTORIAL',

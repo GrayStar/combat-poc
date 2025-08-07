@@ -1,21 +1,18 @@
 import { Character } from '@/lib/character/character-class';
-import { CHARACTER_TYPE_ID } from '@/lib/character/character-data';
 import { RESOURCE_TYPE_ID } from '../spell/spell-models';
+import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
+import { BattleFunctions, BattleHandleSpellCastData } from '../battle/battle-class';
 
 export class CharacterNonPlayer extends Character {
 	private _targetCharacterId: string = '';
-	private _triggerCastSpell: (data: { casterId: string; targetId: string; spellId: string }) => void;
+	private _triggerCastSpell: (data: BattleHandleSpellCastData) => void;
 
 	private _actionInterval?: NodeJS.Timeout;
 	private _actionIntervalInMs: number = 1500;
 
-	constructor(
-		characterTypeId: CHARACTER_TYPE_ID,
-		notify: () => void,
-		triggerCastSpell: (data: { casterId: string; targetId: string; spellId: string }) => {}
-	) {
-		super(characterTypeId, notify);
-		this._triggerCastSpell = triggerCastSpell;
+	constructor(characterTypeId: CHARACTER_TYPE_ID, battleFuctions: BattleFunctions) {
+		super(characterTypeId, battleFuctions);
+		this._triggerCastSpell = battleFuctions.handleSpellCast;
 	}
 
 	protected override _determineTarget() {

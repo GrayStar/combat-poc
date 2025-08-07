@@ -1,16 +1,19 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
+import { roundNumber } from '@/lib/utils/number-utils';
 import { ALL_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
-import { CHARACTER_TYPE_ID, characterData, defaultSecondaryStats } from '@/lib/character/character-data';
+import { characterData, defaultSecondaryStats } from '@/lib/character/character-data';
 import { RESOURCE_TYPE_ID, SpellPayload } from '@/lib/spell/spell-models';
 import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 import { Spell, SpellState } from '@/lib/spell/spell-class';
 import { Aura, AuraConfig, AuraState } from '@/lib/spell/aura-class';
-import { SpellEffectSchoolDamage } from '../spell/spell-effects/spell-effect-school-damage';
+import { SpellEffectSchoolDamage } from '@/lib/spell/spell-effects/spell-effect-school-damage';
 import { SpellEffectDispel } from '@/lib/spell/spell-effects/spell-effect-dispel';
 import { SpellEffectHeal } from '@/lib/spell/spell-effects/spell-effect-heal';
-import { roundNumber } from '../utils/number-utils';
-import { SpellEffectInterrupt } from '../spell/spell-effects/spell-effect-interrupt';
+import { SpellEffectInterrupt } from '@/lib/spell/spell-effects/spell-effect-interrupt';
+import { SpellEffectSummon } from '@/lib/spell/spell-effects/spell-effect-summon';
+import { CHARACTER_TYPE_ID } from '../data/enums';
+import { BattleFunctions, AddSummonPayload } from '@/lib/battle/battle-class';
 
 export type CharacterState = {
 	characterId: string;
@@ -51,11 +54,12 @@ export abstract class Character {
 	private _renderKeyDamage: string = '';
 	private _renderKeyHealing: string = '';
 	private _renderKeyCastSpell: string = '';
-	private _notify: () => void;
-
 	protected _threat: Record<string, number> = {};
 
-	constructor(characterTypeId: CHARACTER_TYPE_ID, notify: () => void) {
+	private _notify: () => void;
+	private _summonAlly: (data: AddSummonPayload) => void;
+
+	constructor(characterTypeId: CHARACTER_TYPE_ID, battleFuctions: BattleFunctions) {
 		const config = cloneDeep(characterData[characterTypeId]);
 
 		this.characterId = uuidv4();
@@ -66,10 +70,11 @@ export abstract class Character {
 		this._updateResourceMaxValues();
 		this._health = this.maxHealth;
 		this._mana = this._maxMana;
-		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this, notify));
+		this._spells = config.spellTypeIds.map((spellTypeId) => new Spell(spellTypeId, this, battleFuctions.notify));
 		this._auras = {};
 
-		this._notify = notify;
+		this._notify = battleFuctions.notify;
+		this._summonAlly = battleFuctions.addSummon;
 	}
 
 	/* ----------------------------------------------- */
@@ -291,6 +296,10 @@ export abstract class Character {
 			new SpellEffectInterrupt(se, this, spellPayload.casterId);
 		});
 
+		spellPayload.summonEffects.forEach((se) => {
+			new SpellEffectSummon(se, this, spellPayload.casterId);
+		});
+
 		spellPayload.auras.forEach((a) => {
 			this.applyAura({
 				casterId: spellPayload.casterId,
@@ -370,6 +379,13 @@ export abstract class Character {
 		};
 	}
 
+	/* ----------------------------------------------- */
+	/* Threat */
+	/* ----------------------------------------------- */
+	public get threat() {
+		return this._threat;
+	}
+
 	public setThreat(threat: Record<string, number>) {
 		this._threat = threat;
 	}
@@ -403,4 +419,8 @@ export abstract class Character {
 	}
 
 	protected abstract _dieTriggerSideEffects(): void;
+
+	public summonAlly(data: AddSummonPayload): void {
+		this._summonAlly(data);
+	}
 }

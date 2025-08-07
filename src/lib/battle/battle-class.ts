@@ -3,10 +3,10 @@ import { cloneDeep } from 'lodash';
 import { format } from 'date-fns';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle/battle-data';
 import { CharacterState } from '@/lib/character/character-class';
-import { CHARACTER_TYPE_ID } from '@/lib/character/character-data';
 import { CombatLogEntry } from '@/lib/battle/battle-models';
 import { CharacterPlayer } from '@/lib/character/character-player';
 import { CharacterNonPlayer } from '@/lib/character/character-non-player';
+import { CHARACTER_TYPE_ID } from '../data/enums';
 
 export type BattleState = {
 	battleId: string;
@@ -17,6 +17,23 @@ export type BattleState = {
 	hostileNonPlayerCharacterIds: string[];
 	characters: Record<string, CharacterState>;
 	combatLog: CombatLogEntry[];
+};
+
+export type BattleHandleSpellCastData = {
+	casterId: string;
+	targetId: string;
+	spellId: string;
+};
+
+export type AddSummonPayload = {
+	characterTypeId: CHARACTER_TYPE_ID;
+	targetId: string;
+};
+
+export type BattleFunctions = {
+	notify: () => void;
+	handleSpellCast: (data: BattleHandleSpellCastData) => void;
+	addSummon: (data: AddSummonPayload) => void;
 };
 
 export class Battle {
@@ -55,10 +72,6 @@ export class Battle {
 	public get characters() {
 		return this._characters;
 	}
-
-	// public get statusEffects() {
-	// 	return this._statusEffects;
-	// }
 
 	public get subscribe() {
 		return this._subscribe.bind(this);
@@ -142,7 +155,11 @@ export class Battle {
 	}
 
 	private initializeCharacters(config: (typeof battleData)[BATTLE_TYPE_ID]): void {
-		const player = new CharacterPlayer(config.playerCharacterTypeId, this.notify.bind(this));
+		const player = new CharacterPlayer(config.playerCharacterTypeId, {
+			addSummon: this._addSummon.bind(this),
+			notify: this.notify.bind(this),
+			handleSpellCast: this.handleCastSpell.bind(this),
+		});
 		const friendly = this.createCharacterRecord(config.friendlyNonPlayerCharacterTypeIds);
 		const hostile = this.createCharacterRecord(config.hostileNonPlayerCharacterTypeIds);
 
@@ -159,9 +176,54 @@ export class Battle {
 
 	private createCharacterRecord(ids: CHARACTER_TYPE_ID[]): Record<string, CharacterNonPlayer> {
 		return ids.reduce((acc, id) => {
-			const character = new CharacterNonPlayer(id, this.notify.bind(this), this.handleCastSpell.bind(this));
+			const character = new CharacterNonPlayer(id, {
+				addSummon: this._addSummon.bind(this),
+				notify: this.notify.bind(this),
+				handleSpellCast: this.handleCastSpell.bind(this),
+			});
 			acc[character.characterId] = character;
 			return acc;
 		}, {} as Record<string, CharacterNonPlayer>);
+	}
+
+	private _addSummon({ characterTypeId, targetId }: AddSummonPayload) {
+		const owner = this._characters[targetId];
+		const ownerIsFriendly =
+			this._friendlyNonPlayerCharacterIds.includes(targetId) || this._playerCharacterId === targetId;
+		const ownerIsHostile = this._hostileNonPlayerCharacterIds.includes(targetId);
+
+		if (!ownerIsFriendly && !ownerIsHostile) {
+			throw new Error('no owner found.');
+		}
+
+		const summon = new CharacterNonPlayer(characterTypeId, {
+			addSummon: this._addSummon.bind(this),
+			notify: this.notify.bind(this),
+			handleSpellCast: this.handleCastSpell.bind(this),
+		});
+
+		const hasOwnerThreat = Object.keys(owner.threat).length > 0;
+		if (hasOwnerThreat) {
+			summon.setThreat(owner.threat);
+		} else {
+			const threatCandidateIds = ownerIsFriendly
+				? this._hostileNonPlayerCharacterIds
+				: this._friendlyNonPlayerCharacterIds;
+			const randomTargetId = threatCandidateIds[Math.floor(Math.random() * threatCandidateIds.length)];
+			summon.adjustThreat(randomTargetId, 1);
+		}
+
+		if (ownerIsFriendly) {
+			this._friendlyNonPlayerCharacterIds.push(summon.characterId);
+		} else {
+			this._hostileNonPlayerCharacterIds.push(summon.characterId);
+		}
+
+		this._characters = {
+			...this._characters,
+			[summon.characterId]: summon,
+		};
+
+		this.notify();
 	}
 }

@@ -7,6 +7,7 @@ import {
 	SpellModel,
 } from '@/lib/spell/spell-models';
 import { SECONDARY_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
+import { CHARACTER_TYPE_ID } from '../data/enums';
 
 export enum SPELL_TYPE_ID {
 	DD_AP = 'DD_AP',
@@ -17,6 +18,7 @@ export enum SPELL_TYPE_ID {
 	VIT_UP = 'VIT_UP',
 	HASTE_UP = 'HASTE_UP',
 	INTERRUPT = 'INTERRUPT',
+	SUMMON_SKELETON = 'SUMMON_SKELETON',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -45,6 +47,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		healEffects: [],
 		dispelEffects: [],
 		interruptEffects: [],
+		summonEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DH_SP]: {
@@ -72,6 +75,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		damageEffects: [],
 		dispelEffects: [],
 		interruptEffects: [],
+		summonEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DISPEL_MAGIC]: {
@@ -98,6 +102,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		damageEffects: [],
 		healEffects: [],
 		interruptEffects: [],
+		summonEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DOT]: {
@@ -125,6 +130,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		healEffects: [],
 		dispelEffects: [],
 		interruptEffects: [],
+		summonEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -161,6 +167,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		healEffects: [],
 		dispelEffects: [],
 		interruptEffects: [],
+		summonEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -197,6 +204,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		healEffects: [],
 		dispelEffects: [],
 		interruptEffects: [],
+		summonEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -231,6 +239,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		healEffects: [],
 		dispelEffects: [],
 		interruptEffects: [],
+		summonEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -265,6 +274,33 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		healEffects: [],
 		dispelEffects: [],
 		interruptEffects: [{ value: 1 }],
+		summonEffects: [],
+		auras: [],
+	},
+	[SPELL_TYPE_ID.SUMMON_SKELETON]: {
+		spellTypeId: SPELL_TYPE_ID.SUMMON_SKELETON,
+		title: 'Summon Skeleton',
+		description: 'Summons a skeleton that is loyal to the target.',
+		cost: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				amountFlat: 80,
+				amountPercent: 0,
+			},
+		],
+		castTimeDurationInMs: 8000,
+		cooldownDurationInMs: 20000,
+		globalCooldownDurationInMs: 1500,
+		schoolTypeId: SCHOOL_TYPE_ID.SHADOW,
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
+		interruptEffects: [],
+		summonEffects: [
+			{
+				characterTypeId: CHARACTER_TYPE_ID.SKELETON,
+			},
+		],
 		auras: [],
 	},
 };

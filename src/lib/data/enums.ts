@@ -1,0 +1,4 @@
+export enum CHARACTER_TYPE_ID {
+	PLAYER = 'PLAYER',
+	SKELETON = 'SKELETON',
+}
