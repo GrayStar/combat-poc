@@ -9,6 +9,7 @@ import { Aura, AuraConfig, AuraState } from '@/lib/spell/aura-class';
 import { SpellEffectSchoolDamage } from '../spell/spell-effects/spell-effect-school-damage';
 import { SpellEffectDispel } from '@/lib/spell/spell-effects/spell-effect-dispel';
 import { SpellEffectHeal } from '@/lib/spell/spell-effects/spell-effect-heal';
+import { roundNumber } from '../utils/number-utils';
 
 export type CharacterState = {
 	characterId: string;
@@ -79,7 +80,7 @@ export class Character {
 	}
 
 	public adjustHealth(amount: number) {
-		const next = this._health + amount;
+		const next = roundNumber(this._health + amount);
 		this._health = next <= 0 ? 0 : Math.min(this._maxHealth, next);
 
 		if (amount < 0) {
@@ -102,7 +103,7 @@ export class Character {
 	}
 
 	public adjustMana(amount: number) {
-		const nextManaValue = this._mana + amount;
+		const nextManaValue = roundNumber(this._mana + amount);
 
 		if (nextManaValue < 0) {
 			this._mana = 0;
