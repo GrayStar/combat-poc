@@ -15,6 +15,7 @@ import {
 } from '@/lib/spell/spell-models';
 import { Character } from '@/lib/character/character-class';
 import { SECONDARY_STAT_TYPE_ID } from '../character/character-models';
+import { roundNumber } from '@/lib/utils/number-utils';
 
 export type SpellState = {
 	spellId: string;
@@ -118,15 +119,15 @@ export class Spell {
 	}
 
 	private _getProcessedCastTimeDurationInMs(): number {
-		return this.castTimeDurationInMs / (1 + this._character.stats[SECONDARY_STAT_TYPE_ID.HASTE]);
+		return roundNumber(this.castTimeDurationInMs / (1 + this._character.stats[SECONDARY_STAT_TYPE_ID.HASTE]));
 	}
 
 	private _getProcessedCooldownDurationInMs(): number {
-		return this.cooldownDurationInMs / (1 + this._character.stats[SECONDARY_STAT_TYPE_ID.HASTE]);
+		return roundNumber(this.cooldownDurationInMs / (1 + this._character.stats[SECONDARY_STAT_TYPE_ID.HASTE]));
 	}
 
 	private _getProcessedGlobalCooldownDurationInMs(): number {
-		return this.globalCooldownDurationInMs / (1 + this._character.stats[SECONDARY_STAT_TYPE_ID.HASTE]);
+		return roundNumber(this.globalCooldownDurationInMs / (1 + this._character.stats[SECONDARY_STAT_TYPE_ID.HASTE]));
 	}
 
 	private _getProcessedCost(): SpellCostModel[] {
@@ -167,7 +168,7 @@ export class Spell {
 	private _getCharacterStatsProcessedValue(value: number, valueModifiers: SpellEffectValueModifier[]): number {
 		return valueModifiers.reduce<number>(
 			(currentValue, valueModifier) =>
-				currentValue + this._character.stats[valueModifier.stat] * valueModifier.coefficient,
+				roundNumber(currentValue + this._character.stats[valueModifier.stat] * valueModifier.coefficient),
 			value
 		);
 	}
@@ -182,7 +183,7 @@ export class Spell {
 	}
 
 	private _getCastTimeDescription() {
-		const castTimeInSeconds = this._getProcessedCastTimeDurationInMs() / 1000;
+		const castTimeInSeconds = roundNumber(this._getProcessedCastTimeDurationInMs() / 1000);
 		if (castTimeInSeconds === 0) {
 			return 'Instant';
 		}
@@ -191,7 +192,7 @@ export class Spell {
 	}
 
 	private _getCooldownDescription() {
-		const cooldownInSeconds = this._getProcessedCooldownDurationInMs() / 1000;
+		const cooldownInSeconds = roundNumber(this._getProcessedCooldownDurationInMs() / 1000);
 		if (cooldownInSeconds === 0) {
 			return 'Instant';
 		}
@@ -215,7 +216,7 @@ export class Spell {
 
 	private _getAuraDescriptions() {
 		return this._getProcessedAuras().flatMap((a) => {
-			const durationInSeconds = a.durationInMs / 1000;
+			const durationInSeconds = roundNumber(a.durationInMs / 1000);
 
 			const statEffectDescriptions = a.modifyStatEffects.map((effect) => {
 				const direction = effect.modifyTypeId === MODIFY_TYPE_ID.INCREASE ? 'Increases' : 'Decreases';
@@ -223,7 +224,7 @@ export class Spell {
 			});
 
 			const periodicEffectDescriptions = a.periodicEffects.map((effect) => {
-				const intervalInSeconds = effect.intervalInMs / 1000;
+				const intervalInSeconds = roundNumber(effect.intervalInMs / 1000);
 				const initial =
 					effect.periodicEffectTypeId === PERIODIC_EFFECT_TYPE_ID.DAMAGE
 						? `Deals ${effect.value} ${effect.schoolTypeId} damage`

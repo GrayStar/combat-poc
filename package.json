@@ -12,6 +12,7 @@
 	"dependencies": {
 		"@emotion/react": "^11.14.0",
 		"@hello-pangea/dnd": "^18.0.1",
+		"bignumber.js": "^9.3.0",
 		"classnames": "^2.5.1",
 		"date-fns": "^4.1.0",
 		"lodash": "^4.17.21",
