@@ -4,33 +4,33 @@ import {
 	SCHOOL_TYPE_ID,
 	SpellEffectValueModifier,
 } from '@/lib/spell/spell-models';
-import { Character } from '@/lib/character/character-class';
 import { AuraEffect } from '@/lib/spell/aura-effects/aura-effect';
+import { Character } from '@/lib/character/character-class';
 
 export abstract class AuraEffectPeriodic extends AuraEffect {
-	protected readonly periodicEffectTypeId: PERIODIC_EFFECT_TYPE_ID;
-	protected readonly schoolTypeId: SCHOOL_TYPE_ID;
-	protected readonly intervalInMs: number;
-	protected readonly value: number;
-	protected readonly valueModifiers: SpellEffectValueModifier[];
+	protected readonly _periodicEffectTypeId: PERIODIC_EFFECT_TYPE_ID;
+	protected readonly _schoolTypeId: SCHOOL_TYPE_ID;
+	protected readonly _intervalInMs: number;
+	protected readonly _value: number;
+	protected readonly _valueModifiers: SpellEffectValueModifier[];
 
 	private _intervalTimer: ReturnType<typeof setInterval> | undefined = undefined;
 
-	constructor(config: PeriodicEffectModel, character: Character) {
-		super(character);
+	constructor(config: PeriodicEffectModel, character: Character, casterId: string) {
+		super(character, casterId);
 
-		this.periodicEffectTypeId = config.periodicEffectTypeId;
-		this.intervalInMs = config.intervalInMs;
-		this.schoolTypeId = config.schoolTypeId;
-		this.value = config.value;
-		this.valueModifiers = config.valueModifiers;
+		this._periodicEffectTypeId = config.periodicEffectTypeId;
+		this._intervalInMs = config.intervalInMs;
+		this._schoolTypeId = config.schoolTypeId;
+		this._value = config.value;
+		this._valueModifiers = config.valueModifiers;
 	}
 
 	protected abstract _handleIntervalTimerTick(): void;
 
 	public startInterval() {
 		this.stopInterval();
-		this._intervalTimer = setInterval(this._handleIntervalTimerTick.bind(this), this.intervalInMs);
+		this._intervalTimer = setInterval(this._handleIntervalTimerTick.bind(this), this._intervalInMs);
 	}
 
 	public stopInterval() {

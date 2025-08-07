@@ -1,13 +1,13 @@
 import { DISPEL_TYPE_ID, SpellEffectDispelModel } from '@/lib/spell/spell-models';
-import { Character } from '@/lib/character/character-class';
 import { SpellEffect } from '@/lib/spell/spell-effects/spell-effect';
+import { Character } from '@/lib/character/character-class';
 
 export class SpellEffectDispel extends SpellEffect {
 	private readonly _dispelTypeId: DISPEL_TYPE_ID;
 	private readonly _value: number;
 
-	constructor(config: SpellEffectDispelModel, character: Character) {
-		super(character);
+	constructor(config: SpellEffectDispelModel, character: Character, casterId: string) {
+		super(character, casterId);
 
 		this._dispelTypeId = config.dispelTypeId;
 		this._value = config.value;

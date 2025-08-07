@@ -26,6 +26,7 @@ export type AuraState = {
 };
 
 export type AuraConfig = {
+	casterId: string;
 	title: string;
 	spellTypeId: SPELL_TYPE_ID;
 	durationInMs: number;
@@ -57,17 +58,17 @@ export class Aura {
 
 		this.periodicEffects = config.periodicEffects.map((cfg) => {
 			if (cfg.periodicEffectTypeId === PERIODIC_EFFECT_TYPE_ID.DAMAGE) {
-				return new AuraEffectPeriodicDamage(cfg, character);
+				return new AuraEffectPeriodicDamage(cfg, character, config.casterId);
 			} else {
-				return new AuraEffectPeriodicHealing(cfg, character);
+				return new AuraEffectPeriodicHealing(cfg, character, config.casterId);
 			}
 		});
 
 		this.modifyStatEffects = config.modifyStatEffects.map((cfg) => {
 			if (cfg.modifyTypeId === MODIFY_TYPE_ID.INCREASE) {
-				return new AuraEffectModifyStatIncrease(cfg, character);
+				return new AuraEffectModifyStatIncrease(cfg, character, config.casterId);
 			} else {
-				return new AuraEffectModifyStatDecrease(cfg, character);
+				return new AuraEffectModifyStatDecrease(cfg, character, config.casterId);
 			}
 		});
 

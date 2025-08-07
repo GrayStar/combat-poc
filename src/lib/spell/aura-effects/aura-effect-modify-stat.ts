@@ -8,8 +8,8 @@ export abstract class AuraEffectModifyStat extends AuraEffect {
 	protected readonly _statTypeId: ALL_STAT_TYPE_ID;
 	protected readonly _value: number;
 
-	constructor(config: ModifyStatEffectModel, character: Character) {
-		super(character);
+	constructor(config: ModifyStatEffectModel, character: Character, casterId: string) {
+		super(character, casterId);
 
 		this._modifyTypeId = config.modifyTypeId;
 		this._statTypeId = config.statTypeId;

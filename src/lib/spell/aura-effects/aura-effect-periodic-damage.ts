@@ -2,12 +2,16 @@ import { AuraEffectPeriodic } from '@/lib/spell/aura-effects/aura-effect-periodi
 
 export class AuraEffectPeriodicDamage extends AuraEffectPeriodic {
 	protected override _handleIntervalTimerTick() {
-		this._character.adjustHealth(-this.value);
+		this._character.adjustHealth(-this._value);
 
-		console.log('Periodic Damage:', this.value);
+		if (this._character.characterId !== this._casterId) {
+			this._character.adjustThreat(this._casterId, this._value);
+		}
+
+		console.log('Periodic Damage:', this._value);
 	}
 
 	public override getDescription() {
-		return `Deals ${this.value} damage every ${this.intervalInMs}ms.`;
+		return `Deals ${this._value} damage every ${this._intervalInMs}ms.`;
 	}
 }

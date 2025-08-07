@@ -2,9 +2,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { format } from 'date-fns';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle/battle-data';
-import { Character, CharacterState } from '@/lib/character/character-class';
+import { CharacterState } from '@/lib/character/character-class';
 import { CHARACTER_TYPE_ID } from '@/lib/character/character-data';
 import { CombatLogEntry } from '@/lib/battle/battle-models';
+import { CharacterPlayer } from '@/lib/character/character-player';
+import { CharacterNonPlayer } from '@/lib/character/character-non-player';
 
 export type BattleState = {
 	battleId: string;
@@ -25,7 +27,7 @@ export class Battle {
 	private _playerCharacterId: string = '';
 	private _friendlyNonPlayerCharacterIds: string[] = [];
 	private _hostileNonPlayerCharacterIds: string[] = [];
-	private _characters: Record<string, Character> = {};
+	private _characters: Record<string, CharacterPlayer | CharacterNonPlayer> = {};
 	private _notificationSubscribers = new Set<(state: BattleState) => void>();
 	private _combatLog: CombatLogEntry[] = [];
 
@@ -140,7 +142,7 @@ export class Battle {
 	}
 
 	private initializeCharacters(config: (typeof battleData)[BATTLE_TYPE_ID]): void {
-		const player = new Character(config.playerCharacterTypeId, this.notify.bind(this));
+		const player = new CharacterPlayer(config.playerCharacterTypeId, this.notify.bind(this));
 		const friendly = this.createCharacterRecord(config.friendlyNonPlayerCharacterTypeIds);
 		const hostile = this.createCharacterRecord(config.hostileNonPlayerCharacterTypeIds);
 
@@ -155,11 +157,11 @@ export class Battle {
 		};
 	}
 
-	private createCharacterRecord(ids: CHARACTER_TYPE_ID[]): Record<string, Character> {
+	private createCharacterRecord(ids: CHARACTER_TYPE_ID[]): Record<string, CharacterNonPlayer> {
 		return ids.reduce((acc, id) => {
-			const character = new Character(id, this.notify.bind(this));
+			const character = new CharacterNonPlayer(id, this.notify.bind(this));
 			acc[character.characterId] = character;
 			return acc;
-		}, {} as Record<string, Character>);
+		}, {} as Record<string, CharacterNonPlayer>);
 	}
 }

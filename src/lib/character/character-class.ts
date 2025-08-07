@@ -26,9 +26,10 @@ export type CharacterState = {
 	renderKeyHealing: string;
 	renderKeyCastSpell: string;
 	stats: Record<STAT_TYPE_ID, number>;
+	threat: Record<string, number>;
 };
 
-export class Character {
+export abstract class Character {
 	public readonly characterId: string;
 	public readonly characterTypeId: CHARACTER_TYPE_ID;
 	public readonly title: string;
@@ -50,6 +51,8 @@ export class Character {
 	private _renderKeyHealing: string = '';
 	private _renderKeyCastSpell: string = '';
 	private _notify: () => void;
+
+	protected _threat: Record<string, number> = {};
 
 	constructor(characterTypeId: CHARACTER_TYPE_ID, notify: () => void) {
 		const config = cloneDeep(characterData[characterTypeId]);
@@ -264,19 +267,20 @@ export class Character {
 
 	public recieveSpellPayload(spellPayload: SpellPayload, _callback: (message: string) => void) {
 		spellPayload.damageEffects.forEach((se) => {
-			new SpellEffectSchoolDamage(se, this);
+			new SpellEffectSchoolDamage(se, this, spellPayload.casterId);
 		});
 
 		spellPayload.healEffects.forEach((se) => {
-			new SpellEffectHeal(se, this);
+			new SpellEffectHeal(se, this, spellPayload.casterId);
 		});
 
 		spellPayload.dispelEffects.forEach((se) => {
-			new SpellEffectDispel(se, this);
+			new SpellEffectDispel(se, this, spellPayload.casterId);
 		});
 
 		spellPayload.auras.forEach((a) => {
 			this.applyAura({
+				casterId: spellPayload.casterId,
 				title: spellPayload.title,
 				spellTypeId: spellPayload.spellTypeId,
 				durationInMs: a.durationInMs,
@@ -349,6 +353,26 @@ export class Character {
 			renderKeyHealing: this._renderKeyHealing,
 			renderKeyCastSpell: this._renderKeyCastSpell,
 			stats: this._stats,
+			threat: this._threat,
 		};
 	}
+
+	public setThreat(threat: Record<string, number>) {
+		this._threat = threat;
+	}
+
+	public adjustThreat(characterId: string, amount: number) {
+		const currentThreat = this._threat[characterId] ?? 0;
+		const nextThreat = currentThreat + amount;
+
+		if (nextThreat <= 0) {
+			delete this._threat[characterId];
+			return;
+		}
+
+		this._threat[characterId] = nextThreat;
+		this._determineTarget();
+	}
+
+	protected abstract _determineTarget(): void;
 }
