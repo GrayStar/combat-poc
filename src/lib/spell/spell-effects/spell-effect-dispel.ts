@@ -6,6 +6,8 @@ export class SpellEffectDispel extends SpellEffect {
 	private readonly _dispelTypeId: DISPEL_TYPE_ID;
 	private readonly _value: number;
 
+	private _amountOfDispels: number = 0;
+
 	constructor(config: SpellEffectDispelModel, character: Character, casterId: string) {
 		super(character, casterId);
 
@@ -13,6 +15,7 @@ export class SpellEffectDispel extends SpellEffect {
 		this._value = config.value;
 
 		this._handleEffect();
+		this._combatLogEntry();
 	}
 
 	protected override _handleEffect() {
@@ -26,6 +29,7 @@ export class SpellEffectDispel extends SpellEffect {
 		}
 
 		const removalCount = Math.min(this._value, removalCandidatesAuraIds.length);
+		this._amountOfDispels = removalCount;
 
 		for (let i = removalCandidatesAuraIds.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1));
@@ -41,5 +45,15 @@ export class SpellEffectDispel extends SpellEffect {
 
 			console.log(`[${auraToRemoveState.title}] was dispelled from [${this._character.title}].`);
 		});
+	}
+
+	protected override _combatLogEntry() {
+		const plural = this._amountOfDispels !== 1;
+
+		this._character.battle.addCombatLogMessage(
+			`${this._character.title} had ${this._amountOfDispels} ${this._dispelTypeId} effect${
+				plural ? 's' : ''
+			} dispeled.`
+		);
 	}
 }

@@ -282,7 +282,7 @@ export abstract class Character {
 		this._battle.notify();
 	}
 
-	public recieveSpellPayload(spellPayload: SpellPayload, _callback: (message: string) => void) {
+	public recieveSpellPayload(spellPayload: SpellPayload) {
 		spellPayload.damageEffects.forEach((se) => {
 			new SpellEffectSchoolDamage(se, this, spellPayload.casterId);
 		});

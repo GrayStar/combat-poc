@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { format } from 'date-fns';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle/battle-data';
-import { CharacterState } from '@/lib/character/character-class';
-import { CombatLogEntry } from '@/lib/battle/battle-models';
+import { Character, CharacterState } from '@/lib/character/character-class';
+import { BattleModel, CombatLogEntry } from '@/lib/battle/battle-models';
 import { CharacterPlayer } from '@/lib/character/character-player';
 import { CharacterNonPlayer } from '@/lib/character/character-non-player';
 import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
@@ -25,11 +25,6 @@ export type BattleHandleSpellCastData = {
 	spellId: string;
 };
 
-export type AddSummonPayload = {
-	characterTypeId: CHARACTER_TYPE_ID;
-	targetId: string;
-};
-
 export class Battle {
 	private readonly _battleId: string;
 	private readonly _battleTypeId: BATTLE_TYPE_ID;
@@ -38,7 +33,7 @@ export class Battle {
 	private _playerCharacterId: string = '';
 	private _friendlyNonPlayerCharacterIds: string[] = [];
 	private _hostileNonPlayerCharacterIds: string[] = [];
-	private _characters: Record<string, CharacterPlayer | CharacterNonPlayer> = {};
+	private _characters: Record<string, Character> = {};
 	private _notificationSubscribers = new Set<(state: BattleState) => void>();
 	private _combatLog: CombatLogEntry[] = [];
 
@@ -86,26 +81,23 @@ export class Battle {
 		}
 	}
 
-	public async handleCastSpell(data: { casterId: string; targetId: string; spellId: string }) {
+	public async handleCastSpell(data: BattleHandleSpellCastData) {
 		const { casterId, targetId, spellId } = data;
 		const caster = this._characters[casterId];
 		const target = this._characters[targetId];
 
 		try {
 			const spellPayload = await caster.castSpell(spellId);
-			target.recieveSpellPayload(spellPayload, (message: string) => {
-				this._handleCombatLogMessage(message);
-			});
+			target.recieveSpellPayload(spellPayload);
 		} catch (error) {
 			if (error instanceof Error) {
-				this._handleCombatLogMessage(error.message);
+				this.addCombatLogMessage(error.message);
 			}
 		}
 	}
 
-	public handleAbortCastSpell(data: { casterId: string }) {
-		const { casterId } = data;
-		const character = this._characters[casterId];
+	public abortCastSpell(characterId: string) {
+		const character = this._characters[characterId];
 		character.interuptCasting();
 	}
 
@@ -118,9 +110,25 @@ export class Battle {
 
 	public addHostileCharacter(characterTypeId: CHARACTER_TYPE_ID) {
 		const character = new CharacterNonPlayer(characterTypeId, this);
-		this._friendlyNonPlayerCharacterIds.push(character.characterId);
+		this._hostileNonPlayerCharacterIds.push(character.characterId);
 		this._characters[character.characterId] = character;
 		return character.characterId;
+	}
+
+	public addCombatLogMessage(message: string) {
+		const date = new Date();
+
+		this._combatLog = [
+			...this._combatLog,
+			{
+				combatLogEntryId: uuidv4(),
+				time: date.getTime().toString(),
+				timeDescription: format(date, 'hh:mm:ss aaa'),
+				message,
+			},
+		];
+
+		this.notify();
 	}
 
 	public getState(): BattleState {
@@ -150,7 +158,7 @@ export class Battle {
 		};
 	}
 
-	private _initializeCharacters(config: (typeof battleData)[BATTLE_TYPE_ID]): void {
+	private _initializeCharacters(config: BattleModel): void {
 		const player = new CharacterPlayer(config.playerCharacterTypeId, this);
 		const friendly = this._createCharacterRecord(config.friendlyNonPlayerCharacterTypeIds);
 		const hostile = this._createCharacterRecord(config.hostileNonPlayerCharacterTypeIds);
@@ -172,21 +180,5 @@ export class Battle {
 			acc[character.characterId] = character;
 			return acc;
 		}, {});
-	}
-
-	private _handleCombatLogMessage(message: string) {
-		const date = new Date();
-
-		this._combatLog = [
-			...this._combatLog,
-			{
-				combatLogEntryId: uuidv4(),
-				time: date.getTime().toString(),
-				timeDescription: format(date, 'hh:mm:ss aaa'),
-				message,
-			},
-		];
-
-		this.notify();
 	}
 }

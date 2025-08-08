@@ -41,4 +41,6 @@ export abstract class AuraEffectPeriodic extends AuraEffect {
 		clearInterval(this._intervalTimer);
 		this._intervalTimer = undefined;
 	}
+
+	protected abstract _combatLogEntry(): void;
 }

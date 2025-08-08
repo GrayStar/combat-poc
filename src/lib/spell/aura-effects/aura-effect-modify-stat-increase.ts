@@ -4,8 +4,6 @@ export class AuraEffectModifyStatIncrease extends AuraEffectModifyStat {
 	public override modifyStat() {
 		const modifiedValue = this._character.stats[this._statTypeId] + this._value;
 		this._character.setStat(this._statTypeId, modifiedValue);
-
-		console.log(`${this._statTypeId} increased to ${modifiedValue}`);
 	}
 
 	public override revertStat() {

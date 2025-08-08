@@ -11,11 +11,16 @@ export class SpellEffectHeal extends SpellEffect {
 		this._value = config.value;
 
 		this._handleEffect();
+		this._combatLogEntry();
 	}
 
 	protected override _handleEffect() {
 		this._character.adjustHealth(this._value);
 
 		console.log('Heal:', this._value);
+	}
+
+	protected override _combatLogEntry() {
+		this._character.battle.addCombatLogMessage(`${this._character.title} was healed for ${this._value}.`);
 	}
 }

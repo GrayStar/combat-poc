@@ -14,6 +14,7 @@ export class SpellEffectSummon extends SpellEffect {
 		this._characterTypeId = config.characterTypeId;
 
 		this._handleEffect();
+		this._combatLogEntry();
 	}
 
 	protected override _handleEffect() {
@@ -56,5 +57,13 @@ export class SpellEffectSummon extends SpellEffect {
 		const randomTargetId = threatCandidateIds[Math.floor(Math.random() * threatCandidateIds.length)];
 
 		summon.adjustThreat(randomTargetId, 100);
+	}
+
+	protected override _combatLogEntry() {
+		const plural = this._value !== 1;
+
+		this._character.battle.addCombatLogMessage(
+			`${this._character.title} summoned ${this._value} ${this._characterTypeId}${plural ? 's' : ''}.`
+		);
 	}
 }

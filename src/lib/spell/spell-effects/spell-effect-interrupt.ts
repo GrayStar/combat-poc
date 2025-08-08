@@ -7,9 +7,14 @@ export class SpellEffectInterrupt extends SpellEffect {
 		super(character, casterId);
 
 		this._handleEffect();
+		this._combatLogEntry();
 	}
 
 	protected override _handleEffect() {
 		this._character.interuptCasting();
+	}
+
+	protected override _combatLogEntry() {
+		this._character.battle.addCombatLogMessage(`${this._character.title} was interrupted.`);
 	}
 }

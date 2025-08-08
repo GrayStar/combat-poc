@@ -8,10 +8,16 @@ export class AuraEffectPeriodicDamage extends AuraEffectPeriodic {
 			this._character.adjustThreat(this._casterId, this._value);
 		}
 
-		console.log('Periodic Damage:', this._value);
+		this._combatLogEntry();
 	}
 
 	public override getDescription() {
 		return `Deals ${this._value} damage every ${this._intervalInMs}ms.`;
+	}
+
+	protected override _combatLogEntry() {
+		this._character.battle.addCombatLogMessage(
+			`${this._character.title} took ${this._value} ${this._schoolTypeId} damage.`
+		);
 	}
 }

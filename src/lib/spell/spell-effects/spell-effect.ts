@@ -10,4 +10,5 @@ export abstract class SpellEffect {
 	}
 
 	protected abstract _handleEffect(): void;
+	protected abstract _combatLogEntry(): void;
 }
