@@ -58,19 +58,19 @@ export class SpellEffectSummon extends SpellEffect {
 		}
 
 		const summon = battle.characters[summonId];
-		const ownerHasThreat = Object.keys(owner.threat).length > 0;
-
-		if (ownerHasThreat) {
-			summon.setThreat(owner.threat);
-			return;
-		}
-
 		const threatCandidateIds = ownerIsFriendly
 			? battle.hostileNonPlayerCharacterIds
 			: [...battle.friendlyNonPlayerCharacterIds, battle.playerCharacterId];
-		const randomTargetId = threatCandidateIds[Math.floor(Math.random() * threatCandidateIds.length)];
 
-		summon.adjustThreat(randomTargetId, 100);
+		summon.setThreat(
+			threatCandidateIds.reduce(
+				(acc, curr) => ({
+					...acc,
+					[curr]: 1,
+				}),
+				{}
+			)
+		);
 	}
 
 	protected override _combatLogEntry() {
