@@ -117,6 +117,7 @@ export enum DISPEL_TYPE_ID {
 }
 
 export type SpellPayload = {
+	spellId: string;
 	casterId: string;
 	title: string;
 	spellTypeId: SPELL_TYPE_ID;

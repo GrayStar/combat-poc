@@ -5,14 +5,17 @@ import { Character } from '@/lib/character/character-class';
 
 export class SpellEffectSummon extends SpellEffect {
 	private readonly _value: number;
+	private readonly _summonedBySpellId: string;
 	private readonly _characterTypeId: CHARACTER_TYPE_ID;
 
-	constructor(config: SpellEffectSummonModel, character: Character, casterId: string) {
+	constructor(config: SpellEffectSummonModel, character: Character, casterId: string, spellId: string) {
 		super(character, casterId);
 
 		this._value = config.value;
 		this._characterTypeId = config.characterTypeId;
+		this._summonedBySpellId = spellId;
 
+		this._removeSummons();
 		this._handleEffect();
 		this._combatLogEntry();
 	}
@@ -23,9 +26,20 @@ export class SpellEffectSummon extends SpellEffect {
 		}
 	}
 
+	private _removeSummons() {
+		const { battle } = this._character;
+		const charactersSummonedByThisSpellId = Object.values(battle.characters).filter(
+			(c) => c.summonedBySpellId === this._summonedBySpellId
+		);
+
+		charactersSummonedByThisSpellId.forEach((character) => {
+			character.die();
+		});
+	}
+
 	private _addSummon(characterTypeId: CHARACTER_TYPE_ID) {
-		const owner = this._character.battle.characters[this._character.characterId];
 		const battle = this._character.battle;
+		const owner = battle.characters[this._character.characterId];
 
 		const ownerIsFriendly =
 			battle.friendlyNonPlayerCharacterIds.includes(owner.characterId) ||
@@ -38,9 +52,9 @@ export class SpellEffectSummon extends SpellEffect {
 
 		let summonId: string;
 		if (ownerIsFriendly) {
-			summonId = battle.addFriendlyCharacter(characterTypeId);
+			summonId = battle.addFriendlyCharacter(characterTypeId, this._summonedBySpellId);
 		} else {
-			summonId = battle.addHostileCharacter(characterTypeId);
+			summonId = battle.addHostileCharacter(characterTypeId, this._summonedBySpellId);
 		}
 
 		const summon = battle.characters[summonId];

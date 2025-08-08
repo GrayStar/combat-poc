@@ -280,6 +280,7 @@ export class Spell {
 
 	public getPayload(): SpellPayload {
 		return {
+			spellId: this.spellId,
 			casterId: this._character.characterId,
 			title: this.title,
 			spellTypeId: this.spellTypeId,

@@ -38,6 +38,8 @@ export abstract class Character {
 	public readonly characterTypeId: CHARACTER_TYPE_ID;
 	public readonly title: string;
 
+	protected _summonedBySpellId?: string = '';
+
 	private _maxHealth: number = 0;
 	private _maxMana: number = 0;
 	private _health: number;
@@ -75,6 +77,10 @@ export abstract class Character {
 		this._battle = battle;
 	}
 
+	public get summonedBySpellId() {
+		return this._summonedBySpellId;
+	}
+
 	public get battle() {
 		return this._battle;
 	}
@@ -101,7 +107,7 @@ export abstract class Character {
 		}
 
 		if (this._health <= 0) {
-			this._die();
+			this.die();
 		}
 
 		this._battle.notify();
@@ -300,7 +306,7 @@ export abstract class Character {
 		});
 
 		spellPayload.summonEffects.forEach((se) => {
-			new SpellEffectSummon(se, this, spellPayload.casterId);
+			new SpellEffectSummon(se, this, spellPayload.casterId, spellPayload.spellId);
 			this._battle.notify();
 		});
 
@@ -409,7 +415,7 @@ export abstract class Character {
 
 	protected abstract _determineTarget(): void;
 
-	private _die(): void {
+	public die(): void {
 		this.spells.forEach((s) => s.stopCooldown());
 		Object.values(this._auras).forEach((a) => {
 			this.removeAuraByAuraId(a.auraId);
@@ -419,6 +425,15 @@ export abstract class Character {
 		this._health = 0;
 		this._clearCurrentCast();
 		this._dieTriggerSideEffects();
+
+		// TODO: figure out how to change casts when threat is reduced to 0.
+		Object.values(this._battle.characters).forEach((c) => {
+			c.adjustThreat(this.characterId, 0);
+		});
+
+		console.log('character that died:', this);
+
+		this._battle.removeCharacterByCharacterId(this.characterId);
 		this._battle.notify();
 	}
 

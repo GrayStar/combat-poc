@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
 import { format } from 'date-fns';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle/battle-data';
-import { Character, CharacterState } from '@/lib/character/character-class';
+import { CharacterState } from '@/lib/character/character-class';
 import { BattleModel, CombatLogEntry } from '@/lib/battle/battle-models';
 import { CharacterPlayer } from '@/lib/character/character-player';
 import { CharacterNonPlayer } from '@/lib/character/character-non-player';
@@ -33,7 +33,7 @@ export class Battle {
 	private _playerCharacterId: string = '';
 	private _friendlyNonPlayerCharacterIds: string[] = [];
 	private _hostileNonPlayerCharacterIds: string[] = [];
-	private _characters: Record<string, Character> = {};
+	private _characters: Record<string, CharacterPlayer | CharacterNonPlayer> = {};
 	private _notificationSubscribers = new Set<(state: BattleState) => void>();
 	private _combatLog: CombatLogEntry[] = [];
 
@@ -101,18 +101,32 @@ export class Battle {
 		character.interuptCasting();
 	}
 
-	public addFriendlyCharacter(characterTypeId: CHARACTER_TYPE_ID) {
-		const character = new CharacterNonPlayer(characterTypeId, this);
+	public addFriendlyCharacter(characterTypeId: CHARACTER_TYPE_ID, summonedBySpellId?: string) {
+		const character = new CharacterNonPlayer(characterTypeId, this, summonedBySpellId);
 		this._friendlyNonPlayerCharacterIds.push(character.characterId);
 		this._characters[character.characterId] = character;
 		return character.characterId;
 	}
 
-	public addHostileCharacter(characterTypeId: CHARACTER_TYPE_ID) {
-		const character = new CharacterNonPlayer(characterTypeId, this);
+	public addHostileCharacter(characterTypeId: CHARACTER_TYPE_ID, summonedBySpellId?: string) {
+		const character = new CharacterNonPlayer(characterTypeId, this, summonedBySpellId);
 		this._hostileNonPlayerCharacterIds.push(character.characterId);
 		this._characters[character.characterId] = character;
 		return character.characterId;
+	}
+
+	public removeCharacterByCharacterId(characterId: string) {
+		const friendlyIndex = this._friendlyNonPlayerCharacterIds.indexOf(characterId);
+		if (friendlyIndex !== -1) {
+			this._friendlyNonPlayerCharacterIds.splice(friendlyIndex, 1);
+		}
+
+		const hostileIndex = this._hostileNonPlayerCharacterIds.indexOf(characterId);
+		if (hostileIndex !== -1) {
+			this._hostileNonPlayerCharacterIds.splice(hostileIndex, 1);
+		}
+
+		delete this._characters[characterId];
 	}
 
 	public addCombatLogMessage(message: string) {

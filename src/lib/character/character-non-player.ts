@@ -8,8 +8,9 @@ export class CharacterNonPlayer extends Character {
 	private _actionInterval?: NodeJS.Timeout;
 	private _actionIntervalInMs: number = 1500;
 
-	constructor(characterTypeId: CHARACTER_TYPE_ID, battle: Battle) {
+	constructor(characterTypeId: CHARACTER_TYPE_ID, battle: Battle, summonedBySpellId?: string) {
 		super(characterTypeId, battle);
+		this._summonedBySpellId = summonedBySpellId;
 	}
 
 	protected override _determineTarget() {
