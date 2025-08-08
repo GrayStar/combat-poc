@@ -298,7 +298,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		interruptEffects: [],
 		summonEffects: [
 			{
-				value: 3,
+				value: 1,
 				characterTypeId: CHARACTER_TYPE_ID.SKELETON,
 			},
 		],

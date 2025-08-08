@@ -18,12 +18,7 @@ export class SpellEffectSchoolDamage extends SpellEffect {
 
 	protected override _handleEffect() {
 		this._character.adjustHealth(-this._value);
-
-		if (this._character.characterId !== this._casterId) {
-			this._character.adjustThreat(this._casterId, this._value);
-		}
-
-		console.log('School Damage:', this._value);
+		this._character.adjustThreat(this._casterId, this._value);
 	}
 
 	protected override _combatLogEntry() {

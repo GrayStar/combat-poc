@@ -127,6 +127,14 @@ export class Battle {
 		}
 
 		delete this._characters[characterId];
+
+		Object.values(this._characters).forEach((c) => {
+			if (c.targetCharacterId === characterId) {
+				c.interuptCasting();
+			}
+
+			c.removeThreat(characterId);
+		});
 	}
 
 	public addCombatLogMessage(message: string) {

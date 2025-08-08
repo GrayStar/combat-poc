@@ -4,7 +4,6 @@ import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
 import { Battle } from '@/lib/battle/battle-class';
 
 export class CharacterNonPlayer extends Character {
-	private _targetCharacterId: string = '';
 	private _actionInterval?: NodeJS.Timeout;
 	private _actionIntervalInMs: number = 1500;
 
@@ -18,6 +17,8 @@ export class CharacterNonPlayer extends Character {
 
 		if (threatEntries.length <= 0) {
 			this._targetCharacterId = '';
+			this._stopActionInterval();
+			return;
 		}
 
 		let [maxCharacterId, maxThreat] = threatEntries[0];
@@ -42,7 +43,6 @@ export class CharacterNonPlayer extends Character {
 		}
 
 		const offCooldownSpells = this.spells.filter((s) => !s.isOnCooldown);
-
 		if (offCooldownSpells.length <= 0) {
 			return;
 		}
@@ -65,6 +65,10 @@ export class CharacterNonPlayer extends Character {
 		}
 
 		const randomSpell = affordableSpells[Math.floor(Math.random() * affordableSpells.length)];
+
+		if (!this._targetCharacterId) {
+			return;
+		}
 
 		this._battle.handleCastSpell({
 			casterId: this.characterId,
