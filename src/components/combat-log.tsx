@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useBattle } from '@/hooks';
 import { tss } from '@/styles';
+import { boxShadow } from '@/styles/mixins/box-shadow';
 
 const useStyles = tss.create((theme) => ({
 	combatLogOuter: {
@@ -13,6 +14,7 @@ const useStyles = tss.create((theme) => ({
 		overflowY: 'auto',
 		color: theme.colors.gray200,
 		backgroundColor: theme.colors.gray800,
+		...boxShadow(),
 	},
 }));
 

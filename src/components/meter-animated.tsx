@@ -4,7 +4,7 @@ import { tss } from '@/styles';
 
 const fillAnimation = keyframes`
     from {
-        width: 10%;
+        width: 0%;
     }
     to {
         width: 100%;
@@ -23,7 +23,7 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ durationInMs, color,
 		borderRadius: 4,
 		overflow: 'hidden',
 		position: 'relative',
-		backgroundColor: theme.colors.gray800,
+		backgroundColor: theme.colors.gray900,
 	},
 	meter: {
 		top: 0,

@@ -7,8 +7,8 @@ import { CooldownCircle } from '@/components/cooldown-circle';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const size = 48;
-const borderRadius = 8;
-const flashAnimationDurationInMs = 1000;
+const borderRadius = 4;
+const flashAnimationDurationInMs = 800;
 
 const useStyles = tss.create((theme) => ({
 	spell: {
@@ -32,7 +32,7 @@ const useStyles = tss.create((theme) => ({
 		backgroundColor: theme.colors.white,
 	},
 	flashEnter: {
-		opacity: 0.5,
+		opacity: 0.2,
 	},
 	flashEnterActive: {
 		opacity: 0,

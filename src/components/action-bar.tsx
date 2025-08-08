@@ -3,26 +3,30 @@ import classNames from 'classnames';
 import { SpellState } from '@/lib/spell/spell-class';
 import { Spell, SpellShell } from '@/components/spell';
 import { tss } from '@/styles';
+import { boxShadow } from '@/styles/mixins/box-shadow';
+
+const padding = 8;
+const gutter = 5;
 
 const useStyles = tss.create((theme) => ({
 	actionBar: {
-		padding: 8,
-		paddingRight: 0,
 		display: 'flex',
-		borderRadius: 16,
+		borderRadius: 8,
 		backgroundColor: theme.colors.gray800,
+		...boxShadow(),
+		padding: `${padding}px ${padding - gutter}px ${padding}px ${padding}px`,
 	},
 	draggableContainer: {
-		paddingRight: 8,
+		paddingRight: gutter,
 	},
 	draggableContainerClone: {
-		paddingRight: 8,
+		paddingRight: gutter,
 		'~ div': {
 			transform: 'none !important',
 		},
 	},
 	dragging: {
-		boxShadow: `0px 4px 8px rgba(0,0,0,0.2)`,
+		...boxShadow(),
 	},
 }));
 

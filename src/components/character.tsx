@@ -1,10 +1,12 @@
+import { Collapse } from 'react-bootstrap';
 import { keyframes } from 'tss-react';
+import classNames from 'classnames';
 import { CharacterState } from '@/lib/character/character-class';
 import { useBattle } from '@/hooks';
 import { Meter, MeterAnimated, StatusEffect } from '@/components';
 import { tss } from '@/styles';
 import { useTheme } from '@/styles/hooks';
-import classNames from 'classnames';
+import { boxShadow } from '@/styles/mixins/box-shadow';
 
 const damageFlash = keyframes`
 	from {
@@ -48,27 +50,32 @@ const castSpell = keyframes`
 `;
 
 const useStyles = tss.create((theme) => ({
+	characterOuter: {
+		paddingTop: 92,
+	},
 	character: {
-		display: 'flex',
-		flexDirection: 'column',
-		alignItems: 'center',
+		position: 'relative',
+		padding: '0 38px',
 	},
 	namePlate: {
-		zIndex: 0,
-		width: 128,
+		top: 0,
+		zIndex: 1,
+		width: 116,
 		padding: 8,
+		left: '50%',
 		borderRadius: 8,
-		marginBottom: 8,
 		overflow: 'hidden',
 		textAlign: 'center',
-		position: 'relative',
+		position: 'absolute',
 		backgroundColor: theme.colors.gray800,
+		...boxShadow(),
+		transform: 'translate(-50%, calc(-100% - 8px))',
 	},
 	nameOuter: {
 		padding: 4,
 		borderRadius: 4,
 		color: theme.colors.white,
-		backgroundColor: theme.colors.gray700,
+		backgroundColor: theme.colors.gray900,
 	},
 	indicator: {
 		top: 0,
@@ -87,9 +94,26 @@ const useStyles = tss.create((theme) => ({
 		backgroundColor: theme.colors.white,
 		animation: `${healingFlash} 500ms linear forwards`,
 	},
+	avatarOuter: {
+		zIndex: 0,
+		position: 'relative',
+		'&:after': {
+			left: 0,
+			right: 0,
+			bottom: 0,
+			zIndex: 0,
+			height: 16,
+			content: '""',
+			borderRadius: '50%',
+			position: 'absolute',
+			transform: 'translateY(50%)',
+			backgroundColor: 'rgba(0,0,0,0.32)',
+		},
+	},
 	avatar: {
 		width: 48,
 		height: 48,
+		zIndex: 1,
 		overflow: 'hidden',
 		borderRadius: '50%',
 		position: 'relative',
@@ -100,9 +124,10 @@ const useStyles = tss.create((theme) => ({
 
 interface CharacterProps {
 	character: CharacterState;
+	className?: string;
 }
 
-export const Character = ({ character }: CharacterProps) => {
+export const Character = ({ character, className }: CharacterProps) => {
 	const { theme } = useTheme();
 	const { battle } = useBattle();
 	const { classes, cx } = useStyles();
@@ -112,54 +137,62 @@ export const Character = ({ character }: CharacterProps) => {
 	}
 
 	return (
-		<div className={classes.character}>
-			<div className={classes.namePlate}>
-				<div className={cx('mb-2', classes.nameOuter)}>
-					<h6 className="mb-0 small">{character.title}</h6>
-				</div>
-				<Meter
-					showValue
-					className="mt-2"
-					value={character.health}
-					maxValue={character.maxHealth}
-					color={theme.colors.success}
-				/>
-				<Meter
-					showValue
-					className="mt-2"
-					value={character.mana}
-					maxValue={character.maxMana}
-					color={theme.colors.info}
-				/>
-				{character.isCastingSpell && (
-					<MeterAnimated
-						title={character.isCastingSpell.title}
-						className="mt-2"
-						durationInMs={character.isCastingSpell.castTimeAnimationDurationInMs ?? 0}
-						color={theme.colors.warning}
-					/>
-				)}
-				{character.auras.length > 0 && (
-					<div className="mt-2 d-flex">
-						{character.auras.map((aura) => {
-							return <StatusEffect key={aura.auraId} statusEffect={aura} />;
-						})}
+		<div className={classNames(classes.characterOuter, className)}>
+			<div className={classes.character}>
+				<div className={classes.namePlate}>
+					<div className={cx('mb-2', classes.nameOuter)}>
+						<h6 className="mb-0 small">{character.title}</h6>
 					</div>
-				)}
-			</div>
-			<div className={classes.avatar} key={character.renderKeyCastSpell}>
-				{character.renderKeyDamage && (
-					<div
-						className={classNames(classes.indicator, classes.damageIndicator)}
-						key={character.renderKeyDamage}
+					<Meter
+						showValue
+						className="mt-2"
+						value={character.health}
+						maxValue={character.maxHealth}
+						color={theme.colors.success}
 					/>
-				)}
-				{character.renderKeyHealing && (
-					<div
-						className={classNames(classes.indicator, classes.healingIndicator)}
-						key={character.renderKeyHealing}
+					<Meter
+						showValue
+						className="mt-2"
+						value={character.mana}
+						maxValue={character.maxMana}
+						color={theme.colors.info}
 					/>
-				)}
+					<Collapse in={!!character.isCastingSpell}>
+						<div>
+							<MeterAnimated
+								title={character.isCastingSpell?.title ?? ''}
+								className="mt-2"
+								durationInMs={character.isCastingSpell?.castTimeAnimationDurationInMs ?? 0}
+								color={theme.colors.warning}
+							/>
+						</div>
+					</Collapse>
+					<Collapse in={character.auras.length > 0}>
+						<div>
+							<div className="mt-2 d-flex" style={{ height: 24 }}>
+								{character.auras.map((aura) => {
+									return <StatusEffect key={aura.auraId} className="me-2" statusEffect={aura} />;
+								})}
+							</div>
+						</div>
+					</Collapse>
+				</div>
+				<div className={classes.avatarOuter}>
+					<div className={classes.avatar} key={character.renderKeyCastSpell}>
+						{character.renderKeyDamage && (
+							<div
+								className={classNames(classes.indicator, classes.damageIndicator)}
+								key={character.renderKeyDamage}
+							/>
+						)}
+						{character.renderKeyHealing && (
+							<div
+								className={classNames(classes.indicator, classes.healingIndicator)}
+								key={character.renderKeyHealing}
+							/>
+						)}
+					</div>
+				</div>
 			</div>
 		</div>
 	);

@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { tss } from '@/styles';
 import { AuraState } from '@/lib/spell/aura-class';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
@@ -33,9 +34,10 @@ const useStyles = tss.create((theme) => ({
 
 interface StatusEffectProps {
 	statusEffect: AuraState;
+	className?: string;
 }
 
-export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
+export const StatusEffect = ({ statusEffect, className }: StatusEffectProps) => {
 	const { classes } = useStyles();
 
 	return (
@@ -50,7 +52,7 @@ export const StatusEffect = ({ statusEffect }: StatusEffectProps) => {
 				</Tooltip>
 			}
 		>
-			<div className={classes.statusEffect}>
+			<div className={classNames(classes.statusEffect, className)}>
 				<CooldownCircle size={size} durationInMs={statusEffect.durationInMs} key={statusEffect.renderKey} />
 				<p className="m-0">{statusEffect.title}</p>
 				{/* {(statusEffect.stacks ?? 0) > 0 && <div className={classes.stackCount}>{statusEffect.stacks}</div>} */}
