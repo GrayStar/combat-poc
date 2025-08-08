@@ -108,7 +108,7 @@ export const Battle = () => {
 							<Button
 								size="lg"
 								variant="warning"
-								className="mb-2"
+								className="mb-3"
 								onClick={() => {
 									handleAbortCastSpell({ casterId: playerCharacter.characterId });
 								}}
@@ -118,7 +118,7 @@ export const Battle = () => {
 						)}
 						{playerCharacter && (
 							<ActionBar
-								className="mb-2"
+								className="mb-3"
 								spells={playerCharacter.spells}
 								disabled={!!playerCharacter.isCastingSpell}
 							/>

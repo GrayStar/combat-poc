@@ -13,7 +13,7 @@ const useStyles = tss.create((theme) => ({
 		borderRadius: 4,
 		overflow: 'hidden',
 		position: 'relative',
-		backgroundColor: theme.colors.gray400,
+		backgroundColor: theme.colors.gray700,
 	},
 	stackCount: {
 		right: 4,

@@ -62,13 +62,13 @@ const useStyles = tss.create((theme) => ({
 		overflow: 'hidden',
 		textAlign: 'center',
 		position: 'relative',
-		backgroundColor: theme.colors.gray200,
+		backgroundColor: theme.colors.gray800,
 	},
 	nameOuter: {
 		padding: 4,
 		borderRadius: 4,
 		color: theme.colors.white,
-		backgroundColor: theme.colors.gray800,
+		backgroundColor: theme.colors.gray700,
 	},
 	indicator: {
 		top: 0,

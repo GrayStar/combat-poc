@@ -10,7 +10,7 @@ const useStyles = tss.create((theme) => ({
 		paddingRight: 0,
 		display: 'flex',
 		borderRadius: 16,
-		backgroundColor: theme.colors.gray700,
+		backgroundColor: theme.colors.gray800,
 	},
 	draggableContainer: {
 		paddingRight: 8,

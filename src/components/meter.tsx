@@ -14,7 +14,7 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ percent, color, ...t
 		borderRadius: 4,
 		overflow: 'hidden',
 		position: 'relative',
-		backgroundColor: theme.colors.gray800,
+		backgroundColor: theme.colors.gray900,
 	},
 	underMeter: {
 		top: 0,

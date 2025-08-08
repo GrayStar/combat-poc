@@ -12,9 +12,9 @@ export const getGlobalStyles = (theme: ThemeConfig) => {
 			minHeight: '100%',
 			position: 'relative',
 			fontSize: theme.fonts.body,
-			color: theme.colors.gray900,
+			color: theme.colors.gray300,
 			fontWeight: theme.fontWeights.normal,
-			backgroundColor: theme.colors.gray100,
+			backgroundColor: theme.colors.gray900,
 		},
 
 		// Typography

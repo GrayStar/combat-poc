@@ -18,7 +18,7 @@ const useStyles = tss.create((theme) => ({
 		textAlign: 'center',
 		position: 'relative',
 		borderRadius: borderRadius,
-		backgroundColor: theme.colors.gray400,
+		backgroundColor: theme.colors.gray700,
 	},
 	flash: {
 		top: 0,
@@ -32,7 +32,7 @@ const useStyles = tss.create((theme) => ({
 		backgroundColor: theme.colors.white,
 	},
 	flashEnter: {
-		opacity: 0.75,
+		opacity: 0.5,
 	},
 	flashEnterActive: {
 		opacity: 0,
