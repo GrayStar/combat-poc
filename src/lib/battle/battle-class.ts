@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, remove } from 'lodash';
 import { format } from 'date-fns';
 import { BATTLE_TYPE_ID, battleData } from '@/lib/battle/battle-data';
 import { CharacterState } from '@/lib/character/character-class';
@@ -46,24 +46,24 @@ export class Battle {
 		this._initializeCharacters(config);
 	}
 
+	public get battleId() {
+		return this._battleId;
+	}
+
 	public get playerCharacterId() {
 		return this._playerCharacterId;
 	}
 
 	public get friendlyNonPlayerCharacterIds() {
-		return this._friendlyNonPlayerCharacterIds;
+		return [...this._friendlyNonPlayerCharacterIds];
 	}
 
 	public get hostileNonPlayerCharacterIds() {
-		return this._hostileNonPlayerCharacterIds;
+		return [...this._hostileNonPlayerCharacterIds];
 	}
 
 	public get characters() {
-		return this._characters;
-	}
-
-	public get battleId() {
-		return this._battleId;
+		return { ...this._characters };
 	}
 
 	public get subscribe() {
@@ -114,39 +114,30 @@ export class Battle {
 	}
 
 	public removeCharacterByCharacterId(characterId: string) {
-		const friendlyIndex = this._friendlyNonPlayerCharacterIds.indexOf(characterId);
-		if (friendlyIndex !== -1) {
-			this._friendlyNonPlayerCharacterIds.splice(friendlyIndex, 1);
-		}
-
-		const hostileIndex = this._hostileNonPlayerCharacterIds.indexOf(characterId);
-		if (hostileIndex !== -1) {
-			this._hostileNonPlayerCharacterIds.splice(hostileIndex, 1);
-		}
+		remove(this._friendlyNonPlayerCharacterIds, (id) => id === characterId);
+		remove(this._hostileNonPlayerCharacterIds, (id) => id === characterId);
 
 		delete this._characters[characterId];
 
-		Object.values(this._characters).forEach((c) => {
-			if (c.targetCharacterId === characterId) {
-				c.interuptCasting();
+		Object.values(this._characters).forEach((character) => {
+			const isTargetingDeletedCharacter = character.targetCharacterId === characterId;
+			if (isTargetingDeletedCharacter) {
+				character.interuptCasting();
 			}
 
-			c.removeThreat(characterId);
+			character.removeThreat(characterId);
 		});
 	}
 
 	public addCombatLogMessage(message: string) {
 		const date = new Date();
 
-		this._combatLog = [
-			...this._combatLog,
-			{
-				combatLogEntryId: uuidv4(),
-				time: date.getTime().toString(),
-				timeDescription: format(date, 'hh:mm:ss aaa'),
-				message,
-			},
-		];
+		this._combatLog.push({
+			combatLogEntryId: uuidv4(),
+			time: date.getTime().toString(),
+			timeDescription: format(date, 'hh:mm:ss aaa'),
+			message,
+		});
 
 		this.notify();
 	}
