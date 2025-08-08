@@ -1,8 +1,8 @@
 import { Draggable, Droppable } from '@hello-pangea/dnd';
+import classNames from 'classnames';
 import { SpellState } from '@/lib/spell/spell-class';
 import { Spell, SpellShell } from '@/components/spell';
 import { tss } from '@/styles';
-import classNames from 'classnames';
 
 const useStyles = tss.create((theme) => ({
 	actionBar: {
@@ -29,9 +29,10 @@ const useStyles = tss.create((theme) => ({
 interface ActionBarProps {
 	spells: SpellState[];
 	disabled?: boolean;
+	className?: string;
 }
 
-export const ActionBar = ({ spells, disabled }: ActionBarProps) => {
+export const ActionBar = ({ spells, disabled, className }: ActionBarProps) => {
 	const { classes } = useStyles();
 
 	return (
@@ -40,7 +41,7 @@ export const ActionBar = ({ spells, disabled }: ActionBarProps) => {
 				<div
 					{...droppableProvided.droppableProps}
 					ref={droppableProvided.innerRef}
-					className={classes.actionBar}
+					className={classNames(classes.actionBar, className)}
 				>
 					{spells.map((spell, spellIndex) => (
 						<Draggable

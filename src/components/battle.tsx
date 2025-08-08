@@ -5,6 +5,7 @@ import { ActionBar } from '@/components/action-bar';
 import { tss } from '@/styles';
 import { Button } from 'react-bootstrap';
 import { CharacterState } from '@/lib/character/character-class';
+import { CombatLog } from './combat-log';
 
 const useStyles = tss.create(() => ({
 	actionBarOuter: {
@@ -16,6 +17,10 @@ const useStyles = tss.create(() => ({
 		alignItems: 'center',
 		flexDirection: 'column',
 		justifyContent: 'center',
+	},
+	combatLogOuter: {
+		width: '90%',
+		maxWidth: 400,
 	},
 }));
 
@@ -112,19 +117,16 @@ export const Battle = () => {
 							</Button>
 						)}
 						{playerCharacter && (
-							<ActionBar spells={playerCharacter.spells} disabled={!!playerCharacter.isCastingSpell} />
+							<ActionBar
+								className="mb-2"
+								spells={playerCharacter.spells}
+								disabled={!!playerCharacter.isCastingSpell}
+							/>
 						)}
+						<CombatLog className={classes.combatLogOuter} />
 					</div>
 				</>
 			</DragDropContext>
-
-			<div>
-				{battle.combatLog.map((entry) => (
-					<p className="mb-0 small" key={entry.combatLogEntryId}>
-						[{entry.timeDescription}]:{entry.message}
-					</p>
-				))}
-			</div>
 		</div>
 	);
 };
