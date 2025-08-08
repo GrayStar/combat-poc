@@ -4,6 +4,7 @@ import { Character } from '@/components';
 import { ActionBar } from '@/components/action-bar';
 import { tss } from '@/styles';
 import { Button } from 'react-bootstrap';
+import { CharacterState } from '@/lib/character/character-class';
 
 const useStyles = tss.create(() => ({
 	actionBarOuter: {
@@ -26,10 +27,14 @@ export const Battle = () => {
 		return null;
 	}
 
-	const playerCharacter = battle.characters[battle.playerCharacterId];
+	const playerCharacter: CharacterState | undefined = battle.characters[battle.playerCharacterId];
 
 	const handleDragEnd = (result: DropResult) => {
 		if (!result.destination) {
+			return;
+		}
+
+		if (!playerCharacter) {
 			return;
 		}
 
@@ -65,13 +70,15 @@ export const Battle = () => {
 					)}
 
 					<div className="d-flex mb-5 justify-content-center">
-						<Droppable droppableId={playerCharacter.characterId}>
-							{(provided) => (
-								<div {...provided.droppableProps} ref={provided.innerRef}>
-									<Character character={playerCharacter} />
-								</div>
-							)}
-						</Droppable>
+						{playerCharacter && (
+							<Droppable droppableId={playerCharacter.characterId}>
+								{(provided) => (
+									<div {...provided.droppableProps} ref={provided.innerRef}>
+										<Character character={playerCharacter} />
+									</div>
+								)}
+							</Droppable>
+						)}
 						{battle.friendlyNonPlayerCharacterIds.length > 0 && (
 							<>
 								{battle.friendlyNonPlayerCharacterIds.map((characterId) => {
@@ -92,7 +99,7 @@ export const Battle = () => {
 					</div>
 
 					<div className={classes.actionBarOuter}>
-						{playerCharacter.isCastingSpell && (
+						{playerCharacter?.isCastingSpell && (
 							<Button
 								size="lg"
 								variant="warning"
@@ -104,7 +111,9 @@ export const Battle = () => {
 								Cancel {playerCharacter.isCastingSpell.title}
 							</Button>
 						)}
-						<ActionBar spells={playerCharacter.spells} disabled={!!playerCharacter.isCastingSpell} />
+						{playerCharacter && (
+							<ActionBar spells={playerCharacter.spells} disabled={!!playerCharacter.isCastingSpell} />
+						)}
 					</div>
 				</>
 			</DragDropContext>

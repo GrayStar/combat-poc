@@ -282,10 +282,7 @@ export abstract class Character {
 	}
 
 	public interuptCasting(): void {
-		console.log(`interrupt on ${this.title}`);
-
 		if (!this._currentCast) {
-			console.log(`interrupt failed`);
 			return;
 		}
 

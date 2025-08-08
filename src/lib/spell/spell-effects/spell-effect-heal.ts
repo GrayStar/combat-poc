@@ -16,8 +16,6 @@ export class SpellEffectHeal extends SpellEffect {
 
 	protected override _handleEffect() {
 		this._character.adjustHealth(this._value);
-
-		console.log('Heal:', this._value);
 	}
 
 	protected override _combatLogEntry() {

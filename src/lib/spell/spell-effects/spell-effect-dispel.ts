@@ -40,10 +40,7 @@ export class SpellEffectDispel extends SpellEffect {
 		}
 
 		removalCandidatesAuraIds.slice(0, removalCount).forEach((auraId) => {
-			const auraToRemoveState = this._character.getAuraStateByAuraId(auraId);
 			this._character.removeAuraByAuraId(auraId);
-
-			console.log(`[${auraToRemoveState.title}] was dispelled from [${this._character.title}].`);
 		});
 	}
 
