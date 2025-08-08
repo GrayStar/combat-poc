@@ -10,5 +10,4 @@ export abstract class AuraEffect {
 	}
 
 	public abstract getDescription(): string;
-	protected abstract _combatLogEntry(): void;
 }
