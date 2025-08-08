@@ -12,8 +12,8 @@ export class SpellEffectSchoolDamage extends SpellEffect {
 		this._value = config.value;
 		this._schoolTypeId = config.schoolTypeId;
 
-		this._handleEffect();
 		this._combatLogEntry();
+		this._handleEffect();
 	}
 
 	protected override _handleEffect() {

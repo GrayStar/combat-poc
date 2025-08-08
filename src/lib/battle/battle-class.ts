@@ -90,9 +90,7 @@ export class Battle {
 			const spellPayload = await caster.castSpell(spellId);
 			target.recieveSpellPayload(spellPayload);
 		} catch (error) {
-			if (error instanceof Error) {
-				this.addCombatLogMessage(error.message);
-			}
+			// don't throw
 		}
 	}
 

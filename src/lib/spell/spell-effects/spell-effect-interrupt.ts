@@ -6,8 +6,8 @@ export class SpellEffectInterrupt extends SpellEffect {
 	constructor(_config: SpellEffectInterruptModel, character: Character, casterId: string) {
 		super(character, casterId);
 
-		this._handleEffect();
 		this._combatLogEntry();
+		this._handleEffect();
 	}
 
 	protected override _handleEffect() {

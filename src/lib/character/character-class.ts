@@ -450,6 +450,7 @@ export abstract class Character {
 
 		this._battle.removeCharacterByCharacterId(this.characterId);
 		this._battle.notify();
+		this._battle.addCombatLogMessage(`${this.title} died.`);
 	}
 
 	protected abstract _dieTriggerSideEffects(): void;
