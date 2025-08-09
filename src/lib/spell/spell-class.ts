@@ -11,6 +11,7 @@ import {
 	SpellEffectDispelModel,
 	SpellEffectHealModel,
 	SpellEffectInterruptModel,
+	SpellEffectResourceFillModel,
 	SpellEffectSummonModel,
 	SpellEffectValueModifier,
 	SpellPayload,
@@ -48,6 +49,7 @@ export class Spell {
 	private readonly _dispelEffects: SpellEffectDispelModel[];
 	private readonly _interruptEffects: SpellEffectInterruptModel[];
 	private readonly _summonEffects: SpellEffectSummonModel[];
+	private readonly _resourceFillEffects: SpellEffectResourceFillModel[];
 	private readonly _auras: AuraModel[];
 	private readonly _character;
 
@@ -75,6 +77,7 @@ export class Spell {
 		this._dispelEffects = config.dispelEffects;
 		this._interruptEffects = config.interruptEffects;
 		this._summonEffects = config.summonEffects;
+		this._resourceFillEffects = config.resourceFillEffects;
 		this._auras = config.auras;
 
 		this._character = character;
@@ -243,6 +246,10 @@ export class Spell {
 		);
 	}
 
+	private _getResourceFillEffectDescriptions() {
+		return this._resourceFillEffects.map((effect) => `Restores ${effect.value} ${effect.resourceTypeId}.`);
+	}
+
 	private _getAuraDescriptions() {
 		return this._getProcessedAuras().flatMap((a) => {
 			const durationInSeconds = roundNumber(a.durationInMs / 1000);
@@ -273,6 +280,7 @@ export class Spell {
 			...this._getAuraDescriptions(),
 			...this._getInterruptEffectDescriptions(),
 			...this._getSummonEffectDescriptions(),
+			...this._getResourceFillEffectDescriptions(),
 		]
 			.filter(Boolean)
 			.join('\n');
@@ -291,6 +299,7 @@ export class Spell {
 			dispelEffects: this._dispelEffects,
 			interruptEffects: this._interruptEffects,
 			summonEffects: this._summonEffects,
+			resourceFillEffects: this._resourceFillEffects,
 			auras: this._getProcessedAuras(),
 			castTimeDurationInMs: this._getProcessedCastTimeDurationInMs(),
 		};

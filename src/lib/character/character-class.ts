@@ -14,6 +14,7 @@ import { SpellEffectInterrupt } from '@/lib/spell/spell-effects/spell-effect-int
 import { SpellEffectSummon } from '@/lib/spell/spell-effects/spell-effect-summon';
 import { CHARACTER_TYPE_ID } from '../data/enums';
 import { Battle } from '@/lib/battle/battle-class';
+import { SpellEffectResourceFill } from '../spell/spell-effects/spell-effect-resource-fill';
 
 export type CharacterState = {
 	characterId: string;
@@ -312,6 +313,10 @@ export abstract class Character {
 		spellPayload.summonEffects.forEach((se) => {
 			new SpellEffectSummon(se, this, spellPayload.casterId, spellPayload.spellId);
 			this._battle.notify();
+		});
+
+		spellPayload.resourceFillEffects.forEach((se) => {
+			new SpellEffectResourceFill(se, this, spellPayload.casterId);
 		});
 
 		spellPayload.auras.forEach((a) => {

@@ -94,8 +94,6 @@ export class CharacterNonPlayer extends Character {
 	}
 
 	protected override _dieTriggerSideEffects() {
-		console.log('die trigger');
-
 		this._targetCharacterId = '';
 		this._stopActionInterval();
 	}

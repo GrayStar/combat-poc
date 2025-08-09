@@ -19,6 +19,7 @@ export enum SPELL_TYPE_ID {
 	HASTE_UP = 'HASTE_UP',
 	INTERRUPT = 'INTERRUPT',
 	SUMMON_SKELETON = 'SUMMON_SKELETON',
+	MANA_POTION = 'MANA_POTION',
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
@@ -42,6 +43,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		dispelEffects: [],
 		interruptEffects: [],
 		summonEffects: [],
+		resourceFillEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DH_SP]: {
@@ -70,6 +72,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		dispelEffects: [],
 		interruptEffects: [],
 		summonEffects: [],
+		resourceFillEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DISPEL_MAGIC]: {
@@ -97,6 +100,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		healEffects: [],
 		interruptEffects: [],
 		summonEffects: [],
+		resourceFillEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.DOT]: {
@@ -125,6 +129,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		dispelEffects: [],
 		interruptEffects: [],
 		summonEffects: [],
+		resourceFillEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -162,6 +167,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		dispelEffects: [],
 		interruptEffects: [],
 		summonEffects: [],
+		resourceFillEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -199,6 +205,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		dispelEffects: [],
 		interruptEffects: [],
 		summonEffects: [],
+		resourceFillEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -234,6 +241,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		dispelEffects: [],
 		interruptEffects: [],
 		summonEffects: [],
+		resourceFillEffects: [],
 		auras: [
 			{
 				durationInMs: 8000,
@@ -269,6 +277,7 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		dispelEffects: [],
 		interruptEffects: [{ value: 1 }],
 		summonEffects: [],
+		resourceFillEffects: [],
 		auras: [],
 	},
 	[SPELL_TYPE_ID.SUMMON_SKELETON]: {
@@ -294,6 +303,29 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			{
 				value: 1,
 				characterTypeId: CHARACTER_TYPE_ID.SKELETON,
+			},
+		],
+		resourceFillEffects: [],
+		auras: [],
+	},
+	[SPELL_TYPE_ID.MANA_POTION]: {
+		spellTypeId: SPELL_TYPE_ID.MANA_POTION,
+		title: 'Mana Potion',
+		description: 'Drink a mana potion, restoring a portion of mana.',
+		cost: [],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
+		interruptEffects: [],
+		summonEffects: [],
+		resourceFillEffects: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.MANA,
+				value: 40,
 			},
 		],
 		auras: [],

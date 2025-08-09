@@ -16,6 +16,7 @@ export type SpellModel = {
 	dispelEffects: SpellEffectDispelModel[];
 	interruptEffects: SpellEffectInterruptModel[];
 	summonEffects: SpellEffectSummonModel[];
+	resourceFillEffects: SpellEffectResourceFillModel[];
 	auras: AuraModel[];
 };
 
@@ -39,6 +40,10 @@ export type SpellEffectInterruptModel = {
 export type SpellEffectSummonModel = {
 	value: number;
 	characterTypeId: CHARACTER_TYPE_ID;
+};
+export type SpellEffectResourceFillModel = {
+	resourceTypeId: RESOURCE_TYPE_ID;
+	value: number;
 };
 
 export type AuraModel = {
@@ -129,5 +134,6 @@ export type SpellPayload = {
 	dispelEffects: SpellEffectDispelModel[];
 	interruptEffects: SpellEffectInterruptModel[];
 	summonEffects: SpellEffectSummonModel[];
+	resourceFillEffects: SpellEffectResourceFillModel[];
 	auras: AuraModel[];
 };
