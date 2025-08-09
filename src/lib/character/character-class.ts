@@ -21,6 +21,7 @@ export type CharacterState = {
 	characterTypeId: CHARACTER_TYPE_ID;
 	title: string;
 	spells: SpellState[];
+	potions: SpellState[];
 	isCastingSpell: SpellState | undefined;
 	health: number;
 	maxHealth: number;
@@ -388,11 +389,15 @@ export abstract class Character {
 	/* State */
 	/* ----------------------------------------------- */
 	public getState(): CharacterState {
+		const spellStates = this._spells.filter((s) => !s.isPotion).map((spell) => spell.getState());
+		const potionStates = this._spells.filter((s) => s.isPotion).map((spell) => spell.getState());
+
 		return {
 			characterId: this.characterId,
 			characterTypeId: this.characterTypeId,
 			title: this.title,
-			spells: this._spells.map((spell) => spell.getState()),
+			spells: spellStates,
+			potions: potionStates,
 			isCastingSpell: this._currentCast?.spell,
 			health: this._health,
 			maxHealth: this._maxHealth,

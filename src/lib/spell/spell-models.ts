@@ -23,6 +23,8 @@ export type SpellModel = {
 	resourceFillEffects: SpellEffectResourceFillModel[];
 	//auras
 	auras: AuraModel[];
+	// misc
+	isPotion?: boolean;
 };
 
 export type SpellEffectDispelModel = {

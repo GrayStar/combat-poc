@@ -47,6 +47,7 @@ export class Spell {
 	public readonly schoolTypeId: SCHOOL_TYPE_ID;
 	public readonly hasCharges: boolean;
 	public readonly maxCharges: number;
+	public readonly isPotion: boolean;
 
 	private readonly _cost: SpellCostModel[];
 	private readonly _damageEffects: SpellEffectDamageModel[];
@@ -78,6 +79,7 @@ export class Spell {
 		this.schoolTypeId = config.schoolTypeId;
 		this.hasCharges = config.hasCharges;
 		this.maxCharges = config.maxCharges;
+		this.isPotion = config.isPotion ?? false;
 
 		this._charges = this.maxCharges;
 		this._cost = config.cost;

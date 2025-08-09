@@ -349,5 +349,6 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 			},
 		],
 		auras: [],
+		isPotion: true,
 	},
 };

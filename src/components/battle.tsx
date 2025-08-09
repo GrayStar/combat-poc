@@ -121,6 +121,7 @@ export const Battle = () => {
 							<ActionBar
 								className="mb-3"
 								spells={playerCharacter.spells}
+								potions={playerCharacter.potions}
 								disabled={!!playerCharacter.isCastingSpell}
 							/>
 						)}
