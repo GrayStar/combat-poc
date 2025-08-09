@@ -49,8 +49,7 @@ export abstract class Character {
 	private _spells: Spell[];
 	protected _currentCast?: {
 		spell: SpellState;
-		abortController: AbortController;
-		timeout?: NodeJS.Timeout;
+		timeout: NodeJS.Timeout;
 	};
 	private _stats: Record<ALL_STAT_TYPE_ID, number>;
 	private _auras: Record<string, Aura>;
@@ -195,21 +194,31 @@ export abstract class Character {
 	/* ----------------------------------------------- */
 	/* Spell Casting */
 	/* ----------------------------------------------- */
-	public castSpell(spellId: string): Promise<SpellPayload> {
+	public castSpell(spellId: string, targetId: string) {
 		if (this._currentCast) {
-			return Promise.reject(new Error(`${this.title} is already casting ${this._currentCast.spell.title}.`));
+			this.battle.addCombatLogMessage('Already casting.');
+			return;
+		}
+
+		const target = this._battle.characters[targetId];
+		if (!target) {
+			this.battle.addCombatLogMessage('Invalid target.');
+			return;
 		}
 
 		const spell = this._spells.find((s) => s.spellId === spellId);
 		const otherSpells = this._spells.filter((s) => s.spellId !== spellId);
 		if (!spell) {
-			return Promise.reject(new Error('spell is undefined.'));
+			this.battle.addCombatLogMessage('Invalid spell.');
+			return;
 		}
 
 		const spellPayload = spell.getPayload();
 
-		if (spellPayload.castTimeDurationInMs <= 0) {
+		const sendSpellPayloadToTarget = () => {
+			this._clearCurrentCast();
 			this._handleSpellPayloadCost(spellPayload);
+			target.recieveSpellPayload(spellPayload);
 
 			spell.startCooldown();
 			otherSpells.forEach((s) => {
@@ -217,48 +226,28 @@ export abstract class Character {
 			});
 
 			this._renderKeyCastSpell = uuidv4();
+		};
+
+		if (spellPayload.castTimeDurationInMs <= 0) {
+			sendSpellPayloadToTarget();
 			this._battle.notify();
-			return Promise.resolve(spellPayload);
+			return;
 		}
 
-		return new Promise((resolve: (value: SpellPayload) => void, reject) => {
-			const abortController = new AbortController();
-			const { signal } = abortController;
-			this._currentCast = { spell: spell.getState(), abortController };
-
-			this._battle.notify();
-
-			const timeout = setTimeout(() => {
+		this._currentCast = {
+			spell: spell.getState(),
+			timeout: setTimeout(() => {
 				this._clearCurrentCast();
-				this._handleSpellPayloadCost(spellPayload);
-
-				spell.startCooldown();
-				otherSpells.forEach((s) => {
-					s.startGlobalCooldown();
-				});
-
-				this._renderKeyCastSpell = uuidv4();
+				sendSpellPayloadToTarget();
 				this._battle.notify();
-				return resolve(spellPayload);
-			}, spellPayload.castTimeDurationInMs);
+			}, spellPayload.castTimeDurationInMs),
+		};
 
-			this._currentCast.timeout = timeout;
-
-			signal.addEventListener(
-				'abort',
-				() => {
-					this._clearCurrentCast();
-					this._battle.notify();
-
-					return reject(new Error(`${this.title} was interrupted.`));
-				},
-				{ once: true }
-			);
-		});
+		this._battle.notify();
 	}
 
-	private _handleSpellPayloadCost(spellPayload: SpellPayload): void {
-		spellPayload.cost.forEach((c) => {
+	private _handleSpellPayloadCost({ cost }: SpellPayload): void {
+		cost.forEach((c) => {
 			// TODO: Check costs and throw ERROR------------------------------
 
 			if (c.resourceTypeId === RESOURCE_TYPE_ID.HEALTH) {
@@ -282,11 +271,7 @@ export abstract class Character {
 	}
 
 	public interuptCasting(): void {
-		if (!this._currentCast) {
-			return;
-		}
-
-		this._currentCast.abortController.abort();
+		this._clearCurrentCast();
 		this._battle.notify();
 	}
 

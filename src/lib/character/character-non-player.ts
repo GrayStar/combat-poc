@@ -2,6 +2,7 @@ import { Character } from '@/lib/character/character-class';
 import { RESOURCE_TYPE_ID } from '../spell/spell-models';
 import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
 import { Battle } from '@/lib/battle/battle-class';
+import { getRandomInt } from '../utils/number-utils';
 
 export class CharacterNonPlayer extends Character {
 	private _actionInterval?: NodeJS.Timeout;
@@ -33,7 +34,7 @@ export class CharacterNonPlayer extends Character {
 		this._targetCharacterId = maxCharacterId;
 
 		if (this._targetCharacterId) {
-			this._startActionTimeout();
+			this._startActionInterval();
 		}
 	}
 
@@ -64,20 +65,16 @@ export class CharacterNonPlayer extends Character {
 			return;
 		}
 
-		const randomSpell = affordableSpells[Math.floor(Math.random() * affordableSpells.length)];
+		const randomSpell = affordableSpells[getRandomInt(0, affordableSpells.length - 1)];
 
 		if (!this._targetCharacterId) {
 			return;
 		}
 
-		this._battle.handleCastSpell({
-			casterId: this.characterId,
-			targetId: this._targetCharacterId,
-			spellId: randomSpell.spellId,
-		});
+		this.castSpell(randomSpell.spellId, this._targetCharacterId);
 	}
 
-	private _startActionTimeout() {
+	private _startActionInterval() {
 		if (this._actionInterval) {
 			return;
 		}

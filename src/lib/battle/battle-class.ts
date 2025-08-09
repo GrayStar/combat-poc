@@ -81,17 +81,9 @@ export class Battle {
 		}
 	}
 
-	public async handleCastSpell(data: BattleHandleSpellCastData) {
-		const { casterId, targetId, spellId } = data;
+	public handleCastSpell({ casterId, targetId, spellId }: BattleHandleSpellCastData) {
 		const caster = this._characters[casterId];
-		const target = this._characters[targetId];
-
-		try {
-			const spellPayload = await caster.castSpell(spellId);
-			target.recieveSpellPayload(spellPayload);
-		} catch (error) {
-			// don't throw
-		}
+		caster.castSpell(spellId, targetId);
 	}
 
 	public abortCastSpell(characterId: string) {
