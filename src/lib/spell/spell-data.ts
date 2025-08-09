@@ -19,6 +19,7 @@ export enum SPELL_TYPE_ID {
 	HASTE_UP = 'HASTE_UP',
 	INTERRUPT = 'INTERRUPT',
 	SUMMON_SKELETON = 'SUMMON_SKELETON',
+	HEALTH_POTION = 'HEALTH_POTION',
 	MANA_POTION = 'MANA_POTION',
 }
 
@@ -325,6 +326,31 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		],
 		resourceFillEffects: [],
 		auras: [],
+	},
+	[SPELL_TYPE_ID.HEALTH_POTION]: {
+		spellTypeId: SPELL_TYPE_ID.HEALTH_POTION,
+		title: 'Health Potion',
+		description: 'Drink a health potion, restoring a portion of health.',
+		cost: [],
+		castTimeDurationInMs: 0,
+		cooldownDurationInMs: 0,
+		globalCooldownDurationInMs: 1500,
+		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		hasCharges: true,
+		maxCharges: 3,
+		damageEffects: [],
+		healEffects: [],
+		dispelEffects: [],
+		interruptEffects: [],
+		summonEffects: [],
+		resourceFillEffects: [
+			{
+				resourceTypeId: RESOURCE_TYPE_ID.HEALTH,
+				value: 40,
+			},
+		],
+		auras: [],
+		isPotion: true,
 	},
 	[SPELL_TYPE_ID.MANA_POTION]: {
 		spellTypeId: SPELL_TYPE_ID.MANA_POTION,

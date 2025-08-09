@@ -16,6 +16,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 			SPELL_TYPE_ID.HASTE_UP,
 			SPELL_TYPE_ID.INTERRUPT,
 			SPELL_TYPE_ID.SUMMON_SKELETON,
+			SPELL_TYPE_ID.HEALTH_POTION,
 			SPELL_TYPE_ID.MANA_POTION,
 		],
 		stats: {
