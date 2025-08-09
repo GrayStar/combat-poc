@@ -8,6 +8,7 @@ export class SpellEffectSummon extends SpellEffect {
 	private readonly _value: number;
 	private readonly _summonedBySpellId: string;
 	private readonly _characterTypeId: CHARACTER_TYPE_ID;
+	private readonly _characterIsASummon: boolean;
 
 	constructor(config: SpellEffectSummonModel, character: Character, casterId: string, spellId: string) {
 		super(character, casterId);
@@ -15,6 +16,12 @@ export class SpellEffectSummon extends SpellEffect {
 		this._value = config.value;
 		this._characterTypeId = config.characterTypeId;
 		this._summonedBySpellId = spellId;
+		this._characterIsASummon = !!character.summonedBySpellId;
+
+		if (this._characterIsASummon) {
+			this._combatLogEntry();
+			return;
+		}
 
 		this._removeSummons();
 		this._handleEffect();
@@ -76,6 +83,11 @@ export class SpellEffectSummon extends SpellEffect {
 
 	protected override _combatLogEntry() {
 		const plural = this._value !== 1;
+
+		if (this._characterIsASummon) {
+			this._character.battle.addCombatLogMessage(`Summoned characters cannot have a summon.`);
+			return;
+		}
 
 		this._character.battle.addCombatLogMessage(
 			`${this._character.title} summoned ${this._value} ${this._characterTypeId}${plural ? 's' : ''}.`
