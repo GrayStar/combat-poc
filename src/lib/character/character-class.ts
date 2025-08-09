@@ -215,6 +215,11 @@ export abstract class Character {
 
 		const spellPayload = spell.getPayload();
 
+		if (!this._canAffordSpellPayload(spellPayload)) {
+			this.battle.addCombatLogMessage('Cannot afford spell.');
+			return;
+		}
+
 		const sendSpellPayloadToTarget = () => {
 			this._clearCurrentCast();
 			this._handleSpellPayloadCost(spellPayload);
@@ -244,6 +249,18 @@ export abstract class Character {
 		};
 
 		this._battle.notify();
+	}
+
+	private _canAffordSpellPayload({ cost }: SpellPayload): boolean {
+		return cost.every((c) => {
+			if (c.resourceTypeId === RESOURCE_TYPE_ID.HEALTH) {
+				return this._health > c.amountFlat;
+			}
+			if (c.resourceTypeId === RESOURCE_TYPE_ID.MANA) {
+				return this._mana > c.amountFlat;
+			}
+			return true;
+		});
 	}
 
 	private _handleSpellPayloadCost({ cost }: SpellPayload): void {
@@ -422,7 +439,7 @@ export abstract class Character {
 	/* Death */
 	/* ----------------------------------------------- */
 	public die(): void {
-		this.interuptCasting();
+		this._clearCurrentCast();
 		this.spells.forEach((s) => s.stopCooldown());
 		Object.values(this._auras).forEach((a) => {
 			this.removeAuraByAuraId(a.auraId);

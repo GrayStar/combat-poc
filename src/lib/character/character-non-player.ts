@@ -5,7 +5,7 @@ import { Battle } from '@/lib/battle/battle-class';
 import { getRandomInt } from '../utils/number-utils';
 
 export class CharacterNonPlayer extends Character {
-	private _actionInterval?: NodeJS.Timeout;
+	private _actionInterval?: ReturnType<typeof setInterval>;
 	private _actionIntervalInMs: number = 1500;
 
 	constructor(characterTypeId: CHARACTER_TYPE_ID, battle: Battle, summonedBySpellId?: string) {
@@ -94,6 +94,8 @@ export class CharacterNonPlayer extends Character {
 	}
 
 	protected override _dieTriggerSideEffects() {
+		console.log('die trigger');
+
 		this._targetCharacterId = '';
 		this._stopActionInterval();
 	}

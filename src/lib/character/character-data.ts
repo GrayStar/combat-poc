@@ -29,7 +29,7 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 	[CHARACTER_TYPE_ID.SKELETON]: {
 		characterTypeId: CHARACTER_TYPE_ID.SKELETON,
 		title: 'Skeleton',
-		spellTypeIds: [SPELL_TYPE_ID.PUNCH],
+		spellTypeIds: [SPELL_TYPE_ID.PUNCH, SPELL_TYPE_ID.DOT],
 		stats: {
 			[STAT_TYPE_ID.VITALITY]: 10,
 			[STAT_TYPE_ID.ENDURANCE]: 10,
