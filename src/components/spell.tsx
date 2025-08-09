@@ -12,6 +12,7 @@ const flashAnimationDurationInMs = 800;
 
 const useStyles = tss.create((theme) => ({
 	spell: {
+		zIndex: 0,
 		width: size,
 		height: size,
 		overflow: 'hidden',
@@ -19,6 +20,20 @@ const useStyles = tss.create((theme) => ({
 		position: 'relative',
 		borderRadius: borderRadius,
 		backgroundColor: theme.colors.gray700,
+	},
+	chargeCount: {
+		right: 4,
+		bottom: 4,
+		zIndex: 3,
+		width: 16,
+		height: 16,
+		borderRadius: 4,
+		position: 'absolute',
+		textAlign: 'center',
+		color: theme.colors.white,
+		fontSize: theme.fonts.xs,
+		lineHeight: '1.6rem',
+		backgroundColor: theme.colors.black,
 	},
 	flash: {
 		top: 0,
@@ -92,6 +107,7 @@ export const Spell = ({ spell, className }: SpellProps) => {
 					<CooldownCircle size={size} durationInMs={spell.cooldownAnimationDurationInMs} />
 				)}
 				<span className="small">{spell.title}</span>
+				{spell.hasCharges && <div className={classes.chargeCount}>{spell.charges}</div>}
 			</div>
 		</OverlayTrigger>
 	);

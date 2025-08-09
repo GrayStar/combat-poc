@@ -3,6 +3,7 @@ import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 import { CHARACTER_TYPE_ID } from '../data/enums';
 
 export type SpellModel = {
+	//defaults
 	spellTypeId: SPELL_TYPE_ID;
 	title: string;
 	description: string;
@@ -11,12 +12,16 @@ export type SpellModel = {
 	cooldownDurationInMs: number;
 	globalCooldownDurationInMs: number;
 	schoolTypeId: SCHOOL_TYPE_ID;
+	hasCharges: boolean;
+	maxCharges: number;
+	//effects
 	damageEffects: SpellEffectDamageModel[];
 	healEffects: SpellEffectHealModel[];
 	dispelEffects: SpellEffectDispelModel[];
 	interruptEffects: SpellEffectInterruptModel[];
 	summonEffects: SpellEffectSummonModel[];
 	resourceFillEffects: SpellEffectResourceFillModel[];
+	//auras
 	auras: AuraModel[];
 };
 

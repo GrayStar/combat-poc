@@ -31,6 +31,9 @@ export type SpellState = {
 	castTimeAnimationDurationInMs: number;
 	cooldownAnimationDurationInMs: number;
 	isOnCooldown: boolean;
+	hasCharges: boolean;
+	maxCharges: number;
+	charges: number;
 };
 
 export class Spell {
@@ -42,6 +45,8 @@ export class Spell {
 	public readonly cooldownDurationInMs: number;
 	public readonly globalCooldownDurationInMs: number;
 	public readonly schoolTypeId: SCHOOL_TYPE_ID;
+	public readonly hasCharges: boolean;
+	public readonly maxCharges: number;
 
 	private readonly _cost: SpellCostModel[];
 	private readonly _damageEffects: SpellEffectDamageModel[];
@@ -55,6 +60,7 @@ export class Spell {
 
 	private _cooldownAnimationDurationInMs: number;
 	private _cooldownTimeout?: NodeJS.Timeout;
+	private _charges: number;
 
 	constructor(spellTypeId: SPELL_TYPE_ID, character: Character) {
 		const config = cloneDeep(spellData[spellTypeId]);
@@ -70,7 +76,10 @@ export class Spell {
 				: config.globalCooldownDurationInMs;
 		this.globalCooldownDurationInMs = config.globalCooldownDurationInMs;
 		this.schoolTypeId = config.schoolTypeId;
+		this.hasCharges = config.hasCharges;
+		this.maxCharges = config.maxCharges;
 
+		this._charges = this.maxCharges;
 		this._cost = config.cost;
 		this._damageEffects = config.damageEffects;
 		this._healEffects = config.healEffects;
@@ -89,6 +98,10 @@ export class Spell {
 	}
 	public get cost() {
 		return this._cost;
+	}
+
+	public get charges() {
+		return this._charges;
 	}
 
 	public stopCooldown(): void {
@@ -130,6 +143,16 @@ export class Spell {
 		}, this._getProcessedGlobalCooldownDurationInMs());
 
 		this._character.battle.notify();
+	}
+
+	public removeCharge(): void {
+		const nextCharges = this._charges - 1;
+
+		if (nextCharges <= 0) {
+			this._charges = 0;
+		} else {
+			this._charges--;
+		}
 	}
 
 	private _getProcessedCastTimeDurationInMs(): number {
@@ -317,6 +340,9 @@ export class Spell {
 			castTimeAnimationDurationInMs: this._getProcessedCastTimeDurationInMs(),
 			cooldownAnimationDurationInMs: this._cooldownAnimationDurationInMs,
 			isOnCooldown: this.isOnCooldown,
+			hasCharges: this.hasCharges,
+			maxCharges: this.maxCharges,
+			charges: this.charges,
 		};
 	}
 }

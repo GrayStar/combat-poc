@@ -32,6 +32,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		hasCharges: false,
+		maxCharges: 0,
 		damageEffects: [
 			{
 				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
@@ -61,6 +63,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.HOLY,
+		hasCharges: false,
+		maxCharges: 0,
 		healEffects: [
 			{
 				schoolTypeId: SCHOOL_TYPE_ID.HOLY,
@@ -90,6 +94,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		hasCharges: false,
+		maxCharges: 0,
 		dispelEffects: [
 			{
 				dispelTypeId: DISPEL_TYPE_ID.MAGIC,
@@ -118,6 +124,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
+		hasCharges: false,
+		maxCharges: 0,
 		damageEffects: [
 			{
 				schoolTypeId: SCHOOL_TYPE_ID.FIRE,
@@ -162,6 +170,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.FIRE,
+		hasCharges: false,
+		maxCharges: 0,
 		damageEffects: [],
 		healEffects: [],
 		dispelEffects: [],
@@ -200,6 +210,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		hasCharges: false,
+		maxCharges: 0,
 		damageEffects: [],
 		healEffects: [],
 		dispelEffects: [],
@@ -236,6 +248,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		hasCharges: false,
+		maxCharges: 0,
 		damageEffects: [],
 		healEffects: [],
 		dispelEffects: [],
@@ -272,6 +286,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
+		hasCharges: false,
+		maxCharges: 0,
 		damageEffects: [],
 		healEffects: [],
 		dispelEffects: [],
@@ -295,6 +311,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 20000,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.SHADOW,
+		hasCharges: false,
+		maxCharges: 0,
 		damageEffects: [],
 		healEffects: [],
 		dispelEffects: [],
@@ -317,6 +335,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
 		schoolTypeId: SCHOOL_TYPE_ID.ARCANE,
+		hasCharges: true,
+		maxCharges: 3,
 		damageEffects: [],
 		healEffects: [],
 		dispelEffects: [],
