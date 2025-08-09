@@ -10,7 +10,7 @@ import { SECONDARY_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-
 import { CHARACTER_TYPE_ID } from '../data/enums';
 
 export enum SPELL_TYPE_ID {
-	DD_AP = 'DD_AP',
+	PUNCH = 'PUNCH',
 	DH_SP = 'DH_SP',
 	DOT = 'DOT',
 	HOT = 'HOT',
@@ -22,17 +22,11 @@ export enum SPELL_TYPE_ID {
 }
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
-	[SPELL_TYPE_ID.DD_AP]: {
-		spellTypeId: SPELL_TYPE_ID.DD_AP,
-		title: 'DD-AP',
-		description: 'Direct damage scaled with AP',
-		cost: [
-			{
-				resourceTypeId: RESOURCE_TYPE_ID.MANA,
-				amountFlat: 10,
-				amountPercent: 0,
-			},
-		],
+	[SPELL_TYPE_ID.PUNCH]: {
+		spellTypeId: SPELL_TYPE_ID.PUNCH,
+		title: 'Punch',
+		description: 'A free jab with minimal impact. Costs nothing but your pride. ',
+		cost: [],
 		castTimeDurationInMs: 0,
 		cooldownDurationInMs: 0,
 		globalCooldownDurationInMs: 1500,
@@ -40,8 +34,8 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 		damageEffects: [
 			{
 				schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
-				value: 20,
-				valueModifiers: [{ stat: STAT_TYPE_ID.STRENGTH, coefficient: 0.15 }],
+				value: 1,
+				valueModifiers: [{ stat: STAT_TYPE_ID.STRENGTH, coefficient: 0.14 }],
 			},
 		],
 		healEffects: [],
