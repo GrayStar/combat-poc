@@ -52,7 +52,7 @@ export const ActionBar = ({ spells, disabled, className }: ActionBarProps) => {
 							key={spell.spellId}
 							draggableId={spell.spellId}
 							index={spellIndex}
-							isDragDisabled={spell.isOnCooldown || disabled}
+							isDragDisabled={disabled || spell.isOnCooldown}
 						>
 							{(draggableProvided, draggableSnapshot) => (
 								<>

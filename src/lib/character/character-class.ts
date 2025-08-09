@@ -214,6 +214,11 @@ export abstract class Character {
 			return;
 		}
 
+		if (spell.hasCharges && spell.charges <= 0) {
+			this.battle.addCombatLogMessage('Spell is out of charges.');
+			return;
+		}
+
 		const spellPayload = spell.getPayload();
 
 		if (!this._canAffordSpellPayload(spellPayload)) {
@@ -225,6 +230,10 @@ export abstract class Character {
 			this._clearCurrentCast();
 			this._handleSpellPayloadCost(spellPayload);
 			target.recieveSpellPayload(spellPayload);
+
+			if (spell.hasCharges) {
+				spell.removeCharge();
+			}
 
 			spell.startCooldown();
 			otherSpells.forEach((s) => {
