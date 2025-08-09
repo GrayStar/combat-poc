@@ -23,7 +23,7 @@ const useStyles = tss.create((theme) => ({
 	divider: {
 		width: 1,
 		height: 32,
-		backgroundColor: theme.colors.gray700,
+		backgroundColor: theme.colors.gray600,
 		margin: `0 ${gutter * 2}px 0 ${gutter * 1}px`,
 	},
 	draggableContainer: {
