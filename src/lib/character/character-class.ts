@@ -265,10 +265,10 @@ export abstract class Character {
 	private _canAffordSpellPayload({ cost }: SpellPayload): boolean {
 		return cost.every((c) => {
 			if (c.resourceTypeId === RESOURCE_TYPE_ID.HEALTH) {
-				return this._health > c.amountFlat;
+				return this._health >= c.amountFlat;
 			}
 			if (c.resourceTypeId === RESOURCE_TYPE_ID.MANA) {
-				return this._mana > c.amountFlat;
+				return this._mana >= c.amountFlat;
 			}
 			return true;
 		});
@@ -340,6 +340,8 @@ export abstract class Character {
 				modifyStatEffects: a.modifyStatEffects,
 			});
 		});
+
+		this._recieveSpellSideEffects();
 	}
 
 	/* ----------------------------------------------- */
@@ -475,4 +477,6 @@ export abstract class Character {
 	}
 
 	protected abstract _dieTriggerSideEffects(): void;
+	public abstract determineNextAction(): void;
+	protected abstract _recieveSpellSideEffects(): void;
 }

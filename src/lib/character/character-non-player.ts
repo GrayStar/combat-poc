@@ -5,12 +5,12 @@ import { Battle } from '@/lib/battle/battle-class';
 import { getRandomInt } from '../utils/number-utils';
 
 export class CharacterNonPlayer extends Character {
-	private _actionInterval?: ReturnType<typeof setInterval>;
-	private _actionIntervalInMs: number = 1500;
+	private _inCombat: boolean;
 
 	constructor(characterTypeId: CHARACTER_TYPE_ID, battle: Battle, summonedBySpellId?: string) {
 		super(characterTypeId, battle);
 		this._summonedBySpellId = summonedBySpellId;
+		this._inCombat = false;
 	}
 
 	protected override _determineTarget() {
@@ -18,7 +18,6 @@ export class CharacterNonPlayer extends Character {
 
 		if (threatEntries.length <= 0) {
 			this._targetCharacterId = '';
-			this._stopActionInterval();
 			return;
 		}
 
@@ -32,10 +31,7 @@ export class CharacterNonPlayer extends Character {
 		}
 
 		this._targetCharacterId = maxCharacterId;
-
-		if (this._targetCharacterId) {
-			this._startActionInterval();
-		}
+		this.determineNextAction();
 	}
 
 	private _determineSpellToCast() {
@@ -68,33 +64,28 @@ export class CharacterNonPlayer extends Character {
 		const randomSpell = affordableSpells[getRandomInt(0, affordableSpells.length - 1)];
 
 		if (!this._targetCharacterId) {
+			this._determineTarget();
 			return;
 		}
 
 		this.castSpell(randomSpell.spellId, this._targetCharacterId);
 	}
 
-	private _startActionInterval() {
-		if (this._actionInterval) {
-			return;
-		}
-
-		this._actionInterval = setInterval(() => {
-			this._determineSpellToCast();
-		}, this._actionIntervalInMs);
-	}
-
-	private _stopActionInterval() {
-		if (!this._actionInterval) {
-			return;
-		}
-
-		clearInterval(this._actionInterval);
-		this._actionInterval = undefined;
-	}
-
 	protected override _dieTriggerSideEffects() {
+		this._inCombat = false;
 		this._targetCharacterId = '';
-		this._stopActionInterval();
+	}
+
+	public override determineNextAction(): void {
+		this._inCombat = true;
+		this._determineSpellToCast();
+	}
+
+	protected override _recieveSpellSideEffects(): void {
+		if (this._inCombat) {
+			return;
+		}
+
+		this.determineNextAction();
 	}
 }

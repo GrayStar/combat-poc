@@ -141,6 +141,8 @@ export class Spell {
 
 		this._cooldownTimeout = setTimeout(() => {
 			this._cooldownTimeout = undefined;
+
+			this._character.determineNextAction();
 			this._character.battle.notify();
 		}, this._getProcessedGlobalCooldownDurationInMs());
 

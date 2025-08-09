@@ -14,4 +14,12 @@ export class CharacterPlayer extends Character {
 	protected override _dieTriggerSideEffects() {
 		return;
 	}
+
+	public override determineNextAction() {
+		return;
+	}
+
+	protected override _recieveSpellSideEffects() {
+		return;
+	}
 }
