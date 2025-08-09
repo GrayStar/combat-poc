@@ -2,6 +2,7 @@ import { SpellEffectSummonModel } from '@/lib/spell/spell-models';
 import { SpellEffect } from '@/lib/spell/spell-effects/spell-effect';
 import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
 import { Character } from '@/lib/character/character-class';
+import { getRandomInt } from '@/lib/utils/number-utils';
 
 export class SpellEffectSummon extends SpellEffect {
 	private readonly _value: number;
@@ -66,7 +67,7 @@ export class SpellEffectSummon extends SpellEffect {
 			threatCandidateIds.reduce(
 				(acc, curr) => ({
 					...acc,
-					[curr]: 1,
+					[curr]: getRandomInt(1, 100),
 				}),
 				{}
 			)
