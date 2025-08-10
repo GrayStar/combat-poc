@@ -12,6 +12,7 @@ import {
 	SpellEffectInterruptModel,
 	SpellEffectResourceFillModel,
 	SpellEffectSummonModel,
+	SpellEffectTauntModel,
 	SpellEffectValueModifier,
 	SpellPayload,
 } from '@/lib/spell/spell-models';
@@ -57,6 +58,7 @@ export class Spell {
 	private readonly _interruptEffects: SpellEffectInterruptModel[];
 	private readonly _summonEffects: SpellEffectSummonModel[];
 	private readonly _resourceFillEffects: SpellEffectResourceFillModel[];
+	private readonly _tauntEffects: SpellEffectTauntModel[];
 	private readonly _auras: AuraModel[];
 	private readonly _character;
 
@@ -90,6 +92,7 @@ export class Spell {
 		this._interruptEffects = config.interruptEffects;
 		this._summonEffects = config.summonEffects;
 		this._resourceFillEffects = config.resourceFillEffects;
+		this._tauntEffects = config.tauntEffects ?? [];
 		this._auras = config.auras;
 
 		this._character = character;
@@ -276,6 +279,10 @@ export class Spell {
 		return this._resourceFillEffects.map((effect) => `Restores ${effect.value} ${effect.resourceTypeId}.`);
 	}
 
+	private _getTauntEffectDescription() {
+		return this._tauntEffects.map((effect) => `Taunts the target for ${effect.value}.`);
+	}
+
 	private _getAuraDescriptions() {
 		return this._getProcessedAuras().flatMap((a) => {
 			const durationInSeconds = roundNumber(a.durationInMs / 1000);
@@ -307,6 +314,7 @@ export class Spell {
 			...this._getInterruptEffectDescriptions(),
 			...this._getSummonEffectDescriptions(),
 			...this._getResourceFillEffectDescriptions(),
+			...this._getTauntEffectDescription(),
 		]
 			.filter(Boolean)
 			.join('\n');
@@ -326,6 +334,7 @@ export class Spell {
 			interruptEffects: this._interruptEffects,
 			summonEffects: this._summonEffects,
 			resourceFillEffects: this._resourceFillEffects,
+			tauntEffects: this._tauntEffects,
 			auras: this._getProcessedAuras(),
 			castTimeDurationInMs: this._getProcessedCastTimeDurationInMs(),
 		};

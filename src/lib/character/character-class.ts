@@ -16,6 +16,7 @@ import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
 import { Battle } from '@/lib/battle/battle-class';
 import { SpellEffectResourceFill } from '@/lib/spell/spell-effects/spell-effect-resource-fill';
 import { SPELL_TYPE_ID } from '@/lib/spellbook/spell-type-id';
+import { SpellEffectTaunt } from '../spell/spell-effects/spell-effect-taunt';
 
 export type CharacterState = {
 	characterId: string;
@@ -328,6 +329,10 @@ export abstract class Character {
 
 		spellPayload.resourceFillEffects.forEach((se) => {
 			new SpellEffectResourceFill(se, this, spellPayload.casterId);
+		});
+
+		spellPayload.tauntEffects.forEach((se) => {
+			new SpellEffectTaunt(se, this, spellPayload.casterId);
 		});
 
 		spellPayload.auras.forEach((a) => {

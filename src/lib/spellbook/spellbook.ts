@@ -12,6 +12,8 @@ import { manaPotion } from './mana-potion';
 import { summonMarrowhoud } from './summon-marrowhound';
 import { rend } from './rend';
 import { bite } from './bite';
+import { taunt } from './taunt';
+import { summonOssentinel } from './summon-ossentinel';
 
 export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.ROT_PUT]: rotPut,
@@ -126,4 +128,6 @@ export const spellData: Record<SPELL_TYPE_ID, SpellModel> = {
 	[SPELL_TYPE_ID.REND]: rend,
 	[SPELL_TYPE_ID.HEALTH_POTION]: healthPotion,
 	[SPELL_TYPE_ID.MANA_POTION]: manaPotion,
+	[SPELL_TYPE_ID.SUMMON_OSSENTINEL]: summonOssentinel,
+	[SPELL_TYPE_ID.TAUNT]: taunt,
 };
