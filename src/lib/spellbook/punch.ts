@@ -16,7 +16,7 @@ export const punch: SpellModel = {
 	damageEffects: [
 		{
 			schoolTypeId: SCHOOL_TYPE_ID.PHYSICAL,
-			value: 14,
+			value: 8,
 			valueModifiers: [{ stat: STAT_TYPE_ID.STRENGTH, coefficient: 0.12 }],
 		},
 	],

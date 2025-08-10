@@ -53,11 +53,11 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		title: 'Ossentinel',
 		spellTypeIds: [SPELL_TYPE_ID.PUNCH, SPELL_TYPE_ID.TAUNT],
 		stats: {
-			[STAT_TYPE_ID.VITALITY]: 5,
+			[STAT_TYPE_ID.VITALITY]: 15,
 			[STAT_TYPE_ID.ENDURANCE]: 0,
 			[STAT_TYPE_ID.WISDOM]: 10,
 			[STAT_TYPE_ID.STRENGTH]: 5,
-			[STAT_TYPE_ID.DEXTERITY]: 5,
+			[STAT_TYPE_ID.DEXTERITY]: 2,
 			[STAT_TYPE_ID.INTELLIGENCE]: 0,
 		},
 	},
