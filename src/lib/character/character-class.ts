@@ -4,7 +4,7 @@ import { roundNumber } from '@/lib/utils/number-utils';
 import { ALL_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
 import { characterData, defaultSecondaryStats } from '@/lib/character/character-data';
 import { RESOURCE_TYPE_ID, SpellPayload } from '@/lib/spell/spell-models';
-import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
+
 import { Spell, SpellState } from '@/lib/spell/spell-class';
 import { Aura, AuraConfig, AuraState } from '@/lib/spell/aura-class';
 import { SpellEffectSchoolDamage } from '@/lib/spell/spell-effects/spell-effect-school-damage';
@@ -12,9 +12,10 @@ import { SpellEffectDispel } from '@/lib/spell/spell-effects/spell-effect-dispel
 import { SpellEffectHeal } from '@/lib/spell/spell-effects/spell-effect-heal';
 import { SpellEffectInterrupt } from '@/lib/spell/spell-effects/spell-effect-interrupt';
 import { SpellEffectSummon } from '@/lib/spell/spell-effects/spell-effect-summon';
-import { CHARACTER_TYPE_ID } from '../data/enums';
+import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
 import { Battle } from '@/lib/battle/battle-class';
-import { SpellEffectResourceFill } from '../spell/spell-effects/spell-effect-resource-fill';
+import { SpellEffectResourceFill } from '@/lib/spell/spell-effects/spell-effect-resource-fill';
+import { SPELL_TYPE_ID } from '@/lib/spellbook/spell-type-id';
 
 export type CharacterState = {
 	characterId: string;

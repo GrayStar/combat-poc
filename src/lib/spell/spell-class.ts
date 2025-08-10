@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cloneDeep } from 'lodash';
-import { SPELL_TYPE_ID, spellData } from '@/lib/spell/spell-data';
 import {
 	AuraModel,
 	MODIFY_TYPE_ID,
@@ -19,6 +18,8 @@ import {
 import { Character } from '@/lib/character/character-class';
 import { SECONDARY_STAT_TYPE_ID } from '../character/character-models';
 import { roundNumber } from '@/lib/utils/number-utils';
+import { SPELL_TYPE_ID } from '../spellbook/spell-type-id';
+import { spellData } from '@/lib/spellbook/spellbook';
 
 export type SpellState = {
 	spellId: string;

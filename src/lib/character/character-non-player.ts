@@ -1,8 +1,8 @@
 import { Character } from '@/lib/character/character-class';
-import { RESOURCE_TYPE_ID } from '../spell/spell-models';
+import { RESOURCE_TYPE_ID } from '@/lib/spell/spell-models';
 import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
 import { Battle } from '@/lib/battle/battle-class';
-import { getRandomInt } from '../utils/number-utils';
+import { getRandomInt } from '@/lib/utils/number-utils';
 
 export class CharacterNonPlayer extends Character {
 	private _actionInterval?: ReturnType<typeof setInterval>;

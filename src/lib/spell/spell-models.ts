@@ -1,6 +1,6 @@
 import { ALL_STAT_TYPE_ID, STAT_TYPE_ID } from '@/lib/character/character-models';
-import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
 import { CHARACTER_TYPE_ID } from '../data/enums';
+import { SPELL_TYPE_ID } from '@/lib/spellbook/spell-type-id';
 
 export type SpellModel = {
 	//defaults

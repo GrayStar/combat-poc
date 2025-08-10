@@ -1,5 +1,5 @@
 import { CHARACTER_TYPE_ID } from '@/lib/data/enums';
-import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
+import { SPELL_TYPE_ID } from '@/lib/spellbook/spell-type-id';
 
 export type CharacterModel = {
 	characterTypeId: CHARACTER_TYPE_ID;

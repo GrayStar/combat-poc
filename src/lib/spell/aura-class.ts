@@ -6,13 +6,14 @@ import {
 	PERIODIC_EFFECT_TYPE_ID,
 	PeriodicEffectModel,
 } from '@/lib/spell/spell-models';
-import { SPELL_TYPE_ID } from '@/lib/spell/spell-data';
+
 import { Character } from '@/lib/character/character-class';
 
 import { AuraEffectPeriodicDamage } from '@/lib/spell/aura-effects/aura-effect-periodic-damage';
 import { AuraEffectPeriodicHealing } from '@/lib/spell/aura-effects/aura-effect-periodic-healing';
 import { AuraEffectModifyStatIncrease } from '@/lib/spell/aura-effects/aura-effect-modify-stat-increase';
 import { AuraEffectModifyStatDecrease } from '@/lib/spell/aura-effects/aura-effect-modify-stat-decrease';
+import { SPELL_TYPE_ID } from '@/lib/spellbook/spell-type-id';
 
 type TimeoutTimer = ReturnType<typeof setTimeout>;
 
