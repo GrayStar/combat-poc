@@ -9,14 +9,15 @@ export const rotPut: SpellModel = {
 	cost: [],
 	castTimeDurationInMs: 1500,
 	cooldownDurationInMs: 6000,
-	globalCooldownDurationInMs: 0,
+	globalCooldownDurationInMs: 1500,
 	schoolTypeId: SCHOOL_TYPE_ID.SHADOW,
 	hasCharges: false,
 	maxCharges: 0,
 	damageEffects: [
 		{
 			schoolTypeId: SCHOOL_TYPE_ID.SHADOW,
-			value: 14,
+			value: 8,
+			aoe: true,
 			valueModifiers: [
 				{
 					stat: STAT_TYPE_ID.INTELLIGENCE,
@@ -32,7 +33,7 @@ export const rotPut: SpellModel = {
 	resourceFillEffects: [],
 	auras: [
 		{
-			durationInMs: 8000,
+			durationInMs: 4000,
 			dispelTypeId: DISPEL_TYPE_ID.DISEASE,
 			periodicEffects: [
 				{

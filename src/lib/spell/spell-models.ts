@@ -36,6 +36,7 @@ export type SpellEffectDamageModel = {
 	schoolTypeId: SCHOOL_TYPE_ID;
 	value: number;
 	valueModifiers: SpellEffectValueModifier[];
+	aoe?: boolean;
 };
 export type SpellEffectHealModel = {
 	schoolTypeId: SCHOOL_TYPE_ID;
@@ -55,6 +56,7 @@ export type SpellEffectResourceFillModel = {
 };
 export type SpellEffectTauntModel = {
 	value: number;
+	aoe: boolean;
 };
 
 export type AuraModel = {

@@ -4,18 +4,27 @@ import { Character } from '@/lib/character/character-class';
 
 export class SpellEffectTaunt extends SpellEffect {
 	private readonly _value: number;
+	private readonly _aoe: boolean;
 
 	constructor(config: SpellEffectTauntModel, character: Character, casterId: string) {
 		super(character, casterId);
 
 		this._value = config.value;
+		this._aoe = config.aoe;
 
 		this._combatLogEntry();
 		this._handleEffect();
 	}
 
 	protected override _handleEffect() {
-		console.log('firing');
+		if (this._aoe) {
+			this._getAoeTargets().forEach((c) => {
+				c.adjustThreat(this._casterId, this._value);
+			});
+
+			return;
+		}
+
 		this._character.adjustThreat(this._casterId, this._value);
 	}
 

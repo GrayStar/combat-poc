@@ -74,7 +74,7 @@ export class SpellEffectSummon extends SpellEffect {
 			threatCandidateIds.reduce(
 				(acc, curr) => ({
 					...acc,
-					[curr]: getRandomInt(1, 100),
+					[curr]: getRandomInt(1, 5),
 				}),
 				{}
 			)

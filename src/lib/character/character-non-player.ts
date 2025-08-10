@@ -6,7 +6,7 @@ import { getRandomInt } from '@/lib/utils/number-utils';
 
 export class CharacterNonPlayer extends Character {
 	private _actionInterval?: ReturnType<typeof setInterval>;
-	private _actionIntervalInMs: number = 1500;
+	private _actionIntervalInMs: number = 1000;
 
 	constructor(characterTypeId: CHARACTER_TYPE_ID, battle: Battle, summonedBySpellId?: string) {
 		super(characterTypeId, battle);

@@ -9,7 +9,7 @@ export const summonMarrowhoud = {
 	cost: [
 		{
 			resourceTypeId: RESOURCE_TYPE_ID.MANA,
-			amountFlat: 80,
+			amountFlat: 30,
 			amountPercent: 0,
 		},
 	],

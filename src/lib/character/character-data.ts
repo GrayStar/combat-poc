@@ -15,7 +15,6 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		],
 		stats: {
 			[STAT_TYPE_ID.VITALITY]: 10,
-			[STAT_TYPE_ID.ENDURANCE]: 10,
 			[STAT_TYPE_ID.WISDOM]: 10,
 			[STAT_TYPE_ID.STRENGTH]: 10,
 			[STAT_TYPE_ID.DEXTERITY]: 10,
@@ -27,12 +26,11 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		title: 'Skeleton',
 		spellTypeIds: [SPELL_TYPE_ID.PUNCH, SPELL_TYPE_ID.FIREBALL],
 		stats: {
-			[STAT_TYPE_ID.VITALITY]: 10,
-			[STAT_TYPE_ID.ENDURANCE]: 10,
-			[STAT_TYPE_ID.WISDOM]: 10,
-			[STAT_TYPE_ID.STRENGTH]: 10,
-			[STAT_TYPE_ID.DEXTERITY]: 10,
-			[STAT_TYPE_ID.INTELLIGENCE]: 10,
+			[STAT_TYPE_ID.VITALITY]: 12,
+			[STAT_TYPE_ID.WISDOM]: 12,
+			[STAT_TYPE_ID.STRENGTH]: 12,
+			[STAT_TYPE_ID.DEXTERITY]: 12,
+			[STAT_TYPE_ID.INTELLIGENCE]: 12,
 		},
 	},
 	[CHARACTER_TYPE_ID.MARROWHOUND]: {
@@ -40,11 +38,10 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		title: 'Marrowhound',
 		spellTypeIds: [SPELL_TYPE_ID.BITE, SPELL_TYPE_ID.REND],
 		stats: {
-			[STAT_TYPE_ID.VITALITY]: 5,
-			[STAT_TYPE_ID.ENDURANCE]: 0,
+			[STAT_TYPE_ID.VITALITY]: 2,
 			[STAT_TYPE_ID.WISDOM]: 10,
-			[STAT_TYPE_ID.STRENGTH]: 5,
-			[STAT_TYPE_ID.DEXTERITY]: 5,
+			[STAT_TYPE_ID.STRENGTH]: 1,
+			[STAT_TYPE_ID.DEXTERITY]: 2,
 			[STAT_TYPE_ID.INTELLIGENCE]: 0,
 		},
 	},
@@ -54,7 +51,6 @@ export const characterData: Record<CHARACTER_TYPE_ID, CharacterModel> = {
 		spellTypeIds: [SPELL_TYPE_ID.PUNCH, SPELL_TYPE_ID.TAUNT],
 		stats: {
 			[STAT_TYPE_ID.VITALITY]: 15,
-			[STAT_TYPE_ID.ENDURANCE]: 0,
 			[STAT_TYPE_ID.WISDOM]: 10,
 			[STAT_TYPE_ID.STRENGTH]: 5,
 			[STAT_TYPE_ID.DEXTERITY]: 2,

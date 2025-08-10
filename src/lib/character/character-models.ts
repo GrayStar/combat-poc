@@ -11,8 +11,6 @@ export type CharacterModel = {
 export enum STAT_TYPE_ID {
 	// governs HP
 	VITALITY = 'VITALITY',
-	// governs SP
-	ENDURANCE = 'ENDURANCE',
 	// governs MP
 	WISDOM = 'WISDOM',
 

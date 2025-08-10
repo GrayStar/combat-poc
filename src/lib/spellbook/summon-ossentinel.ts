@@ -9,7 +9,7 @@ export const summonOssentinel = {
 	cost: [
 		{
 			resourceTypeId: RESOURCE_TYPE_ID.MANA,
-			amountFlat: 80,
+			amountFlat: 50,
 			amountPercent: 0,
 		},
 	],

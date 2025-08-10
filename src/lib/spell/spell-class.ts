@@ -280,7 +280,9 @@ export class Spell {
 	}
 
 	private _getTauntEffectDescription() {
-		return this._tauntEffects.map((effect) => `Taunts the target for ${effect.value}.`);
+		return this._tauntEffects.map(
+			(effect) => `Taunts the target ${effect.aoe ? 'and all those around them' : ''} for ${effect.value}.`
+		);
 	}
 
 	private _getAuraDescriptions() {

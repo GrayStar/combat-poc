@@ -21,6 +21,7 @@ export const taunt: SpellModel = {
 	tauntEffects: [
 		{
 			value: 25,
+			aoe: true,
 		},
 	],
 	auras: [],
