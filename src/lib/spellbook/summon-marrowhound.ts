@@ -13,7 +13,7 @@ export const summonMarrowhoud = {
 			amountPercent: 0,
 		},
 	],
-	castTimeDurationInMs: 10000,
+	castTimeDurationInMs: 2500,
 	cooldownDurationInMs: 0,
 	globalCooldownDurationInMs: 1500,
 	schoolTypeId: SCHOOL_TYPE_ID.SHADOW,
