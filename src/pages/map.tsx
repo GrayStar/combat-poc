@@ -1,4 +1,5 @@
 import { Grid } from '@/components/tile-map/grid';
+import { SCENE_ID } from '@/lib/map-editor/types';
 import { tss } from '@/styles';
 import { useTheme } from '@/styles/hooks/use-theme';
 import { useRef, useState } from 'react';
@@ -39,12 +40,7 @@ const southRoom: number[][] = [
 	[1, 1, 1, 1, 1],
 ];
 
-enum SCENE_ID {
-	CENTRAL_ROOM = 'CENTRAL_ROOM',
-	SOUTH_ROOM = 'SOUTH_ROOM',
-}
-
-const scenes = {
+export const scenes = {
 	[SCENE_ID.CENTRAL_ROOM]: centralRoom,
 	[SCENE_ID.SOUTH_ROOM]: southRoom,
 };
