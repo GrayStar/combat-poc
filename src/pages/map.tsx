@@ -56,7 +56,7 @@ export function MapDemo() {
 	const nodeRef = useRef<HTMLDivElement>(null);
 
 	return (
-		<div className="p-4">
+		<div className="w-100 d-flex align-items-center justify-content-center">
 			<SwitchTransition>
 				<CSSTransition
 					key={room}
@@ -80,7 +80,9 @@ export function MapDemo() {
 							ceilingColor={theme.colors.gray700}
 							wallHeight={16}
 							onEntryClick={() => {
-								setRoom(SCENE_ID.SOUTH_ROOM);
+								setRoom((prev) =>
+									prev === SCENE_ID.SOUTH_ROOM ? SCENE_ID.CENTRAL_ROOM : SCENE_ID.SOUTH_ROOM
+								);
 							}}
 						/>
 					</div>

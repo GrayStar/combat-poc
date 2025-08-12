@@ -41,26 +41,24 @@ export const Grid = ({
 	const { classes } = useStyles({ rows, columns, tileSize, borderRadius });
 
 	return (
-		<div className="d-inline-block">
-			<div role="grid" aria-rowcount={rows} aria-colcount={columns} className={classes.grid}>
-				{data.map((col, y) =>
-					col.map((value, x) => (
-						<Tile
-							key={`${x}-${y}`}
-							value={value}
-							size={tileSize}
-							x={x}
-							y={y}
-							grid={data}
-							borderRadius={borderRadius}
-							wallColor={wallColor}
-							ceilingColor={ceilingColor}
-							wallHeight={wallHeight}
-							onClick={onEntryClick}
-						/>
-					))
-				)}
-			</div>
+		<div role="grid" aria-rowcount={rows} aria-colcount={columns} className={classes.grid}>
+			{data.map((col, y) =>
+				col.map((value, x) => (
+					<Tile
+						key={`${x}-${y}`}
+						value={value}
+						size={tileSize}
+						x={x}
+						y={y}
+						grid={data}
+						borderRadius={borderRadius}
+						wallColor={wallColor}
+						ceilingColor={ceilingColor}
+						wallHeight={wallHeight}
+						onClick={onEntryClick}
+					/>
+				))
+			)}
 		</div>
 	);
 };
