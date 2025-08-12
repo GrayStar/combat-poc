@@ -1,4 +1,5 @@
 import { Tile } from '@/components/tile-map/tile';
+import { SCENE_ID, TileConfig } from '@/lib/map-editor/types';
 import { tss } from '@/styles';
 
 interface UseStyleProps extends Record<string, unknown> {
@@ -18,13 +19,13 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ rows, columns, tileS
 }));
 
 interface TileGridProps {
-	data: number[][];
+	data: TileConfig[][];
 	tileSize: number;
 	borderRadius: number;
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
-	onEntryClick(): void;
+	onEntryClick(sceneId: SCENE_ID): void;
 }
 
 export const Grid = ({
@@ -46,7 +47,7 @@ export const Grid = ({
 				col.map((value, x) => (
 					<Tile
 						key={`${x}-${y}`}
-						value={value}
+						tileConfig={value}
 						size={tileSize}
 						x={x}
 						y={y}

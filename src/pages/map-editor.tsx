@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { tss } from '@/styles';
 import { cloneDeep } from 'lodash';
-import { DoorTileConfig, TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
+import { TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
 import { EditTileModal } from '@/components/map-editor/edit-tile-modal';
 import { scenes } from './map';
 
@@ -71,12 +71,12 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ size, rows, columns,
 
 export const MapEditor = () => {
 	const [formValues, setFormValues] = useState({
-		size: 32,
-		rows: 11,
-		columns: 16,
+		size: 48,
+		rows: 7,
+		columns: 9,
 	});
 	const [selectedBrushId, setSelectedBrushId] = useState<TILE_TYPE_ID>(TILE_TYPE_ID.FLOOR);
-	const [mapData, setMapData] = useState<(TileConfig | DoorTileConfig | undefined)[][]>([]);
+	const [mapData, setMapData] = useState<TileConfig[][]>([]);
 	const [tileToEditCoords, setTileToEditCoords] = useState<{ x: number; y: number }>();
 	const tileToEdit = useMemo(() => {
 		if (!tileToEditCoords) {
@@ -92,7 +92,10 @@ export const MapEditor = () => {
 		if (formValues.rows > 0 && formValues.columns > 0) {
 			setMapData(() =>
 				Array.from({ length: formValues.rows }, () =>
-					Array.from({ length: formValues.columns }, () => undefined)
+					Array.from({ length: formValues.columns }, () => ({
+						tileTypeId: TILE_TYPE_ID.FLOOR,
+						tileTypeDescription: 'Floor',
+					}))
 				)
 			);
 		} else {
@@ -109,7 +112,10 @@ export const MapEditor = () => {
 			const clone = cloneDeep(d);
 			clone[y][x] =
 				selectedBrushId === TILE_TYPE_ID.EMPTY
-					? undefined
+					? {
+							tileTypeId: TILE_TYPE_ID.FLOOR,
+							tileTypeDescription: 'Floor',
+					  }
 					: {
 							tileTypeId: selectedBrushId,
 							tileTypeDescription: brushes[selectedBrushId].title,
@@ -119,7 +125,7 @@ export const MapEditor = () => {
 		});
 	};
 
-	const handleEditTileModalSubmit = (tileConfig: TileConfig | DoorTileConfig) => {
+	const handleEditTileModalSubmit = (tileConfig: TileConfig) => {
 		if (!tileToEditCoords) {
 			return;
 		}

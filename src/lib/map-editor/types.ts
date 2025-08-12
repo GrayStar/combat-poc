@@ -1,6 +1,6 @@
 export enum SCENE_ID {
-	CENTRAL_ROOM = 'CENTRAL_ROOM',
-	SOUTH_ROOM = 'SOUTH_ROOM',
+	CENTRAL_CHAMBER = 'CENTRAL_CHAMBER',
+	SOUTHERN_CHAMBER = 'SOUTHERN_CHAMBER',
 }
 
 export enum TILE_TYPE_ID {
@@ -13,6 +13,5 @@ export enum TILE_TYPE_ID {
 export type TileConfig = {
 	tileTypeId: TILE_TYPE_ID;
 	tileTypeDescription: string;
+	sceneId?: SCENE_ID;
 };
-
-export type DoorTileConfig = TileConfig & { sceneId: SCENE_ID };

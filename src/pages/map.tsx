@@ -1,9 +1,11 @@
-import { Grid } from '@/components/tile-map/grid';
-import { SCENE_ID } from '@/lib/map-editor/types';
-import { tss } from '@/styles';
-import { useTheme } from '@/styles/hooks/use-theme';
 import { useRef, useState } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import { Grid } from '@/components/tile-map/grid';
+import { SCENE_ID, TileConfig } from '@/lib/map-editor/types';
+import { centralChamber } from '@/lib/scenes/central-chamber';
+import { tss } from '@/styles';
+import { useTheme } from '@/styles/hooks/use-theme';
+import { southernChamber } from '@/lib/scenes/southern-chamber';
 
 const useStyles = tss.create(() => ({
 	fadeEnter: {
@@ -21,34 +23,15 @@ const useStyles = tss.create(() => ({
 		transition: 'opacity 200ms',
 	},
 }));
-
-const centralRoom: number[][] = [
-	[0, 0, 1, 1, 2, 1, 1, 1, 0, 0],
-	[0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[2, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-	[1, 0, 0, 0, 1, 1, 0, 0, 0, 2],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-	[0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-	[0, 0, 1, 1, 2, 1, 1, 1, 0, 0],
-];
-
-const southRoom: number[][] = [
-	[1, 1, 2, 1, 1],
-	[1, 0, 0, 0, 1],
-	[1, 0, 0, 0, 1],
-	[1, 1, 1, 1, 1],
-];
-
-export const scenes = {
-	[SCENE_ID.CENTRAL_ROOM]: centralRoom,
-	[SCENE_ID.SOUTH_ROOM]: southRoom,
+export const scenes: Record<SCENE_ID, TileConfig[][]> = {
+	[SCENE_ID.CENTRAL_CHAMBER]: centralChamber,
+	[SCENE_ID.SOUTHERN_CHAMBER]: southernChamber,
 };
 
 export function MapDemo() {
 	const { classes } = useStyles();
 	const { theme } = useTheme();
-	const [room, setRoom] = useState<SCENE_ID>(SCENE_ID.CENTRAL_ROOM);
+	const [room, setRoom] = useState<SCENE_ID>(SCENE_ID.CENTRAL_CHAMBER);
 	const nodeRef = useRef<HTMLDivElement>(null);
 
 	return (
@@ -75,10 +58,8 @@ export function MapDemo() {
 							wallColor={theme.colors.gray800}
 							ceilingColor={theme.colors.gray700}
 							wallHeight={16}
-							onEntryClick={() => {
-								setRoom((prev) =>
-									prev === SCENE_ID.SOUTH_ROOM ? SCENE_ID.CENTRAL_ROOM : SCENE_ID.SOUTH_ROOM
-								);
+							onEntryClick={(sceneId) => {
+								setRoom(sceneId);
 							}}
 						/>
 					</div>

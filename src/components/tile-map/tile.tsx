@@ -1,11 +1,6 @@
+import { SCENE_ID, TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
 import { tss } from '@/styles';
 import classNames from 'classnames';
-
-const TILE = {
-	Floor: 0,
-	Wall: 1,
-	Entry: 2,
-} as const;
 
 interface UseStyleProps extends Record<string, unknown> {
 	size: number;
@@ -118,20 +113,20 @@ const useStyles = tss
 	}));
 
 interface TileProps {
-	value: number;
+	tileConfig: TileConfig;
 	size: number;
 	x: number;
 	y: number;
-	grid: number[][];
+	grid: TileConfig[][];
 	borderRadius: number;
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
-	onClick(): void;
+	onClick(sceneId: SCENE_ID): void;
 }
 
 export const Tile = ({
-	value,
+	tileConfig,
 	size,
 	x,
 	y,
@@ -144,24 +139,32 @@ export const Tile = ({
 }: TileProps) => {
 	const { classes } = useStyles({ borderRadius, size, wallColor, ceilingColor, wallHeight });
 
-	if (value === TILE.Wall) {
+	if (!tileConfig) {
+		return <div role="gridcell" className={classes.tileEmpty} />;
+	}
+
+	if (tileConfig.tileTypeId === TILE_TYPE_ID.WALL) {
 		const br = getWallBorderRadius(grid, x, y, borderRadius);
 		return <div role="gridcell" className={classes.tileWall} style={{ borderRadius: br }} />;
 	}
 
-	if (value === TILE.Entry) {
+	if (tileConfig.tileTypeId === TILE_TYPE_ID.DOOR) {
 		return (
 			<button
 				role="gridcell"
 				className={classNames(classes.tileWall, classes.tileEntry)}
 				onClick={() => {
-					onClick();
+					if (!tileConfig.sceneId) {
+						return;
+					}
+
+					onClick(tileConfig.sceneId);
 				}}
 			/>
 		);
 	}
 
-	if (value === TILE.Floor) {
+	if (tileConfig.tileTypeId === TILE_TYPE_ID.FLOOR) {
 		const flags = getFloorCornerFlags(grid, x, y);
 		const r = borderRadius;
 
@@ -214,13 +217,13 @@ export const Tile = ({
 	return <div role="gridcell" className={classes.tileEmpty} />;
 };
 
-function getWallBorderRadius(grid: number[][], x: number, y: number, radius: number): string {
-	if (grid[y][x] !== TILE.Wall) return '0';
+function getWallBorderRadius(grid: TileConfig[][], x: number, y: number, radius: number): string {
+	if (grid[y][x].tileTypeId !== TILE_TYPE_ID.WALL) return '0';
 
 	const H = grid.length;
 	const W = grid[0].length;
 	const inBounds = (cx: number, cy: number) => cy >= 0 && cy < H && cx >= 0 && cx < W;
-	const isWall = (cx: number, cy: number) => inBounds(cx, cy) && grid[cy][cx] === TILE.Wall;
+	const isWall = (cx: number, cy: number) => inBounds(cx, cy) && grid[cy][cx].tileTypeId === TILE_TYPE_ID.WALL;
 
 	const top = isWall(x, y - 1);
 	const right = isWall(x + 1, y);
@@ -250,17 +253,17 @@ function getWallBorderRadius(grid: number[][], x: number, y: number, radius: num
 }
 
 function getFloorCornerFlags(
-	grid: number[][],
+	grid: TileConfig[][],
 	x: number,
 	y: number
 ): { tl: boolean; tr: boolean; br: boolean; bl: boolean } {
 	// Only floors get concave corners
-	if (grid[y][x] !== TILE.Floor) return { tl: false, tr: false, br: false, bl: false };
+	if (grid[y][x].tileTypeId !== TILE_TYPE_ID.FLOOR) return { tl: false, tr: false, br: false, bl: false };
 
 	const H = grid.length;
 	const W = grid[0].length;
 	const inBounds = (cx: number, cy: number) => cy >= 0 && cy < H && cx >= 0 && cx < W;
-	const isWall = (cx: number, cy: number) => inBounds(cx, cy) && grid[cy][cx] === TILE.Wall;
+	const isWall = (cx: number, cy: number) => inBounds(cx, cy) && grid[cy][cx].tileTypeId === TILE_TYPE_ID.WALL;
 
 	const top = isWall(x, y - 1);
 	const right = isWall(x + 1, y);

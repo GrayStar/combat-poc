@@ -1,11 +1,11 @@
-import { DoorTileConfig, SCENE_ID, TileConfig } from '@/lib/map-editor/types';
+import { SCENE_ID, TileConfig } from '@/lib/map-editor/types';
 import { useState } from 'react';
 import { Button, Form, Modal, ModalProps } from 'react-bootstrap';
 
 interface EditTileModalProps extends ModalProps {
-	tileToEdit?: TileConfig | DoorTileConfig;
+	tileToEdit?: TileConfig;
 	sceneIds: string[];
-	onSubmit(tileToEdit: TileConfig | DoorTileConfig): void;
+	onSubmit(tileToEdit: TileConfig): void;
 }
 
 export const EditTileModal = ({ sceneIds, tileToEdit, onSubmit, ...props }: EditTileModalProps) => {
