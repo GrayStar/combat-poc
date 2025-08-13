@@ -1,5 +1,5 @@
 import { Tile } from '@/components/tile-map/tile';
-import { SCENE_ID, TileConfig } from '@/lib/map-editor/types';
+import { TileConfig } from '@/lib/map-editor/types';
 import { tss } from '@/styles';
 
 interface UseStyleProps extends Record<string, unknown> {
@@ -22,20 +22,22 @@ interface TileGridProps {
 	data: TileConfig[][];
 	tileSize: number;
 	borderRadius: number;
+	floorColor: string;
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
-	onEntryClick(sceneId: SCENE_ID): void;
+	onTileClick(tileConfig: TileConfig): void;
 }
 
 export const Grid = ({
 	data,
 	tileSize,
 	borderRadius,
+	floorColor,
 	ceilingColor,
 	wallColor,
 	wallHeight,
-	onEntryClick,
+	onTileClick,
 }: TileGridProps) => {
 	const rows = data.length;
 	const columns = data[0]?.length ?? 0;
@@ -55,7 +57,8 @@ export const Grid = ({
 						wallColor={wallColor}
 						ceilingColor={ceilingColor}
 						wallHeight={wallHeight}
-						onClick={onEntryClick}
+						onClick={onTileClick}
+						floorColor={floorColor}
 					/>
 				))
 			)}

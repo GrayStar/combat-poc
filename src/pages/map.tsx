@@ -55,11 +55,16 @@ export function MapDemo() {
 							data={scenes[room]}
 							tileSize={48}
 							borderRadius={8}
-							wallColor={theme.colors.gray800}
-							ceilingColor={theme.colors.gray700}
+							floorColor={theme.colors.gray800}
+							wallColor={theme.colors.gray700}
+							ceilingColor={theme.colors.gray600}
 							wallHeight={16}
-							onEntryClick={(sceneId) => {
-								setRoom(sceneId);
+							onTileClick={(tileConfig) => {
+								if (!tileConfig.sceneId) {
+									return;
+								}
+
+								setRoom(tileConfig.sceneId);
 							}}
 						/>
 					</div>

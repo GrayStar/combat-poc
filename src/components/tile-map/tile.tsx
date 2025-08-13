@@ -1,4 +1,4 @@
-import { SCENE_ID, TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
+import { TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
 import { tss } from '@/styles';
 import classNames from 'classnames';
 
@@ -133,7 +133,7 @@ interface TileProps {
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
-	onClick(sceneId: SCENE_ID): void;
+	onClick(tileConfig: TileConfig): void;
 }
 
 export const Tile = ({
@@ -171,11 +171,7 @@ export const Tile = ({
 				role="gridcell"
 				className={classNames(classes.tileWall, classes.tileEntry)}
 				onClick={() => {
-					if (!tileConfig.sceneId) {
-						return;
-					}
-
-					onClick(tileConfig.sceneId);
+					onClick(tileConfig);
 				}}
 			/>
 		);
