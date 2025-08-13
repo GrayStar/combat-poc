@@ -155,9 +155,10 @@ export const Tile = ({
 	}
 
 	if (tileConfig.tileTypeId === TILE_TYPE_ID.WALL) {
+		const outerBr = getOuterWallBorderRadius(grid, x, y, borderRadius);
 		const br = getWallBorderRadius(grid, x, y, borderRadius);
 		return (
-			<div role="gridcell" className={classes.tileWall}>
+			<div role="gridcell" className={classes.tileWall} style={{ borderRadius: outerBr }}>
 				<div className={classes.tileWallRiser} style={{ borderRadius: br }} />
 				<div className={classes.tileWallShadow} style={{ borderRadius: br }} />
 			</div>
@@ -239,37 +240,108 @@ export const Tile = ({
 	return <div role="gridcell" className={classes.tileEmpty} />;
 };
 
+function inBounds(grid: TileConfig[][], cx: number, cy: number) {
+	const totalRows = grid.length;
+	const totalCols = totalRows > 0 ? grid[0].length : 0;
+	if (cy >= 0 && cy < totalRows && cx >= 0 && cx < totalCols) {
+		return true;
+	}
+	return false;
+}
+
+function getTileSafe(grid: TileConfig[][], cx: number, cy: number): TileConfig | undefined {
+	if (inBounds(grid, cx, cy)) {
+		return grid[cy][cx];
+	}
+	return undefined;
+}
+
+function isWall(grid: TileConfig[][], cx: number, cy: number): boolean {
+	const tile = getTileSafe(grid, cx, cy);
+	if (tile && tile.tileTypeId === TILE_TYPE_ID.WALL) {
+		return true;
+	}
+	return false;
+}
+
+function isEmpty(grid: TileConfig[][], cx: number, cy: number): boolean {
+	const tile = getTileSafe(grid, cx, cy);
+	if (!tile || tile.tileTypeId === TILE_TYPE_ID.EMPTY) {
+		return true;
+	}
+	return false;
+}
+
 function getWallBorderRadius(grid: TileConfig[][], x: number, y: number, radius: number): string {
-	const H = grid.length;
-	const W = grid[0].length;
-	const inBounds = (cx: number, cy: number) => cy >= 0 && cy < H && cx >= 0 && cx < W;
-	const isWall = (cx: number, cy: number) => inBounds(cx, cy) && grid[cy][cx].tileTypeId === TILE_TYPE_ID.WALL;
+	const hasWallTop = isWall(grid, x, y - 1);
+	const hasWallRight = isWall(grid, x + 1, y);
+	const hasWallBottom = isWall(grid, x, y + 1);
+	const hasWallLeft = isWall(grid, x - 1, y);
 
-	const top = isWall(x, y - 1);
-	const right = isWall(x + 1, y);
-	const bottom = isWall(x, y + 1);
-	const left = isWall(x - 1, y);
+	let topLeftRadius = 0;
+	let topRightRadius = 0;
+	let bottomRightRadius = 0;
+	let bottomLeftRadius = 0;
 
-	// Initial outer radii: only when the edge is exposed to floor
-	let tl = !(top || left) ? radius : 0;
-	let tr = !(top || right) ? radius : 0;
-	let br = !(bottom || right) ? radius : 0;
-	let bl = !(bottom || left) ? radius : 0;
+	if (!hasWallTop && !hasWallLeft) {
+		topLeftRadius = radius;
+	}
+	if (!hasWallTop && !hasWallRight) {
+		topRightRadius = radius;
+	}
+	if (!hasWallBottom && !hasWallRight) {
+		bottomRightRadius = radius;
+	}
+	if (!hasWallBottom && !hasWallLeft) {
+		bottomLeftRadius = radius;
+	}
 
-	// Diagonal suppression rule:
-	// In 2x2 blocks where walls are diagonal and floors are the other diagonal,
-	// square off the wall corner that faces the other diagonal wall.
-	const tlDiagWall = isWall(x - 1, y - 1);
-	const trDiagWall = isWall(x + 1, y - 1);
-	const brDiagWall = isWall(x + 1, y + 1);
-	const blDiagWall = isWall(x - 1, y + 1);
+	const hasDiagonalWallTopLeft = isWall(grid, x - 1, y - 1);
+	const hasDiagonalWallTopRight = isWall(grid, x + 1, y - 1);
+	const hasDiagonalWallBottomRight = isWall(grid, x + 1, y + 1);
+	const hasDiagonalWallBottomLeft = isWall(grid, x - 1, y + 1);
 
-	if (tl && tlDiagWall) tl = 0; // top-left corner faces a diagonal wall
-	if (tr && trDiagWall) tr = 0; // top-right corner faces a diagonal wall
-	if (br && brDiagWall) br = 0; // bottom-right corner faces a diagonal wall
-	if (bl && blDiagWall) bl = 0; // bottom-left corner faces a diagonal wall
+	if (topLeftRadius !== 0 && hasDiagonalWallTopLeft) {
+		topLeftRadius = 0;
+	}
+	if (topRightRadius !== 0 && hasDiagonalWallTopRight) {
+		topRightRadius = 0;
+	}
+	if (bottomRightRadius !== 0 && hasDiagonalWallBottomRight) {
+		bottomRightRadius = 0;
+	}
+	if (bottomLeftRadius !== 0 && hasDiagonalWallBottomLeft) {
+		bottomLeftRadius = 0;
+	}
 
-	return `${tl}px ${tr}px ${br}px ${bl}px`;
+	return `${topLeftRadius}px ${topRightRadius}px ${bottomRightRadius}px ${bottomLeftRadius}px`;
+}
+
+function getOuterWallBorderRadius(grid: TileConfig[][], x: number, y: number, radius: number): string {
+	const isTopEmpty = isEmpty(grid, x, y - 1);
+	const isRightEmpty = isEmpty(grid, x + 1, y);
+	const isBottomEmpty = isEmpty(grid, x, y + 1);
+	const isLeftEmpty = isEmpty(grid, x - 1, y);
+
+	let topLeftRadius = 0;
+	let topRightRadius = 0;
+	let bottomRightRadius = 0;
+	let bottomLeftRadius = 0;
+
+	if (isTopEmpty && isLeftEmpty) {
+		topLeftRadius = radius;
+	}
+	if (isTopEmpty && isRightEmpty) {
+		topRightRadius = radius;
+	}
+	if (isBottomEmpty && isRightEmpty) {
+		bottomRightRadius = radius;
+	}
+	if (isBottomEmpty && isLeftEmpty) {
+		bottomLeftRadius = radius;
+	}
+
+	return `${topLeftRadius}px ${topRightRadius}px ${bottomRightRadius}px ${bottomLeftRadius}px`;
 }
 
 function getFloorCornerFlags(
