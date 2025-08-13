@@ -133,7 +133,6 @@ interface TileProps {
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
-	onClick(tileConfig: TileConfig): void;
 }
 
 export const Tile = ({
@@ -146,7 +145,6 @@ export const Tile = ({
 	wallColor,
 	ceilingColor,
 	wallHeight,
-	onClick,
 }: TileProps) => {
 	const { classes } = useStyles({ borderRadius, floorColor, wallColor, ceilingColor, wallHeight });
 
@@ -162,18 +160,6 @@ export const Tile = ({
 				<div className={classes.tileWallRiser} style={{ borderRadius: br }} />
 				<div className={classes.tileWallShadow} style={{ borderRadius: br }} />
 			</div>
-		);
-	}
-
-	if (tileConfig.tileTypeId === TILE_TYPE_ID.DOOR) {
-		return (
-			<button
-				role="gridcell"
-				className={classNames(classes.tileWall, classes.tileEntry)}
-				onClick={() => {
-					onClick(tileConfig);
-				}}
-			/>
 		);
 	}
 

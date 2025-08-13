@@ -6,15 +6,13 @@ interface UseStyleProps extends Record<string, unknown> {
 	rows: number;
 	columns: number;
 	tileSize: number;
-	borderRadius: number;
 }
 
-const useStyles = tss.withParams<UseStyleProps>().create(({ rows, columns, tileSize, borderRadius }) => ({
+const useStyles = tss.withParams<UseStyleProps>().create(({ rows, columns, tileSize }) => ({
 	grid: {
 		display: 'grid',
 		gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
 		gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
-		borderRadius: `${borderRadius}px`,
 	},
 }));
 
@@ -26,7 +24,6 @@ interface TileGridProps {
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
-	onTileClick(tileConfig: TileConfig): void;
 }
 
 export const Grid = ({
@@ -37,11 +34,10 @@ export const Grid = ({
 	ceilingColor,
 	wallColor,
 	wallHeight,
-	onTileClick,
 }: TileGridProps) => {
 	const rows = data.length;
 	const columns = data[0]?.length ?? 0;
-	const { classes } = useStyles({ rows, columns, tileSize, borderRadius });
+	const { classes } = useStyles({ rows, columns, tileSize });
 
 	return (
 		<div role="grid" aria-rowcount={rows} aria-colcount={columns} className={classes.grid}>
@@ -57,7 +53,6 @@ export const Grid = ({
 						wallColor={wallColor}
 						ceilingColor={ceilingColor}
 						wallHeight={wallHeight}
-						onClick={onTileClick}
 						floorColor={floorColor}
 					/>
 				))

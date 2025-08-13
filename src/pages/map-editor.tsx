@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { tss } from '@/styles';
 import { cloneDeep } from 'lodash';
-import { SCENE_ID, TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
+import { TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
 import { EditTileModal } from '@/components/map-editor/edit-tile-modal';
 import { scenes } from './map';
 import { Tile } from '@/components/tile-map/tile';
@@ -26,10 +26,6 @@ const brushes: Record<TILE_TYPE_ID, Brush> = {
 		brushId: TILE_TYPE_ID.WALL,
 		title: 'Wall',
 	},
-	[TILE_TYPE_ID.DOOR]: {
-		brushId: TILE_TYPE_ID.DOOR,
-		title: 'Door',
-	},
 };
 
 interface UseStyleProps extends Record<string, unknown> {
@@ -37,40 +33,41 @@ interface UseStyleProps extends Record<string, unknown> {
 	rows: number;
 	columns: number;
 	showGrid: boolean;
+	isAddingObject: boolean;
 }
 
-const useStyles = tss.withParams<UseStyleProps>().create(({ showGrid, size, rows, columns, ...theme }) => ({
-	mapEditor: {
-		display: 'grid',
-		gridTemplateColumns: `repeat(${columns}, ${size}px)`,
-		gridTemplateRows: `repeat(${rows}, ${size}px)`,
-	},
-	mapTile: {
-		borderLeft: `${showGrid ? 1 : 0}px solid ${theme.colors.gray700}`,
-		borderBottom: `${showGrid ? 1 : 0}px solid ${theme.colors.gray700}`,
-	},
-	renderJson: {
-		padding: 16,
-		maxHeight: 256,
-		borderRadius: 8,
-		overflowY: 'auto',
-		whiteSpace: 'pre-wrap',
-		color: theme.colors.gray600,
-		backgroundColor: 'rgba(0,0,0,0.32)',
-		'& .string': {
-			color: 'rgb(190, 136, 112)',
+const useStyles = tss
+	.withParams<UseStyleProps>()
+	.create(({ showGrid, size, rows, columns, isAddingObject, ...theme }) => ({
+		mapEditor: {
+			display: 'grid',
+			gridTemplateColumns: `repeat(${columns}, ${size}px)`,
+			gridTemplateRows: `repeat(${rows}, ${size}px)`,
 		},
-		'& .number': {
-			color: 'rgb(177, 198, 161)',
+		mapTile: {
+			position: 'relative',
+			'&:after': {
+				inset: 0,
+				zIndex: 3,
+				content: '""',
+				opacity: 0.32,
+				position: 'absolute',
+				border: `${showGrid ? 1 : 0}px solid ${isAddingObject ? theme.colors.success : theme.colors.white}`,
+			},
+			'&:hover:after': {
+				opacity: 1,
+			},
 		},
-		'& .boolean, & .null': {
-			color: 'rgb(84, 132, 186)',
+		renderJson: {
+			padding: 16,
+			maxHeight: 256,
+			borderRadius: 8,
+			overflowY: 'auto',
+			whiteSpace: 'pre-wrap',
+			color: theme.colors.gray600,
+			backgroundColor: 'rgba(0,0,0,0.32)',
 		},
-		'& .key': {
-			color: 'rgb(158, 213, 250)',
-		},
-	},
-}));
+	}));
 
 export const MapEditor = () => {
 	const [showGrid, setShowGrid] = useState(true);
@@ -79,7 +76,9 @@ export const MapEditor = () => {
 		rows: 7,
 		columns: 9,
 	});
-	const [selectedBrushId, setSelectedBrushId] = useState<TILE_TYPE_ID>(TILE_TYPE_ID.FLOOR);
+	const [selectedBrushId, setSelectedBrushId] = useState<TILE_TYPE_ID>(TILE_TYPE_ID.WALL);
+	const [isAddingObject, setIsAddingObject] = useState(false);
+
 	const [mapData, setMapData] = useState<TileConfig[][]>([]);
 	const [tileToEditCoords, setTileToEditCoords] = useState<{ x: number; y: number }>();
 	const tileToEdit = useMemo(() => {
@@ -91,7 +90,7 @@ export const MapEditor = () => {
 	}, [tileToEditCoords]);
 
 	const { theme } = useTheme();
-	const { classes } = useStyles({ ...formValues, showGrid });
+	const { classes } = useStyles({ ...formValues, showGrid, isAddingObject });
 
 	useEffect(() => {
 		if (formValues.rows > 0 && formValues.columns > 0) {
@@ -119,6 +118,17 @@ export const MapEditor = () => {
 				tileTypeId: selectedBrushId,
 				tileTypeDescription: brushes[selectedBrushId].title,
 			};
+
+			return clone;
+		});
+	};
+
+	const handleAddObjectToTileAtCoord = (x: number, y: number) => {
+		setMapData((d) => {
+			const clone = cloneDeep(d);
+			const selectedTile = clone[y][x];
+
+			console.log('selected tile', selectedTile);
 
 			return clone;
 		});
@@ -177,6 +187,12 @@ export const MapEditor = () => {
 										key={`${x}-${y}`}
 										className={classes.mapTile}
 										onClick={() => {
+											if (isAddingObject) {
+												handleAddObjectToTileAtCoord(x, y);
+												setIsAddingObject(false);
+												return;
+											}
+
 											handleTileClick(x, y);
 										}}
 									>
@@ -190,9 +206,6 @@ export const MapEditor = () => {
 											wallColor={theme.colors.gray700}
 											ceilingColor={theme.colors.gray600}
 											wallHeight={16}
-											onClick={() => {
-												return;
-											}}
 										/>
 									</div>
 								))
@@ -202,66 +215,110 @@ export const MapEditor = () => {
 					<Col>
 						<h2 className="mb-2">Settings</h2>
 						<Form onSubmit={handleFormSubmit}>
-							<Form.Group className="mb-4">
-								<Form.Label>tile size</Form.Label>
-								<Form.Control
-									type="number"
-									name="rows"
-									value={formValues.size}
-									onChange={({ currentTarget }) => {
-										setFormValues((v) => ({
-											...v,
-											size: parseInt(currentTarget.value, 10),
-										}));
-									}}
-								/>
-							</Form.Group>
-							<Form.Group className="mb-4">
-								<Form.Label>Rows</Form.Label>
-								<Form.Control
-									type="number"
-									name="rows"
-									value={formValues.rows}
-									onChange={({ currentTarget }) => {
-										setFormValues((v) => ({
-											...v,
-											rows: parseInt(currentTarget.value, 10),
-										}));
-									}}
-								/>
-							</Form.Group>
-							<Form.Group className="mb-4">
-								<Form.Label>Columns</Form.Label>
-								<Form.Control
-									type="number"
-									name="rows"
-									value={formValues.columns}
-									onChange={({ currentTarget }) => {
-										setFormValues((v) => ({
-											...v,
-											columns: parseInt(currentTarget.value, 10),
-										}));
-									}}
-								/>
-							</Form.Group>
-							<Form.Group className="mb-4">
-								<Form.Label>Brushes</Form.Label>
-								{Object.values(brushes).map((b) => (
-									<Form.Check
-										key={b.brushId}
-										id={b.brushId}
-										type="radio"
-										name="brush"
-										value={b.brushId}
-										label={b.title}
-										checked={selectedBrushId === b.brushId}
-										onChange={() => {
-											setSelectedBrushId(b.brushId);
-										}}
-									/>
-								))}
-							</Form.Group>
+							<fieldset disabled={isAddingObject}>
+								<Row>
+									<Col>
+										<Form.Group className="mb-4">
+											<Form.Label>Tile Size</Form.Label>
+											<Form.Control
+												type="number"
+												name="rows"
+												value={formValues.size}
+												onChange={({ currentTarget }) => {
+													setFormValues((v) => ({
+														...v,
+														size: parseInt(currentTarget.value, 10),
+													}));
+												}}
+											/>
+										</Form.Group>
+									</Col>
+								</Row>
+								<Row>
+									<Col>
+										<Form.Group className="mb-4">
+											<Form.Label>Rows</Form.Label>
+											<Form.Control
+												type="number"
+												name="rows"
+												value={formValues.rows}
+												onChange={({ currentTarget }) => {
+													setFormValues((v) => ({
+														...v,
+														rows: parseInt(currentTarget.value, 10),
+													}));
+												}}
+											/>
+										</Form.Group>
+									</Col>
+									<Col>
+										<Form.Group className="mb-4">
+											<Form.Label>Columns</Form.Label>
+											<Form.Control
+												type="number"
+												name="rows"
+												value={formValues.columns}
+												onChange={({ currentTarget }) => {
+													setFormValues((v) => ({
+														...v,
+														columns: parseInt(currentTarget.value, 10),
+													}));
+												}}
+											/>
+										</Form.Group>
+									</Col>
+								</Row>
+							</fieldset>
 						</Form>
+						<Row>
+							<Col>
+								<Form.Group className="mb-4">
+									<Form.Label>Tile Brushes</Form.Label>
+									{Object.values(brushes).map((b) => (
+										<Form.Check
+											key={b.brushId}
+											id={b.brushId}
+											type="radio"
+											name="brush"
+											value={b.brushId}
+											label={b.title}
+											checked={selectedBrushId === b.brushId}
+											onChange={() => {
+												setSelectedBrushId(b.brushId);
+											}}
+										/>
+									))}
+								</Form.Group>
+							</Col>
+							<Col>
+								<Form.Group>
+									<Form.Label>Map Objects</Form.Label>
+									<div>
+										{isAddingObject ? (
+											<Button
+												type="button"
+												variant="danger"
+												onClick={() => {
+													setIsAddingObject(false);
+												}}
+											>
+												Cancal Map Object
+											</Button>
+										) : (
+											<Button
+												type="button"
+												onClick={() => {
+													setShowGrid(true);
+													setIsAddingObject(true);
+												}}
+											>
+												Add Map Object
+											</Button>
+										)}
+									</div>
+								</Form.Group>
+							</Col>
+						</Row>
 					</Col>
 				</Row>
 				<Row>
