@@ -48,7 +48,6 @@ export const Grid = ({
 					<Tile
 						key={`${x}-${y}`}
 						tileConfig={value}
-						size={tileSize}
 						x={x}
 						y={y}
 						grid={data}

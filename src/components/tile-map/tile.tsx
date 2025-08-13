@@ -3,8 +3,8 @@ import { tss } from '@/styles';
 import classNames from 'classnames';
 
 interface UseStyleProps extends Record<string, unknown> {
-	size: number;
 	borderRadius: number;
+	floorColor: string;
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
@@ -12,12 +12,13 @@ interface UseStyleProps extends Record<string, unknown> {
 
 const useStyles = tss
 	.withParams<UseStyleProps>()
-	.create(({ size, borderRadius, wallColor, ceilingColor, wallHeight }) => ({
-		tileFloor: {
-			width: `${size}px`,
-			height: `${size}px`,
+	.create(({ borderRadius, floorColor, wallColor, ceilingColor, wallHeight }) => ({
+		tileConcaveCorners: {
+			width: '100%',
+			height: '100%',
 			position: 'relative',
 			'& .corner': {
+				zIndex: 2,
 				position: 'absolute',
 				width: `${borderRadius}px`,
 				height: `${borderRadius}px`,
@@ -45,6 +46,7 @@ const useStyles = tss
 				},
 			},
 			'& .corner-ceil': {
+				zIndex: 2,
 				position: 'absolute',
 				width: `${borderRadius}px`,
 				height: `${borderRadius}px`,
@@ -73,29 +75,38 @@ const useStyles = tss
 			},
 		},
 		tileWall: {
-			width: `${size}px`,
-			height: `${size}px`,
+			width: '100%',
+			height: '100%',
+			position: 'relative',
+			backgroundColor: floorColor,
+		},
+		tileWallRiser: {
+			width: '100%',
+			height: '100%',
+			zIndex: 2,
 			position: 'relative',
 			backgroundColor: wallColor,
-			'&:before': {
-				content: '""',
-				top: `-${wallHeight}px`,
-				left: 0,
-				position: 'absolute',
-				height: '100%',
-				width: '100%',
-				backgroundColor: ceilingColor,
-				borderRadius: 'inherit',
-				pointerEvents: 'none',
-			},
 			'&:after': {
-				zIndex: -1,
-				inset: 0,
-				borderRadius: 'inherit',
-				position: 'absolute',
+				left: 0,
 				content: '""',
-				boxShadow: `${wallHeight}px 0 0 rgba(0, 0, 0, 0.32)`,
+				width: '100%',
+				height: '100%',
+				position: 'absolute',
+				pointerEvents: 'none',
+				top: `-${wallHeight}px`,
+				borderRadius: 'inherit',
+				backgroundColor: ceilingColor,
 			},
+		},
+		tileWallShadow: {
+			top: 0,
+			left: 0,
+			zIndex: 1,
+			width: '100%',
+			height: '100%',
+			position: 'absolute',
+			backgroundColor: 'black',
+			boxShadow: `${wallHeight}px 0 0 rgba(0,0,0,0.32)`,
 		},
 		tileEntry: {
 			border: 0,
@@ -106,19 +117,19 @@ const useStyles = tss
 				display: 'none',
 			},
 		},
-		tileEmpty: {
-			width: `${size}px`,
-			height: `${size}px`,
+		tileFloor: {
+			backgroundColor: floorColor,
 		},
+		tileEmpty: {},
 	}));
 
 interface TileProps {
 	tileConfig: TileConfig;
-	size: number;
 	x: number;
 	y: number;
 	grid: TileConfig[][];
 	borderRadius: number;
+	floorColor: string;
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
@@ -127,17 +138,17 @@ interface TileProps {
 
 export const Tile = ({
 	tileConfig,
-	size,
 	x,
 	y,
 	grid,
 	borderRadius,
+	floorColor,
 	wallColor,
 	ceilingColor,
 	wallHeight,
 	onClick,
 }: TileProps) => {
-	const { classes } = useStyles({ borderRadius, size, wallColor, ceilingColor, wallHeight });
+	const { classes } = useStyles({ borderRadius, floorColor, wallColor, ceilingColor, wallHeight });
 
 	if (!tileConfig) {
 		return <div role="gridcell" className={classes.tileEmpty} />;
@@ -145,7 +156,12 @@ export const Tile = ({
 
 	if (tileConfig.tileTypeId === TILE_TYPE_ID.WALL) {
 		const br = getWallBorderRadius(grid, x, y, borderRadius);
-		return <div role="gridcell" className={classes.tileWall} style={{ borderRadius: br }} />;
+		return (
+			<div role="gridcell" className={classes.tileWall}>
+				<div className={classes.tileWallRiser} style={{ borderRadius: br }} />
+				<div className={classes.tileWallShadow} style={{ borderRadius: br }} />
+			</div>
+		);
 	}
 
 	if (tileConfig.tileTypeId === TILE_TYPE_ID.DOOR) {
@@ -164,12 +180,18 @@ export const Tile = ({
 		);
 	}
 
-	if (tileConfig.tileTypeId === TILE_TYPE_ID.FLOOR) {
+	if (tileConfig.tileTypeId === TILE_TYPE_ID.FLOOR || tileConfig.tileTypeId === TILE_TYPE_ID.EMPTY) {
 		const flags = getFloorCornerFlags(grid, x, y);
 		const r = borderRadius;
 
 		return (
-			<div role="gridcell" className={classes.tileFloor}>
+			<div
+				role="gridcell"
+				className={classNames(classes.tileConcaveCorners, {
+					[classes.tileFloor]: tileConfig.tileTypeId === TILE_TYPE_ID.FLOOR,
+					[classes.tileEmpty]: tileConfig.tileTypeId === TILE_TYPE_ID.EMPTY,
+				})}
+			>
 				{flags.tl && (
 					<>
 						<svg className="corner corner-tl" width={r} height={r} viewBox={`0 0 ${r} ${r}`}>
@@ -218,8 +240,6 @@ export const Tile = ({
 };
 
 function getWallBorderRadius(grid: TileConfig[][], x: number, y: number, radius: number): string {
-	if (grid[y][x].tileTypeId !== TILE_TYPE_ID.WALL) return '0';
-
 	const H = grid.length;
 	const W = grid[0].length;
 	const inBounds = (cx: number, cy: number) => cy >= 0 && cy < H && cx >= 0 && cx < W;
@@ -257,9 +277,6 @@ function getFloorCornerFlags(
 	x: number,
 	y: number
 ): { tl: boolean; tr: boolean; br: boolean; bl: boolean } {
-	// Only floors get concave corners
-	if (grid[y][x].tileTypeId !== TILE_TYPE_ID.FLOOR) return { tl: false, tr: false, br: false, bl: false };
-
 	const H = grid.length;
 	const W = grid[0].length;
 	const inBounds = (cx: number, cy: number) => cy >= 0 && cy < H && cx >= 0 && cx < W;

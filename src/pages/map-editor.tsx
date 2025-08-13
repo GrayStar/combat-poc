@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { tss } from '@/styles';
 import { cloneDeep } from 'lodash';
-import { TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
+import { SCENE_ID, TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
 import { EditTileModal } from '@/components/map-editor/edit-tile-modal';
 import { scenes } from './map';
+import { Tile } from '@/components/tile-map/tile';
+import { useTheme } from '@/styles/hooks/use-theme';
 
 type Brush = {
 	brushId: TILE_TYPE_ID;
@@ -34,20 +36,21 @@ interface UseStyleProps extends Record<string, unknown> {
 	size: number;
 	rows: number;
 	columns: number;
+	showGrid: boolean;
 }
 
-const useStyles = tss.withParams<UseStyleProps>().create(({ size, rows, columns, ...theme }) => ({
+const useStyles = tss.withParams<UseStyleProps>().create(({ showGrid, size, rows, columns, ...theme }) => ({
 	mapEditor: {
 		display: 'grid',
 		gridTemplateColumns: `repeat(${columns}, ${size}px)`,
 		gridTemplateRows: `repeat(${rows}, ${size}px)`,
 	},
 	mapTile: {
-		border: `1px solid ${theme.colors.gray700}`,
+		borderLeft: `${showGrid ? 1 : 0}px solid ${theme.colors.gray700}`,
+		borderBottom: `${showGrid ? 1 : 0}px solid ${theme.colors.gray700}`,
 	},
 	renderJson: {
 		padding: 16,
-
 		maxHeight: 256,
 		borderRadius: 8,
 		overflowY: 'auto',
@@ -70,6 +73,7 @@ const useStyles = tss.withParams<UseStyleProps>().create(({ size, rows, columns,
 }));
 
 export const MapEditor = () => {
+	const [showGrid, setShowGrid] = useState(true);
 	const [formValues, setFormValues] = useState({
 		size: 48,
 		rows: 7,
@@ -86,15 +90,16 @@ export const MapEditor = () => {
 		return mapData[tileToEditCoords.y][tileToEditCoords.x];
 	}, [tileToEditCoords]);
 
-	const { classes } = useStyles(formValues);
+	const { theme } = useTheme();
+	const { classes } = useStyles({ ...formValues, showGrid });
 
 	useEffect(() => {
 		if (formValues.rows > 0 && formValues.columns > 0) {
 			setMapData(() =>
 				Array.from({ length: formValues.rows }, () =>
 					Array.from({ length: formValues.columns }, () => ({
-						tileTypeId: TILE_TYPE_ID.FLOOR,
-						tileTypeDescription: 'Floor',
+						tileTypeId: TILE_TYPE_ID.EMPTY,
+						tileTypeDescription: 'Empty',
 					}))
 				)
 			);
@@ -110,16 +115,10 @@ export const MapEditor = () => {
 	const handleTileClick = (x: number, y: number) => {
 		setMapData((d) => {
 			const clone = cloneDeep(d);
-			clone[y][x] =
-				selectedBrushId === TILE_TYPE_ID.EMPTY
-					? {
-							tileTypeId: TILE_TYPE_ID.FLOOR,
-							tileTypeDescription: 'Floor',
-					  }
-					: {
-							tileTypeId: selectedBrushId,
-							tileTypeDescription: brushes[selectedBrushId].title,
-					  };
+			clone[y][x] = {
+				tileTypeId: selectedBrushId,
+				tileTypeDescription: brushes[selectedBrushId].title,
+			};
 
 			return clone;
 		});
@@ -160,6 +159,17 @@ export const MapEditor = () => {
 				<Row className="mb-4">
 					<Col>
 						<h2 className="mb-2">Canvas</h2>
+						<Form.Check
+							type="checkbox"
+							name="show-grid"
+							id="show-grid"
+							value="SHOW_GRID"
+							label="Show Grid"
+							checked={showGrid}
+							onChange={() => {
+								setShowGrid((show) => !show);
+							}}
+						/>
 						<div className={classes.mapEditor}>
 							{mapData.map((col, y) =>
 								col.map((tile, x) => (
@@ -170,17 +180,20 @@ export const MapEditor = () => {
 											handleTileClick(x, y);
 										}}
 									>
-										{tile?.tileTypeDescription}
-										{tile?.tileTypeId === TILE_TYPE_ID.DOOR && (
-											<Button
-												onClick={(event) => {
-													event.stopPropagation();
-													setTileToEditCoords({ x, y });
-												}}
-											>
-												Edit
-											</Button>
-										)}
+										<Tile
+											tileConfig={tile}
+											x={x}
+											y={y}
+											grid={mapData}
+											borderRadius={8}
+											floorColor={theme.colors.gray800}
+											wallColor={theme.colors.gray700}
+											ceilingColor={theme.colors.gray600}
+											wallHeight={16}
+											onClick={() => {
+												return;
+											}}
+										/>
 									</div>
 								))
 							)}

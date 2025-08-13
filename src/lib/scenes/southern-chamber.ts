@@ -3,11 +3,11 @@ import { SCENE_ID, TILE_TYPE_ID } from '@/lib/map-editor/types';
 export const southernChamber = [
 	[
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
@@ -32,75 +32,21 @@ export const southernChamber = [
 			tileTypeDescription: 'Wall',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-	],
-	[
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.WALL,
-			tileTypeDescription: 'Wall',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.WALL,
-			tileTypeDescription: 'Wall',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 	],
 	[
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.WALL,
-			tileTypeDescription: 'Wall',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
-			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
@@ -113,33 +59,33 @@ export const southernChamber = [
 		},
 		{
 			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeDescription: 'Floor',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeDescription: 'Floor',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.WALL,
+			tileTypeDescription: 'Wall',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.EMPTY,
+			tileTypeDescription: 'Floor',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 	],
 	[
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.WALL,
-			tileTypeDescription: 'Wall',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.WALL,
-			tileTypeDescription: 'Wall',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.WALL,
-			tileTypeDescription: 'Wall',
-		},
-		{
-			tileTypeId: TILE_TYPE_ID.WALL,
-			tileTypeDescription: 'Wall',
 		},
 		{
 			tileTypeId: TILE_TYPE_ID.WALL,
@@ -151,44 +97,98 @@ export const southernChamber = [
 		},
 		{
 			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeDescription: 'Floor',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeDescription: 'Floor',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.WALL,
+			tileTypeDescription: 'Wall',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.EMPTY,
+			tileTypeDescription: 'Floor',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 	],
 	[
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.WALL,
+			tileTypeDescription: 'Wall',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.WALL,
+			tileTypeDescription: 'Wall',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.WALL,
+			tileTypeDescription: 'Wall',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.WALL,
+			tileTypeDescription: 'Wall',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.WALL,
+			tileTypeDescription: 'Wall',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
+			tileTypeDescription: 'Floor',
+		},
+	],
+	[
+		{
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 		{
-			tileTypeId: TILE_TYPE_ID.FLOOR,
+			tileTypeId: TILE_TYPE_ID.EMPTY,
+			tileTypeDescription: 'Floor',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.EMPTY,
+			tileTypeDescription: 'Floor',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.EMPTY,
+			tileTypeDescription: 'Floor',
+		},
+		{
+			tileTypeId: TILE_TYPE_ID.EMPTY,
 			tileTypeDescription: 'Floor',
 		},
 	],
