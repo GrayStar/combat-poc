@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { tss } from '@/styles';
 import { cloneDeep } from 'lodash';
-import { TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
+import { MapObjectComposite, TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
 import { EditTileModal } from '@/components/map-editor/edit-tile-modal';
-import { scenes } from './map';
 import { Tile } from '@/components/tile-map/tile';
 import { useTheme } from '@/styles/hooks/use-theme';
 
@@ -80,14 +79,7 @@ export const MapEditor = () => {
 	const [isAddingObject, setIsAddingObject] = useState(false);
 
 	const [mapData, setMapData] = useState<TileConfig[][]>([]);
-	const [tileToEditCoords, setTileToEditCoords] = useState<{ x: number; y: number }>();
-	const tileToEdit = useMemo(() => {
-		if (!tileToEditCoords) {
-			return undefined;
-		}
-
-		return mapData[tileToEditCoords.y][tileToEditCoords.x];
-	}, [tileToEditCoords]);
+	const [objectCoords, setObjectCoords] = useState<{ x: number; y: number }>();
 
 	const { theme } = useTheme();
 	const { classes } = useStyles({ ...formValues, showGrid, isAddingObject });
@@ -123,40 +115,33 @@ export const MapEditor = () => {
 		});
 	};
 
-	const handleAddObjectToTileAtCoord = (x: number, y: number) => {
-		setMapData((d) => {
-			const clone = cloneDeep(d);
-			const selectedTile = clone[y][x];
-
-			console.log('selected tile', selectedTile);
-
-			return clone;
-		});
-	};
-
-	const handleEditTileModalSubmit = (tileConfig: TileConfig) => {
-		if (!tileToEditCoords) {
+	const handleEditTileModalSubmit = (mapObject: MapObjectComposite) => {
+		if (!objectCoords) {
 			return;
 		}
 
 		setMapData((d) => {
 			const clone = cloneDeep(d);
-			clone[tileToEditCoords.y][tileToEditCoords.x] = tileConfig;
+			const existingTile = clone[objectCoords.y][objectCoords.x];
+
+			clone[objectCoords.y][objectCoords.x] = {
+				...existingTile,
+				mapObject,
+			};
+
 			return clone;
 		});
 
-		setTileToEditCoords(undefined);
+		setObjectCoords(undefined);
 	};
 
 	return (
 		<>
 			<EditTileModal
-				show={!!tileToEditCoords}
-				tileToEdit={tileToEdit}
-				sceneIds={Object.keys(scenes)}
+				show={!!objectCoords}
 				onSubmit={handleEditTileModalSubmit}
 				onHide={() => {
-					setTileToEditCoords(undefined);
+					setObjectCoords(undefined);
 				}}
 			/>
 
@@ -188,7 +173,8 @@ export const MapEditor = () => {
 										className={classes.mapTile}
 										onClick={() => {
 											if (isAddingObject) {
-												handleAddObjectToTileAtCoord(x, y);
+												setObjectCoords({ x, y });
+												// handleAddObjectToTileAtCoord(x, y);
 												setIsAddingObject(false);
 												return;
 											}

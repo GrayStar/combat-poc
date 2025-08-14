@@ -1,6 +1,8 @@
-import { TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
+import { mapObjectIsDoor, TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
 import { tss } from '@/styles';
 import classNames from 'classnames';
+import { JSX } from 'react';
+import { Button } from 'react-bootstrap';
 
 interface UseStyleProps extends Record<string, unknown> {
 	borderRadius: number;
@@ -13,6 +15,10 @@ interface UseStyleProps extends Record<string, unknown> {
 const useStyles = tss
 	.withParams<UseStyleProps>()
 	.create(({ borderRadius, floorColor, wallColor, ceilingColor, wallHeight }) => ({
+		tileOuter: {
+			width: '100%',
+			height: '100%',
+		},
 		tileConcaveCorners: {
 			width: '100%',
 			height: '100%',
@@ -121,6 +127,12 @@ const useStyles = tss
 			backgroundColor: floorColor,
 		},
 		tileEmpty: {},
+		mapObjectOuter: {
+			inset: 0,
+			zIndex: 0,
+			position: 'absolute',
+			backgroundColor: 'hotpink',
+		},
 	}));
 
 interface TileProps {
@@ -148,22 +160,7 @@ export const Tile = ({
 }: TileProps) => {
 	const { classes } = useStyles({ borderRadius, floorColor, wallColor, ceilingColor, wallHeight });
 
-	if (!tileConfig) {
-		return <div role="gridcell" className={classes.tileEmpty} />;
-	}
-
-	if (tileConfig.tileTypeId === TILE_TYPE_ID.WALL) {
-		const outerBr = getOuterWallBorderRadius(grid, x, y, borderRadius);
-		const br = getWallBorderRadius(grid, x, y, borderRadius);
-		return (
-			<div role="gridcell" className={classes.tileWall} style={{ borderRadius: outerBr }}>
-				<div className={classes.tileWallRiser} style={{ borderRadius: br }} />
-				<div className={classes.tileWallShadow} style={{ borderRadius: br }} />
-			</div>
-		);
-	}
-
-	if (tileConfig.tileTypeId === TILE_TYPE_ID.FLOOR || tileConfig.tileTypeId === TILE_TYPE_ID.EMPTY) {
+	const getConcaveTile = () => {
 		const flags = getFloorCornerFlags(grid, x, y);
 		const r = borderRadius;
 
@@ -217,9 +214,33 @@ export const Tile = ({
 				)}
 			</div>
 		);
-	}
+	};
 
-	return <div role="gridcell" className={classes.tileEmpty} />;
+	const markupByTileTypeId: Record<TILE_TYPE_ID, () => JSX.Element> = {
+		[TILE_TYPE_ID.EMPTY]: getConcaveTile,
+		[TILE_TYPE_ID.FLOOR]: getConcaveTile,
+		[TILE_TYPE_ID.WALL]: () => {
+			const outerBr = getOuterWallBorderRadius(grid, x, y, borderRadius);
+			const br = getWallBorderRadius(grid, x, y, borderRadius);
+			return (
+				<div role="gridcell" className={classes.tileWall} style={{ borderRadius: outerBr }}>
+					<div className={classes.tileWallRiser} style={{ borderRadius: br }} />
+					<div className={classes.tileWallShadow} style={{ borderRadius: br }} />
+				</div>
+			);
+		},
+	};
+
+	return (
+		<div role="gridcell" className={classes.tileOuter}>
+			{markupByTileTypeId[tileConfig.tileTypeId]()}
+			{tileConfig.mapObject && (
+				<div className={classes.mapObjectOuter}>
+					{mapObjectIsDoor(tileConfig.mapObject) && <Button>door</Button>}
+				</div>
+			)}
+		</div>
+	);
 };
 
 function inBounds(grid: TileConfig[][], cx: number, cy: number) {

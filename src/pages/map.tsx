@@ -1,11 +1,9 @@
 import { useRef, useState } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import { Grid } from '@/components/tile-map/grid';
-import { SCENE_ID, TileConfig } from '@/lib/map-editor/types';
-import { centralChamber } from '@/lib/scenes/central-chamber';
+import { SCENE_ID } from '@/lib/scenes/types';
 import { tss } from '@/styles';
 import { useTheme } from '@/styles/hooks/use-theme';
-import { southernChamber } from '@/lib/scenes/southern-chamber';
 
 const useStyles = tss.create(() => ({
 	fadeEnter: {
@@ -23,10 +21,6 @@ const useStyles = tss.create(() => ({
 		transition: 'opacity 200ms',
 	},
 }));
-export const scenes: Record<SCENE_ID, TileConfig[][]> = {
-	[SCENE_ID.CENTRAL_CHAMBER]: centralChamber,
-	[SCENE_ID.SOUTHERN_CHAMBER]: southernChamber,
-};
 
 export function MapDemo() {
 	const { classes } = useStyles();
@@ -51,7 +45,7 @@ export function MapDemo() {
 					unmountOnExit
 				>
 					<div ref={nodeRef}>
-						<Grid
+						{/* <Grid
 							data={scenes[room]}
 							tileSize={48}
 							borderRadius={8}
@@ -66,7 +60,7 @@ export function MapDemo() {
 
 								setRoom(tileConfig.sceneId);
 							}}
-						/>
+						/> */}
 					</div>
 				</CSSTransition>
 			</SwitchTransition>
