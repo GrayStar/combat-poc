@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import { Grid } from '@/components/tile-map/grid';
-import { SCENE_ID } from '@/lib/scenes/types';
+import { SCENE_ID, scenes } from '@/lib/scenes/types';
 import { tss } from '@/styles';
 import { useTheme } from '@/styles/hooks/use-theme';
 
@@ -45,7 +45,7 @@ export function MapDemo() {
 					unmountOnExit
 				>
 					<div ref={nodeRef}>
-						{/* <Grid
+						<Grid
 							data={scenes[room]}
 							tileSize={48}
 							borderRadius={8}
@@ -53,14 +53,10 @@ export function MapDemo() {
 							wallColor={theme.colors.gray700}
 							ceilingColor={theme.colors.gray600}
 							wallHeight={16}
-							onTileClick={(tileConfig) => {
-								if (!tileConfig.sceneId) {
-									return;
-								}
-
-								setRoom(tileConfig.sceneId);
+							onDoorClick={(mapObjectDoor) => {
+								setRoom(mapObjectDoor.sceneId);
 							}}
-						/> */}
+						/>
 					</div>
 				</CSSTransition>
 			</SwitchTransition>

@@ -174,7 +174,6 @@ export const MapEditor = () => {
 										onClick={() => {
 											if (isAddingObject) {
 												setObjectCoords({ x, y });
-												// handleAddObjectToTileAtCoord(x, y);
 												setIsAddingObject(false);
 												return;
 											}
@@ -192,6 +191,9 @@ export const MapEditor = () => {
 											wallColor={theme.colors.gray700}
 											ceilingColor={theme.colors.gray600}
 											wallHeight={16}
+											onDoorClick={() => {
+												return;
+											}}
 										/>
 									</div>
 								))

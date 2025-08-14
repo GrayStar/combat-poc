@@ -1,5 +1,5 @@
+import { MapObjectDoor, TileConfig } from '@/lib/map-editor/types';
 import { Tile } from '@/components/tile-map/tile';
-import { TileConfig } from '@/lib/map-editor/types';
 import { tss } from '@/styles';
 
 interface UseStyleProps extends Record<string, unknown> {
@@ -24,6 +24,7 @@ interface TileGridProps {
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
+	onDoorClick(mapObjectDoor: MapObjectDoor): void;
 }
 
 export const Grid = ({
@@ -34,6 +35,7 @@ export const Grid = ({
 	ceilingColor,
 	wallColor,
 	wallHeight,
+	onDoorClick,
 }: TileGridProps) => {
 	const rows = data.length;
 	const columns = data[0]?.length ?? 0;
@@ -54,6 +56,7 @@ export const Grid = ({
 						ceilingColor={ceilingColor}
 						wallHeight={wallHeight}
 						floorColor={floorColor}
+						onDoorClick={onDoorClick}
 					/>
 				))
 			)}

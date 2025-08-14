@@ -1,8 +1,7 @@
-import { mapObjectIsDoor, TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
-import { tss } from '@/styles';
-import classNames from 'classnames';
 import { JSX } from 'react';
-import { Button } from 'react-bootstrap';
+import classNames from 'classnames';
+import { MapObjectDoor, mapObjectIsDoor, TILE_TYPE_ID, TileConfig } from '@/lib/map-editor/types';
+import { tss } from '@/styles';
 
 interface UseStyleProps extends Record<string, unknown> {
 	borderRadius: number;
@@ -18,6 +17,7 @@ const useStyles = tss
 		tileOuter: {
 			width: '100%',
 			height: '100%',
+			position: 'relative',
 		},
 		tileConcaveCorners: {
 			width: '100%',
@@ -130,8 +130,19 @@ const useStyles = tss
 		mapObjectOuter: {
 			inset: 0,
 			zIndex: 0,
+			display: 'flex',
 			position: 'absolute',
+			alignItems: 'center',
+			justifyContent: 'center',
+			// backgroundColor: 'hotpink',
+		},
+		door: {
+			border: 0,
+			appearance: 'none',
 			backgroundColor: 'hotpink',
+			borderRadius: `${borderRadius}px`,
+			width: `calc(100% - ${borderRadius}px)`,
+			height: `calc(100% - ${borderRadius}px)`,
 		},
 	}));
 
@@ -145,6 +156,7 @@ interface TileProps {
 	wallColor: string;
 	ceilingColor: string;
 	wallHeight: number;
+	onDoorClick(mapObjectDoor: MapObjectDoor): void;
 }
 
 export const Tile = ({
@@ -157,6 +169,7 @@ export const Tile = ({
 	wallColor,
 	ceilingColor,
 	wallHeight,
+	onDoorClick,
 }: TileProps) => {
 	const { classes } = useStyles({ borderRadius, floorColor, wallColor, ceilingColor, wallHeight });
 
@@ -236,7 +249,18 @@ export const Tile = ({
 			{markupByTileTypeId[tileConfig.tileTypeId]()}
 			{tileConfig.mapObject && (
 				<div className={classes.mapObjectOuter}>
-					{mapObjectIsDoor(tileConfig.mapObject) && <Button>door</Button>}
+					{mapObjectIsDoor(tileConfig.mapObject) && (
+						<button
+							className={classes.door}
+							onClick={() => {
+								if (!tileConfig.mapObject) {
+									return;
+								}
+
+								onDoorClick(tileConfig.mapObject);
+							}}
+						/>
+					)}
 				</div>
 			)}
 		</div>
